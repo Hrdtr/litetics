@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.7
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.6...v1.0.0-rc.7)
+
+### 🏡 Chore
+
+- **handler:** Improve hit result types ([44c87cc](https://github.com/Hrdtr/litetics/commit/44c87cc))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.6
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.5...v1.0.0-rc.6)
