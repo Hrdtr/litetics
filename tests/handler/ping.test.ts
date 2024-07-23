@@ -56,7 +56,7 @@ describe('handler:ping', () => {
     const setResponseHeader = vi.fn();
 
     const result: PingResult = await ping(getRequestHeader, setResponseHeader);
-    expect(result).toEqual({ error: 'Bad Request', status: 400 });
+    expect(result).toEqual({ data: null, error: 'Bad Request', status: 400 });
   });
 
   it('should return error "Bad Request" and status 400 if if-modified-since header is a future date', async () => {
@@ -65,7 +65,7 @@ describe('handler:ping', () => {
     const setResponseHeader = vi.fn();
 
     const result: PingResult = await ping(getRequestHeader, setResponseHeader);
-    expect(result).toEqual({ error: 'Bad Request', status: 400 });
+    expect(result).toEqual({ data: null, error: 'Bad Request', status: 400 });
   });
 
   it('should return error "Bad Request" and status 400 if if-modified-since header is a non-standard date format', async () => {
@@ -74,6 +74,6 @@ describe('handler:ping', () => {
     const setResponseHeader = vi.fn();
 
     const result: PingResult = await ping(getRequestHeader, setResponseHeader);
-    expect(result).toEqual({ error: 'Bad Request', status: 400 });
+    expect(result).toEqual({ data: null, error: 'Bad Request', status: 400 });
   });
 });
