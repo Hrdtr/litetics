@@ -1,17 +1,17 @@
 import { isValidUrl } from "../utils/is-valid-url"
 
-export enum AnalyticsEventType {
-  UNLOAD = 'unload',
-  LOAD = 'load',
+const AnalyticsEventType = {
+  UNLOAD: 'unload',
+  LOAD: 'load',
   // These events must still be sent with the unload event when calling
   // sendBeacon to ensure there are no duplicate events.
-  PAGEHIDE = 'pagehide',
-  BEFOREUNLOAD = 'beforeunload',
+  PAGEHIDE: 'pagehide',
+  BEFOREUNLOAD: 'beforeunload',
   // Custom events that are not part of the event listener spec, but is
   // used to determine what state visibilitychange is in.
-  VISIBILITYCHANGE = 'visibilitychange',
-  HIDDEN = 'hidden',
-  VISIBLE = 'visible',
+  VISIBILITYCHANGE: 'visibilitychange',
+  HIDDEN: 'hidden',
+  VISIBLE: 'visible',
 };
 
 export interface AnalyticsOptions {
