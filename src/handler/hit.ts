@@ -50,7 +50,15 @@ export const hit = async <
     return null
   }
 
-  const body = await getRequestBody()  
+  let body = await getRequestBody()
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body)
+    } catch {
+      log.error('Failed to parse body as JSON')
+      return null
+    }
+  }
   const eventType = body.e
 
   switch (eventType) {
@@ -111,7 +119,6 @@ export const hit = async <
         medium: utmMedium,
         source: utmSource
       } = parseUTMParams(url)
-    
 
       return {
         type: 'load',
