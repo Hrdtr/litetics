@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.9
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.8...v1.0.0-rc.9)
+
+### 🩹 Fixes
+
+- Wrong event data referrer known type ([6c21139](https://github.com/Hrdtr/litetics/commit/6c21139))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.8
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.7...v1.0.0-rc.8)
