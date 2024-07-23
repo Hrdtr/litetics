@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.0-rc.5
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.4...v1.0.0-rc.5)
+
+### 🚀 Enhancements
+
+- Accept custom event type and its additional data ([195cb4a](https://github.com/Hrdtr/litetics/commit/195cb4a))
+
+### 💅 Refactors
+
+- Use single data type output ([20a232d](https://github.com/Hrdtr/litetics/commit/20a232d))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.4
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.3...v1.0.0-rc.4)
