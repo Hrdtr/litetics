@@ -4,6 +4,7 @@ export type EventData = {
   pathname: string,
   isUniqueUser: boolean,
   isUniquePage: boolean,
+  type: 'pageview' | (string & { _?: never }),
   // optional fields
   durationMs: number | null,
   browserName: string | null,
@@ -32,4 +33,3 @@ export type EventData = {
     [key: string]: string | number | boolean | null | undefined
   } | null
 }
-

@@ -12,6 +12,7 @@ describe('handler/:hit', () => {
         u: 'https://example.com/path?utm_source=test',
         p: true,
         q: false,
+        a: 'pageview',
         r: 'https://referrer.com',
         t: 'Europe/London',
         d: { customKey: 'customValue' }
@@ -42,6 +43,7 @@ describe('handler/:hit', () => {
           pathname: '/path',
           isUniqueUser: true,
           isUniquePage: false,
+          type: 'pageview',
           durationMs: null,
           browserName: 'Mobile Safari',
           browserVersion: '3.1.1',
@@ -76,7 +78,8 @@ describe('handler/:hit', () => {
         b: 'test-beacon-id',
         u: 'https://example.com',
         p: true,
-        q: true
+        q: true,
+        a: 'pageview',
       };
 
       const getRequestBody = vi.fn().mockResolvedValue(body);
@@ -92,6 +95,7 @@ describe('handler/:hit', () => {
           pathname: '/',
           isUniqueUser: true,
           isUniquePage: true,
+          type: 'pageview',
           durationMs: null,
           browserName: null,
           browserVersion: null,
@@ -127,6 +131,7 @@ describe('handler/:hit', () => {
         u: 'https://example.com',
         p: true,
         q: true,
+        a: 'pageview',
         r: 'invalid-url'
       };
 
@@ -143,6 +148,7 @@ describe('handler/:hit', () => {
           pathname: '/',
           isUniqueUser: true,
           isUniquePage: true,
+          type: 'pageview',
           durationMs: null,
           browserName: null,
           browserVersion: null,
@@ -200,7 +206,8 @@ describe('handler/:hit', () => {
         b: 'test-beacon-id',
         u: 'https://example.com',
         p: true,
-        q: true
+        q: true,
+        a: 'pageview',
       };
 
       const getRequestBody = vi.fn().mockResolvedValue(body);
@@ -216,7 +223,7 @@ describe('handler/:hit', () => {
       expect(result).toBeNull();
     });
 
-    it('should handle unknown event type', async () => {
+    it('should handle unknown event', async () => {
       const body = {
         e: 'unknown' as 'load' | 'unload',
         b: 'test-beacon-id'

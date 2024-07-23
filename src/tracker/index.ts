@@ -1,6 +1,7 @@
+import { HitEventLoadRequestBody, HitEventUnloadRequestBody } from "../handler";
 import { isValidUrl } from "../utils/is-valid-url"
 
-const AnalyticsEventType = {
+const AnalyticsEvent = {
   UNLOAD: 'unload',
   LOAD: 'load',
   // These events must still be sent with the unload event when calling
@@ -12,7 +13,7 @@ const AnalyticsEventType = {
   VISIBILITYCHANGE: 'visibilitychange',
   HIDDEN: 'hidden',
   VISIBLE: 'visible',
-};
+} as const;
 
 export interface AnalyticsOptions {
   apiEndpoint: {
@@ -45,6 +46,31 @@ export const createTracker = ({
    * the tradeoff for bundle size and performance.
    */
   const generateUid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+
+  /**
+   * Ping the server with the cache endpoint and read the last modified header to determine
+   * if the user is unique or not.
+   *
+   * If the response is not cached, then the user is unique. If it is cached, then the
+   * browser will send an If-Modified-Since header indicating the user is not unique.
+   *
+   * @param {string} url URL to ping.
+   * @returns {Promise<boolean>} Is the cache unique or not.
+   */
+  const ping = (url: string): Promise<boolean> =>
+    new Promise((resolve) => {
+      // We use XHR here because fetch GET request requires a CORS
+      // header to be set on the server, which adds additional requests and
+      // latency to ping the server.
+      const xhr = new XMLHttpRequest()
+      xhr.addEventListener('load', () => {
+        // @ts-expect-error - Double equals reduces bundle size.
+        resolve(xhr.responseText == 0)
+      })
+      xhr.open('GET', url)
+      xhr.setRequestHeader('Content-Type', 'text/plain')
+      xhr.send()
+    })
 
   /**
    * Unique ID linking multiple beacon events together for the same page view.
@@ -126,31 +152,6 @@ export const createTracker = ({
       }
 
     /**
-     * Ping the server with the cache endpoint and read the last modified header to determine
-     * if the user is unique or not.
-     *
-     * If the response is not cached, then the user is unique. If it is cached, then the
-     * browser will send an If-Modified-Since header indicating the user is not unique.
-     *
-     * @param {string} url URL to ping.
-     * @returns {Promise<boolean>} Is the cache unique or not.
-     */
-    const pingCache = (url: string): Promise<boolean> =>
-      new Promise((resolve) => {
-        // We use XHR here because fetch GET request requires a CORS
-        // header to be set on the server, which adds additional requests and
-        // latency to ping the server.
-        const xhr = new XMLHttpRequest()
-        xhr.addEventListener('load', () => {
-          // @ts-expect-error - Double equals reduces bundle size.
-          resolve(xhr.responseText == 0)
-        })
-        xhr.open('GET', url)
-        xhr.setRequestHeader('Content-Type', 'text/plain')
-        xhr.send()
-      })
-
-    /**
      * Send a load beacon event to the server when the page is loaded.
      * @returns {Promise<void>}
      */
@@ -158,32 +159,30 @@ export const createTracker = ({
       // Returns true if it is the user's first visit to page, false if not.
       // The u query parameter is a cache busting parameter which is the page host and path
       // without protocol or query parameters.
-      pingCache(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname))
-        .then((isFirstVisit) => {
-          // We use fetch here because it is more reliable than XHR.
-          fetch(hitEndpoint, {
-            method: 'POST',
-            /**
-             * Payload to send to the server.
-             * @type {AnalyticsHitPayload}
-             */
-            body: JSON.stringify({
-              'b': uid,
-              'e': AnalyticsEventType.LOAD,
-              'u': location.href,
-              'r': document.referrer,
-              'p': isUnique,
-              'q': isFirstVisit,
-              /**
-               * Get timezone for country detection.
-               * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
-               */
-              't': Intl.DateTimeFormat().resolvedOptions().timeZone,
-            }),
-            // Will make the response opaque, but we don't need it.
-            mode: 'no-cors',
-          })
-        })
+      const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname))
+      await fetch(hitEndpoint, {
+        method: 'POST',
+        /**
+         * Payload to send to the server.
+         * @type {HitEventLoadRequestBody}
+         */
+        body: JSON.stringify({
+          'e': AnalyticsEvent.LOAD,
+          'b': uid,
+          'u': location.href,
+          'p': isUnique,
+          'q': isFirstVisit,
+          'a': 'pageview',
+          'r': document.referrer,
+          /**
+           * Get timezone for country detection.
+           * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
+           */
+          't': Intl.DateTimeFormat().resolvedOptions().timeZone,
+        } satisfies HitEventLoadRequestBody),
+        // Will make the response opaque, but we don't need it.
+        mode: 'no-cors',
+      })
     }
 
     /**
@@ -204,13 +203,13 @@ export const createTracker = ({
           hitEndpoint,
           /**
            * Payload to send to the server.
-           * @type {AnalyticsDurationPayload}
+           * @type {HitEventUnloadRequestBody}
            */
           JSON.stringify({
+            'e': AnalyticsEvent.UNLOAD,
             'b': uid,
-            'e': AnalyticsEventType.UNLOAD,
             'm': Date.now() - hiddenTotalTime,
-          }),
+          } satisfies HitEventUnloadRequestBody),
         )
       }
 
@@ -221,24 +220,22 @@ export const createTracker = ({
     // Prefer pagehide if available because it's more reliable than unload.
     // We also prefer pagehide because it doesn't break bf-cache.
     if ('onpagehide' in self) {
-      addEventListener(AnalyticsEventType.PAGEHIDE, sendUnloadBeacon, { capture: true })
+      addEventListener(AnalyticsEvent.PAGEHIDE, sendUnloadBeacon, { capture: true })
     }
     else {
       // Otherwise, use unload and beforeunload. Using both is significantly more
       // reliable than just one due to browser differences. However, this will break
       // bf-cache, but it's better than nothing.
-      addEventListener(AnalyticsEventType.BEFOREUNLOAD, sendUnloadBeacon, {
-        capture: true,
-      })
-      addEventListener(AnalyticsEventType.UNLOAD, sendUnloadBeacon, { capture: true })
+      addEventListener(AnalyticsEvent.BEFOREUNLOAD, sendUnloadBeacon, { capture: true })
+      addEventListener(AnalyticsEvent.UNLOAD, sendUnloadBeacon, { capture: true })
     }
 
     // Visibility change events allow us to track whether a user is tabbed out and
     // correct our timings.
     addEventListener(
-      AnalyticsEventType.VISIBILITYCHANGE,
+      AnalyticsEvent.VISIBILITYCHANGE,
       () => {
-        if (document.visibilityState == AnalyticsEventType.HIDDEN) {
+        if (document.visibilityState == AnalyticsEvent.HIDDEN) {
           // Page is hidden, record the current time.
           hiddenStartTime = Date.now()
         }
@@ -251,7 +248,7 @@ export const createTracker = ({
       { capture: true },
     )
 
-    pingCache(pingEndpoint).then((response: boolean) => {
+    ping(pingEndpoint).then((response: boolean) => {
       // The response is a boolean indicating if the user is unique or not.
       isUnique = response
 
@@ -284,6 +281,96 @@ export const createTracker = ({
     })
   }
 
+  /**
+   * Map of custom event tracking (track method usage) keys to beacon IDs.
+   */
+  const trackWithDurationMap = new Map<string, {
+    uid: string
+    startTime: number
+  }>()
+
+  /**
+   * Tracks an event with the given key and data.
+   *
+   * @param {string} key - The key of the event to track.
+   * @param {Object.<string, (string | number | boolean | null | undefined)>} data - The data associated with the event.
+   * @param {Object} options - The options for tracking the event.
+   * @param {boolean} [options.withDuration] - Whether to track the duration of the event.
+   * @return {Promise<void>} A promise that resolves when the event is tracked.
+   */
+  const track = async (
+    key: string,
+    data: { type: string } & {
+      [key: string]: string | number | boolean | null | undefined
+    },
+    options?: {
+      withDuration?: boolean
+    }
+  ): Promise<void> => {
+    const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname) + '&k=' + encodeURIComponent(key))
+    const uid = generateUid()
+    if (options?.withDuration) {
+      trackWithDurationMap.set(key, { uid, startTime: Date.now() })
+    }
+
+    const { type, ...rest } = data
+    // We use fetch here because it is more reliable than XHR.
+    await fetch(hitEndpoint, {
+      method: 'POST',
+      /**
+       * Payload to send to the server.
+       * @type {HitEventLoadRequestBody}
+       */
+      body: JSON.stringify({
+        'e': AnalyticsEvent.LOAD,
+        'b': uid,
+        'u': location.href,
+        'p': isUnique,
+        'q': isFirstVisit,
+        'a': type,
+        'r': document.referrer,
+        /**
+         * Get timezone for country detection.
+         * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
+         */
+        't': Intl.DateTimeFormat().resolvedOptions().timeZone,
+        'd': rest,
+      } satisfies HitEventLoadRequestBody),
+      // Will make the response opaque, but we don't need it.
+      mode: 'no-cors',
+    })
+  }
+
+  /**
+   * Tracks the end of a given key and sends an unload event to the server.
+   *
+   * @param {string} key - The key to track the end of.
+   * @return {Promise<void>} A promise that resolves when the unload event is sent.
+   */
+  const trackEndOf = async (key: string): Promise<void> => {
+    const { uid, startTime } = trackWithDurationMap.get(key) ?? {}
+    if (!uid || !startTime) {
+      // If the key is not being tracked, do nothing.
+      return
+    }
+
+    await fetch(hitEndpoint, {
+      method: 'POST',
+      /**
+       * Payload to send to the server.
+       * @type {HitEventUnloadRequestBody}
+       */
+      body: JSON.stringify({
+        'e': AnalyticsEvent.UNLOAD,
+        'b': uid,
+        'm': Date.now() - startTime,
+      } satisfies HitEventUnloadRequestBody),
+      // Will make the response opaque, but we don't need it.
+      mode: 'no-cors',
+    })
+      .then(() => trackWithDurationMap.delete(key))
+  }
+
   return {
     uid,
     isUnique,
@@ -291,5 +378,7 @@ export const createTracker = ({
     hiddenTotalTime,
     isUnloadCalled,
     register,
+    track,
+    trackEndOf,
   }
 }

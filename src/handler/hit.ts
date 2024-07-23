@@ -11,11 +11,12 @@ import type { EventData } from '../types'
 const log = consola.withTag('litetics:hit')
 
 export interface HitEventLoadRequestBody {
-  e: 'load' // Event type
+  e: 'load' // Event name
   b: string // Beacon ID
   u: string // Page URL
   p: boolean // If the user is unique or not
   q: boolean // If this is the first time the user has visited this specific page
+  a: 'pageview' | (string & { _?: never }) // Event type
   r?: string // Referrer URL
   t?: string // Timezone of the user
   d?: { // Optional custom event data
@@ -24,7 +25,7 @@ export interface HitEventLoadRequestBody {
 }
 
 export interface HitEventUnloadRequestBody {
-  e: 'unload' // Event type
+  e: 'unload' // Event name
   b: string // Beacon ID
   m: number // Duration in MS
 }
@@ -67,6 +68,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         u: pageUrl,
         p: isUniqueUser,
         q: isUniquePage,
+        a: type,
         r: referrerUrl = null,
         t: timezone = null,
         d: additional = null,
@@ -127,6 +129,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           pathname,
           isUniqueUser,
           isUniquePage,
+          type,
           // optional fields
           durationMs: null,
           browserName,
@@ -171,7 +174,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
     }
   
     default: {
-      log.debug('Unknown event type received: ' + eventType)
+      log.debug('Unknown event received: ' + eventType)
       return null
     }
   }
