@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.0-rc.8
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.7...v1.0.0-rc.8)
+
+### 💅 Refactors
+
+- Event data type ([46176b7](https://github.com/Hrdtr/litetics/commit/46176b7))
+
+### 📖 Documentation
+
+- Add docstring comments ([18b79dc](https://github.com/Hrdtr/litetics/commit/18b79dc))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.7
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.6...v1.0.0-rc.7)
