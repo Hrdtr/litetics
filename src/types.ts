@@ -100,7 +100,7 @@ export type EventData = {
   /**
    * Whether the referer is known or not.
    */
-  referrerKnown: string | null,
+  referrerKnown: boolean | null,
   /**
    * The medium of the referer.
    */
