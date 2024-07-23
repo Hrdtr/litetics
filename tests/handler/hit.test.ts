@@ -18,7 +18,7 @@ describe('handler/:hit', () => {
         d: { customKey: 'customValue' }
       };
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
@@ -33,7 +33,7 @@ describe('handler/:hit', () => {
         }
       });
 
-      const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
         event: 'load',
@@ -82,10 +82,10 @@ describe('handler/:hit', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
         event: 'load',
@@ -135,10 +135,10 @@ describe('handler/:hit', () => {
         r: 'invalid-url'
       };
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
         event: 'load',
@@ -186,10 +186,10 @@ describe('handler/:hit', () => {
         m: 1234
       };
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestBody = vi.fn<[], HitEventUnloadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      const result: HitResult<'unload'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['unload'] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
         event: 'unload',
@@ -210,7 +210,7 @@ describe('handler/:hit', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn((name) => {
         if (name === 'user-agent') {
           return 'Googlebot/2.1 (+http://www.google.com/bot.html)';
@@ -218,7 +218,7 @@ describe('handler/:hit', () => {
         return undefined;
       });
 
-      const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toBeNull();
     });
@@ -232,7 +232,7 @@ describe('handler/:hit', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      const result: HitResult<'load' | 'unload'> | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult[keyof HitResult] | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toBeNull();
     });

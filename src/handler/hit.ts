@@ -30,19 +30,20 @@ export interface HitEventUnloadRequestBody {
   m: number // Duration in MS
 }
 
-export interface HitResult<T extends 'load' | 'unload' = 'load'> {
-  event: T,
-  data: {
-    load: EventData,
-    unload: Pick<EventData, 'bid'> & {
-      durationMs: NonNullable<EventData['durationMs']>
-    },
-  }[T]
+export type HitResult = {
+  load: {
+    event: 'load',
+    data: EventData
+  },
+  unload: {
+    event: 'unload',
+    data: Pick<EventData, 'bid'> & { durationMs: NonNullable<EventData['durationMs']> }
+  }
 }
 export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadRequestBody)>(
   getRequestBody: () => T | Promise<T>,
   getRequestHeader: (name: string) => string | undefined,
-): Promise<HitResult<T['e']> | null> => {
+): Promise<(0 extends 1 & T ? HitResult[keyof HitResult] : HitResult[T['e']]) | null> => {
   const acceptLanguage = getRequestHeader('accept-language')
   const uaString = getRequestHeader('user-agent')
   if (uaString && isbot(uaString)) {
@@ -156,7 +157,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           utmSource,
           additional
         }
-      } as HitResult<'load'>
+      } as HitResult[T['e']]
     }
 
     case 'unload': {
@@ -170,7 +171,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           bid,
           durationMs
         }
-      } as HitResult<'unload'>
+      } as HitResult[T['e']]
     }
   
     default: {
