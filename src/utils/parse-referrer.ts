@@ -1,53 +1,53 @@
 import { referrers } from "../data/referrers";
 
 interface Referrer {
+  host: string;
+  path: string
+  queryString: string | null
   known: boolean;
-  name: string | null;
   medium: string;
+  name: string | null;
   searchParameter: string | null;
   searchTerm: string | null;
-  url: URL;
   _src: string;
 }
 
 export const parseReferrer = (referrerURL: string, currentURL?: string): Referrer => {
+  const url = new URL(referrerURL);
   const referrer: Referrer = {
+    host: url.host,
+    path: url.pathname,
+    queryString: url.searchParams.toString() || null,
     known: false,
-    name: null,
     medium: 'unknown',
+    name: null,
     searchParameter: null,
     searchTerm: null,
-    url: new URL(referrerURL),
     _src: referrerURL,
   }
-  const hostname = referrer.url.hostname
-
-  const known = Boolean(~['http:', 'https:'].indexOf(referrer.url.protocol || ''));
-  if (!known) return referrer
-  
-  referrer.known = known
 
   if (currentURL) {
     const currURL = new URL(currentURL);
     const currHostname = currURL.hostname;
 
-    if (currHostname === hostname) {
+    if (currHostname === url.hostname) {
       referrer.medium = 'internal';
       return referrer;
     }
   }
 
-  let foundReferrer = lookupReferrer(hostname, true);
+  let foundReferrer = lookupReferrer(url.hostname, true);
   if (!foundReferrer) {
-    foundReferrer = lookupReferrer(hostname, false);
+    foundReferrer = lookupReferrer(url.hostname, false);
     if (!foundReferrer) return referrer
   }
 
+  referrer.known = true;
   referrer.name = foundReferrer.name;
   referrer.medium = foundReferrer.medium;
 
   if (foundReferrer.medium === 'search' && foundReferrer.parameters) {
-    const pqs = Object.fromEntries(referrer.url.searchParams);
+    const pqs = Object.fromEntries(url.searchParams);
     for (const param in pqs) {
       const val = pqs[param];
       if (foundReferrer.parameters.includes(param.toLowerCase())) {

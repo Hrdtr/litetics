@@ -44,9 +44,9 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
   getRequestBody: () => T | Promise<T>,
   getRequestHeader: (name: string) => string | undefined,
 ): Promise<(0 extends 1 & T ? HitResult[keyof HitResult] : HitResult[T['e']]) | null> => {
-  const acceptLanguage = getRequestHeader('accept-language')
-  const uaString = getRequestHeader('user-agent')
-  if (uaString && isbot(uaString)) {
+  const acceptLanguage = getRequestHeader('accept-language') || null
+  const userAgent = getRequestHeader('user-agent') || null
+  if (userAgent && isbot(userAgent)) {
     log.debug('User agent is a bot')
     return null
   }
@@ -60,17 +60,27 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       return null
     }
   }
+
   const eventType = body.e
 
   switch (eventType) {
     case 'load': {
+      if (body.u && !isValidUrl(body.u)) {
+        // early return if the URL is invalid
+        return null
+      }
+      if (body.r && !isValidUrl(body.r)) {
+        // omit the referrer if the referrer URL is invalid
+        body.r = undefined
+      }
+
       const {
         b: bid,
         u: pageUrl,
         p: isUniqueUser,
         q: isUniquePage,
         a: type,
-        r: referrerUrl = null,
+        r: referrer = null,
         t: timezone = null,
         d: additional = null,
       } = body
@@ -79,42 +89,42 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       const hostname = url.hostname
       const pathname = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '')
     
-      const ua = uaString && uaString.length > 0 ? parseUserAgent(uaString) : null
-      const browserName = ua?.browser.name ?? null
-      const browserVersion = ua?.browser.version ?? null
-      const browserEngineName = ua?.engine.name ?? null
-      const browserEngineVersion = ua?.engine.version ?? null
-      const deviceType = ua?.device.type ?? 'desktop'
-      const deviceVendor = ua?.device.vendor ?? null
-      const deviceModel = ua?.device.model ?? null
-      const cpuArchitecture = ua?.cpu.architecture ?? null
-      const osName = ua?.os.name ?? null
-      const osVersion = ua?.os.version ?? null
+      const ua = userAgent && userAgent.length > 0 ? parseUserAgent(userAgent) : null
+      const browserName = ua?.browser.name || null
+      const browserVersion = ua?.browser.version || null
+      const browserEngineName = ua?.engine.name || null
+      const browserEngineVersion = ua?.engine.version || null
+      const deviceType = ua?.device.type || 'desktop'
+      const deviceVendor = ua?.device.vendor || null
+      const deviceModel = ua?.device.model || null
+      const cpuArchitecture = ua?.cpu.architecture || null
+      const osName = ua?.os.name || null
+      const osVersion = ua?.os.version || null
     
       const {
+        host: referrerHost = null,
+        path: referrerPath = null,
+        queryString: referrerQueryString = null,
         known: referrerKnown = null,
         medium: referrerMedium = null,
         name: referrerName = null,
         searchParameter: referrerSearchParameter = null,
         searchTerm: referrerSearchTerm = null,
-      } = referrerUrl && isValidUrl(referrerUrl) ? parseReferrer(referrerUrl) : {
-        known: null,
-        medium: null,
-        name: null,
-        searchParameter: null,
-        searchTerm: null
-      }
+      } = referrer && isValidUrl(referrer) ? parseReferrer(referrer) : {}
     
       const country = timezone && timezone.length > 0
         ? getCountryCodeByTimezone(timezone)
         : null
     
-      const language = acceptLanguage && acceptLanguage.length > 0
-        ? (parseAcceptLanguage(acceptLanguage).shift() ?? null)
-        : null
-      const languageCode = language?.code ?? null
-      const languageScript = language?.script ?? null
-      const languageRegion = language?.region ?? null
+      const languages = acceptLanguage && acceptLanguage.length > 0
+        ? parseAcceptLanguage(acceptLanguage) || []
+        : []
+      const languageCode = languages[0]?.code || null
+      const languageScript = languages[0]?.script || null
+      const languageRegion = languages[0]?.region || null
+      const secondaryLanguageCode = languages[1]?.code || null
+      const secondaryLanguageScript = languages[1]?.script || null
+      const secondaryLanguageRegion = languages[1]?.region || null
     
       const {
         campaign: utmCampaign,
@@ -133,6 +143,9 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           type,
           // optional fields
           durationMs: null,
+          timezone,
+          country,
+          userAgent,
           browserName,
           browserVersion,
           browserEngineName,
@@ -143,15 +156,22 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           cpuArchitecture,
           osName,
           osVersion,
+          referrer,
+          referrerHost,
+          referrerPath,
+          referrerQueryString,
           referrerKnown,
           referrerMedium,
           referrerName,
           referrerSearchParameter,
           referrerSearchTerm,
-          country,
+          acceptLanguage,
           languageCode,
           languageScript,
           languageRegion,
+          secondaryLanguageCode,
+          secondaryLanguageScript,
+          secondaryLanguageRegion,
           utmCampaign,
           utmMedium,
           utmSource,

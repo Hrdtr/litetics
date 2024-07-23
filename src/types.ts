@@ -7,6 +7,9 @@ export type EventData = {
   type: 'pageview' | (string & { _?: never }),
   // optional fields
   durationMs: number | null,
+  timezone: string | null,
+  country: string | null,
+  userAgent: string | null, // raw user-agent header
   browserName: string | null,
   browserVersion: string | null,
   browserEngineName: string | null,
@@ -17,15 +20,22 @@ export type EventData = {
   cpuArchitecture: string | null,
   osName: string | null,
   osVersion: string | null,
-  referrerKnown: boolean | null,
+  referrer: string | null, // raw referer header
+  referrerHost: string | null,
+  referrerPath: string | null,
+  referrerQueryString: string | null,
+  referrerKnown: string | null
   referrerMedium: string | null,
   referrerName: string | null,
   referrerSearchParameter: string | null,
   referrerSearchTerm: string | null,
-  country: string | null,
+  acceptLanguage: string | null, // raw accept-language header
   languageCode: string | null,
   languageScript: string | null,
   languageRegion: string | null,
+  secondaryLanguageCode: string | null,
+  secondaryLanguageScript: string | null,
+  secondaryLanguageRegion: string | null,
   utmCampaign: string | null,
   utmMedium: string | null,
   utmSource: string | null,

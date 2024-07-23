@@ -11,11 +11,14 @@ describe('utils:parseReferrer', () => {
 
   it('should return referrer with internal medium if referrer and current URL are the same', () => {
     const result = parseReferrer('https://example.com', 'https://example.com');
+    expect(result.host).toBe('example.com');
     expect(result.medium).toBe('internal');
   });
 
   it('should handle known referrer with search medium and search parameters', () => {
     const result = parseReferrer('https://google.com/search?q=test', 'https://otherdomain.com');
+    expect(result.path).toBe('/search');
+    expect(result.queryString).toBe('q=test');
     expect(result.known).toBe(true);
     expect(result.medium).toBe('search');
     expect(result.searchParameter).toBe('q');
