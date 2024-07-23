@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.0-rc.4
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.3...v1.0.0-rc.4)
+
+### 🩹 Fixes
+
+- **tracker:** Wrap history function ([a6d8d0b](https://github.com/Hrdtr/litetics/commit/a6d8d0b))
+
+### 🏡 Chore
+
+- **tracker:** Use mapped object instead of enum for exported event types ([07e39f6](https://github.com/Hrdtr/litetics/commit/07e39f6))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.3
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.2...v1.0.0-rc.3)
