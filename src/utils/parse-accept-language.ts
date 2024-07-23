@@ -1,23 +1,38 @@
-export interface LanguageTag {
+/**
+ * Interface representing a language tag.
+ */
+export interface ParsedAcceptLanguage {
+  /** The language code. */
   code: string;
+  /** The region code. */
   region: string | null;
+  /** The script code. */
   script: string | null;
+  /** The quality of the language tag. */
   quality: number;
 }
 
-export function parseAcceptLanguage(acceptLanguage: string): LanguageTag[] {
+/**
+ * Parses the accept language header string and returns an array of language tags sorted by quality.
+ *
+ * @param {string} acceptLanguage - The accept language header string to parse.
+ * @return {ParsedAcceptLanguage[]} An array of language tags sorted by quality.
+ */
+export function parseAcceptLanguage(acceptLanguage: string): ParsedAcceptLanguage[] {
   if (!acceptLanguage) return [];
 
-  const parsedTags = acceptLanguage.split(',').map(lang => {
+  return acceptLanguage.split(',').map(lang => {
+    // Split the language tag by semicolon and get the code, region, and script
     const parts = lang.trim().split(';');
     const [codeRegionScript] = parts;
-    const quality = parts[1] ? Number.parseFloat(parts[1].split('=')[1]) : 1;
 
     const codeRegionScriptParts = codeRegionScript.split('-');
     const code = codeRegionScriptParts[0];
     let script = null;
     let region = null;
+    const quality = parts[1] ? Number.parseFloat(parts[1].split('=')[1]) : 1;
 
+    // Check if the language tag has region and script
     if (codeRegionScriptParts.length === 3) {
       [script, region] = codeRegionScriptParts.slice(1);
     } else if (codeRegionScriptParts.length === 2) {
@@ -36,8 +51,8 @@ export function parseAcceptLanguage(acceptLanguage: string): LanguageTag[] {
     }
 
     return { code, region, script, quality };
-  }).filter(Boolean) as LanguageTag[];
-
-  // Sort valid tags by quality in descending order
-  return parsedTags.sort((a, b) => b.quality - a.quality);
+  })
+    // Filter out invalid tags and sort tags by quality in descending order
+    .filter((tag): tag is ParsedAcceptLanguage => !!tag)
+    .sort((a, b) => b.quality - a.quality);
 }

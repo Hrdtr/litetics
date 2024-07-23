@@ -63,7 +63,7 @@ describe('handler/:hit', () => {
           referrerPath: '/',
           referrerQueryString: null,
           referrerKnown: false,
-          referrerMedium: 'unknown',
+          referrerMedium: null,
           referrerName: null,
           referrerSearchParameter: null,
           referrerSearchTerm: null,

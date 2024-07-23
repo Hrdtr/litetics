@@ -15,12 +15,27 @@ const AnalyticsEvent = {
   VISIBLE: 'visible',
 } as const;
 
-export interface AnalyticsOptions {
+/**
+ * Represents the options object for creating a new tracker.
+ */
+export interface CreateTrackerOptions {
+  /**
+   * The API endpoint to send hit events to.
+   */
   apiEndpoint: {
-    hit: string,
-    ping: string,
-  }
-  mode?: 'history' | 'hash',
+    /**
+     * The URL to send hit events to.
+     */
+    hit: string;
+    /**
+     * The URL to send ping events to.
+     */
+    ping: string;
+  };
+  /**
+   * The mode of tracking to use. Either 'history' (default) or 'hash'.
+   */
+  mode?: 'history' | 'hash';
 }
 
 export const createTracker = ({
@@ -29,7 +44,7 @@ export const createTracker = ({
     hit: hitEndpoint
   },
   mode = 'history'
-}: AnalyticsOptions) => {
+}: CreateTrackerOptions) => {
   if (!isValidUrl(hitEndpoint)) {
     throw new Error('`apiEndpoint.hit` must be a valid URL')
   }
