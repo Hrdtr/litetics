@@ -7,6 +7,16 @@ settings:
 importers:
 
   .:
+    dependencies:
+      consola:
+        specifier: ^3.2.3
+        version: 3.2.3
+      isbot:
+        specifier: ^5.1.13
+        version: 5.1.13
+      ua-parser-js:
+        specifier: ^1.0.38
+        version: 1.0.38
     devDependencies:
       '@commitlint/config-conventional':
         specifier: ^19.2.2
@@ -32,9 +42,6 @@ importers:
       commitlint:
         specifier: ^19.3.0
         version: 19.3.0(@types/node@20.14.11)(typescript@5.5.3)
-      consola:
-        specifier: ^3.2.3
-        version: 3.2.3
       eslint:
         specifier: ^9.6.0
         version: 9.7.0
@@ -47,9 +54,6 @@ importers:
       husky:
         specifier: ^9.0.11
         version: 9.1.1
-      isbot:
-        specifier: ^5.1.13
-        version: 5.1.13
       jiti:
         specifier: ^1.21.6
         version: 1.21.6
@@ -59,9 +63,6 @@ importers:
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
-      ua-parser-js:
-        specifier: ^1.0.38
-        version: 1.0.38
       unbuild:
         specifier: ^2.0.0
         version: 2.0.0(typescript@5.5.3)

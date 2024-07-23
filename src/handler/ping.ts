@@ -3,10 +3,8 @@ import { consola } from 'consola'
 const log = consola.withTag('litetics:ping')
 
 export type PingResult = {
-  data: '0' | '1',
-  status: number
-} | {
-  error: string,
+  data: '0' | '1' | null,
+  error?: string,
   status: number
 }
 
@@ -32,16 +30,18 @@ export const ping = async (
   if (Number.isNaN(lastModifiedTime) || lastModifiedDate.toUTCString() === 'Invalid Date') {
     log.error('Failed to parse if-modified-since header')
     return {
+      data: null,
+      status: 400,
       error: 'Bad Request',
-      status: 400
     }
   }
 
   if (lastModifiedTime > Date.now()) {
     log.error('if-modified-since header is a future date')
     return {
+      data: null,
+      status: 400,
       error: 'Bad Request',
-      status: 400
     }
   }
 
