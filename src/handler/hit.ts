@@ -31,7 +31,7 @@ export interface HitEventUnloadRequestBody {
 }
 
 export interface HitResult<T extends 'load' | 'unload' = 'load'> {
-  type: T,
+  event: T,
   data: {
     load: EventData,
     unload: Pick<EventData, 'bid'> & {
@@ -122,7 +122,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       } = parseUTMParams(url)
 
       return {
-        type: 'load',
+        event: 'load',
         data: {
           bid,
           hostname,
@@ -165,7 +165,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         m: durationMs
       } = body
       return {
-        type: 'unload',
+        event: 'unload',
         data: {
           bid,
           durationMs

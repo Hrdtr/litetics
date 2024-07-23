@@ -36,7 +36,7 @@ describe('handler/:hit', () => {
       const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
-        type: 'load',
+        event: 'load',
         data: {
           bid: 'test-beacon-id',
           hostname: 'example.com',
@@ -88,7 +88,7 @@ describe('handler/:hit', () => {
       const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
-        type: 'load',
+        event: 'load',
         data: {
           bid: 'test-beacon-id',
           hostname: 'example.com',
@@ -141,7 +141,7 @@ describe('handler/:hit', () => {
       const result: HitResult<'load'> | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
-        type: 'load',
+        event: 'load',
         data: {
           bid: 'test-beacon-id',
           hostname: 'example.com',
@@ -192,7 +192,7 @@ describe('handler/:hit', () => {
       const result: HitResult<'unload'> | null = await hit(getRequestBody, getRequestHeader);
 
       expect(result).toEqual({
-        type: 'unload',
+        event: 'unload',
         data: {
           bid: 'test-beacon-id',
           durationMs: 1234
