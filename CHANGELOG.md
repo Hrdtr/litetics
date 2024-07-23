@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.6
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.5...v1.0.0-rc.6)
+
+### 💅 Refactors
+
+- Rename hit result key type to event ([a2d958b](https://github.com/Hrdtr/litetics/commit/a2d958b))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.5
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.4...v1.0.0-rc.5)
