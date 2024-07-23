@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.3
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.2...v1.0.0-rc.3)
+
+### 🩹 Fixes
+
+- **handler:** Hit should try to parse request body to json ([3e21fa3](https://github.com/Hrdtr/litetics/commit/3e21fa3))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.2
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.1...v1.0.0-rc.2)
