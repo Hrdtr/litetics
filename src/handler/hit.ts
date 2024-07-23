@@ -6,7 +6,7 @@ import { parseAcceptLanguage } from '../utils/parse-accept-language'
 import { parseUserAgent } from '../utils/parse-user-agent'
 import { parseUTMParams } from '../utils/parse-utm-params'
 import { isValidUrl } from '../utils/is-valid-url'
-import type { EventData, EventDurationData } from '../types'
+import type { EventData } from '../types'
 
 const log = consola.withTag('litetics:hit')
 
@@ -33,16 +33,15 @@ export interface HitResult<T extends 'load' | 'unload' = 'load'> {
   type: T,
   data: {
     load: EventData,
-    unload: EventDurationData,
+    unload: Pick<EventData, 'bid'> & {
+      durationMs: NonNullable<EventData['durationMs']>
+    },
   }[T]
 }
-export const hit = async <
-  T extends HitEventLoadRequestBody | HitEventUnloadRequestBody,
-  U = HitResult<T['e']>
->(
+export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadRequestBody)>(
   getRequestBody: () => T | Promise<T>,
   getRequestHeader: (name: string) => string | undefined,
-): Promise<U | null> => {
+): Promise<HitResult<T['e']> | null> => {
   const acceptLanguage = getRequestHeader('accept-language')
   const uaString = getRequestHeader('user-agent')
   if (uaString && isbot(uaString)) {
@@ -129,6 +128,7 @@ export const hit = async <
           isUniqueUser,
           isUniquePage,
           // optional fields
+          durationMs: null,
           browserName,
           browserVersion,
           browserEngineName,
@@ -152,8 +152,8 @@ export const hit = async <
           utmMedium,
           utmSource,
           additional
-        } satisfies EventData
-      } as U
+        }
+      } as HitResult<'load'>
     }
 
     case 'unload': {
@@ -166,8 +166,8 @@ export const hit = async <
         data: {
           bid,
           durationMs
-        } satisfies EventDurationData
-      } as U
+        }
+      } as HitResult<'unload'>
     }
   
     default: {

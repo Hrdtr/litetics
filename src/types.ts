@@ -5,6 +5,7 @@ export type EventData = {
   isUniqueUser: boolean,
   isUniquePage: boolean,
   // optional fields
+  durationMs: number | null,
   browserName: string | null,
   browserVersion: string | null,
   browserEngineName: string | null,
@@ -32,7 +33,3 @@ export type EventData = {
   } | null
 }
 
-export type EventDurationData = {
-  bid: string,
-  durationMs: number,
-}
