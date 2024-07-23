@@ -108,20 +108,20 @@ export const createTracker = ({
        * @param {(string | URL)=} url - The URL to navigate to.
        * @returns {void}
        */
-    ) =>
-      function ([_state, _unused, url, ...rest]: Parameters<typeof historyPushState | typeof historyReplaceState>) {
+    ): typeof historyPushState | typeof historyReplaceState =>
+      function (state, unused, url, ...rest) {
         if (url && location.pathname !== new URL(url, location.href).pathname) {
           sendUnloadBeacon()
           // If the event is a history change, then we need to reset the id and timers
           // because the page is not actually reloading the script.
           cleanup()
           // @ts-expect-error
-          Reflect.apply(original, this, [_state, _unused, url, ...rest])
+          Reflect.apply(original, this, [state, unused, url, ...rest])
           sendLoadBeacon()
         }
         else {
           // @ts-expect-error
-          Reflect.apply(original, this, [_state, _unused, url, ...rest])
+          Reflect.apply(original, this, [state, unused, url, ...rest])
         }
       }
 
