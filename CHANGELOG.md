@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.10
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.9...v1.0.0-rc.10)
+
+### 🩹 Fixes
+
+- **handler:** Hit should also return the url query string ([7f56f7b](https://github.com/Hrdtr/litetics/commit/7f56f7b))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.9
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.8...v1.0.0-rc.9)
