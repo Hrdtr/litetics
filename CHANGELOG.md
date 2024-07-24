@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.11
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.10...v1.0.0-rc.11)
+
+### 🩹 Fixes
+
+- Include received time ([17d8aef](https://github.com/Hrdtr/litetics/commit/17d8aef))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.10
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.9...v1.0.0-rc.10)
