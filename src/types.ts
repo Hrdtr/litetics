@@ -4,6 +4,10 @@ export type EventData = {
    */
   bid: string,
   /**
+   * The time at which the event was received.
+   */
+  receivedAt: Date,
+  /**
    * The hostname of the page.
    */
   host: string,

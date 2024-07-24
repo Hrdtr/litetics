@@ -33,12 +33,18 @@ describe('handler/:hit', () => {
         }
       });
 
+      const receivedAt = new Date(1998, 11, 19)
+      vi.useFakeTimers()
+      vi.setSystemTime(receivedAt)
+
       const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      vi.useRealTimers()
 
       expect(result).toEqual({
         event: 'load',
         data: {
           bid: 'test-beacon-id',
+          receivedAt,
           host: 'example.com',
           path: '/path',
           queryString: 'utm_source=test',
@@ -96,12 +102,18 @@ describe('handler/:hit', () => {
       const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
+      const receivedAt = new Date(1998, 11, 19)
+      vi.useFakeTimers()
+      vi.setSystemTime(receivedAt)
+
       const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      vi.useRealTimers()
 
       expect(result).toEqual({
         event: 'load',
         data: {
           bid: 'test-beacon-id',
+          receivedAt,
           host: 'example.com',
           path: '/',
           queryString: null,
@@ -160,12 +172,18 @@ describe('handler/:hit', () => {
       const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
+      const receivedAt = new Date(1998, 11, 19)
+      vi.useFakeTimers()
+      vi.setSystemTime(receivedAt)
+
       const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      vi.useRealTimers()
 
       expect(result).toEqual({
         event: 'load',
         data: {
           bid: 'test-beacon-id',
+          receivedAt,
           host: 'example.com',
           path: '/',
           queryString: null,

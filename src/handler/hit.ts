@@ -180,6 +180,8 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         t: timezone = null,
         d: additional = null,
       } = body
+
+      const receivedAt = new Date()
     
       // Parse the page URL
       const url = new URL(pageUrl)
@@ -240,6 +242,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         event: 'load',
         data: {
           bid,
+          receivedAt,
           host,
           path,
           queryString,
