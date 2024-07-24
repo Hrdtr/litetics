@@ -183,8 +183,9 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
     
       // Parse the page URL
       const url = new URL(pageUrl)
-      const hostname = url.hostname
-      const pathname = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '')
+      const host = url.hostname
+      const path = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '')
+      const queryString = url.searchParams.toString() || null
     
       // Parse the user agent
       const ua = userAgent && userAgent.length > 0 ? parseUserAgent(userAgent) : null
@@ -239,8 +240,9 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         event: 'load',
         data: {
           bid,
-          hostname,
-          pathname,
+          host,
+          path,
+          queryString,
           isUniqueUser,
           isUniquePage,
           type,

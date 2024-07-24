@@ -6,11 +6,15 @@ export type EventData = {
   /**
    * The hostname of the page.
    */
-  hostname: string,
+  host: string,
   /**
    * The path of the page.
    */
-  pathname: string,
+  path: string,
+  /**
+   * The query string of the page.
+   */
+  queryString: string | null,
   /**
    * Flag indicating if the user is unique.
    */
