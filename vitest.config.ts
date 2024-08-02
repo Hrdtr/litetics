@@ -4,12 +4,8 @@ export default defineConfig({
   test: {
     coverage: {
       enabled: true,
-      provider: 'v8',
-      exclude: [
-        'commitlint.config.ts',
-        'docs/**',
-        '**/fetch.ts'
-      ]
+      include: ['src/**/*.{js,ts}'],
+      exclude: ['**/fetch.ts'],
     },
   },
 })

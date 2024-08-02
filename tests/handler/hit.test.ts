@@ -18,7 +18,7 @@ describe('handler/:hit', () => {
         d: { customKey: 'customValue' }
       };
 
-      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
@@ -99,7 +99,7 @@ describe('handler/:hit', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
       const receivedAt = new Date(1998, 11, 19)
@@ -169,7 +169,7 @@ describe('handler/:hit', () => {
         r: 'invalid-url'
       };
 
-      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
       const receivedAt = new Date(1998, 11, 19)
@@ -237,7 +237,7 @@ describe('handler/:hit', () => {
         m: 1234
       };
 
-      const getRequestBody = vi.fn<[], HitEventUnloadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventUnloadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
       const result: HitResult['unload'] | null = await hit(getRequestBody, getRequestHeader);
@@ -261,7 +261,7 @@ describe('handler/:hit', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn<[], HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
       const getRequestHeader = vi.fn((name) => {
         if (name === 'user-agent') {
           return 'Googlebot/2.1 (+http://www.google.com/bot.html)';
