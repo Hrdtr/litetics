@@ -1,17 +1,8 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createTracker } from '../../src/tracker';
 
 describe('createTracker', () => {
-  beforeEach(() => {
-    // Mock fetch for all tests
-    const fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('0'),
-    });
-    globalThis.fetch = fetch as unknown as typeof fetch;
-  });
-
   it('should throw an error if apiEndpoint.hit is not a valid URL', () => {
     const invalidUrl = 'invalid-url';
 
@@ -132,10 +123,7 @@ describe('createTracker', () => {
     const pingEndpoint = 'https://valid.url/ping';
   
     // Mock fetch response
-    const fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      text: () => Promise.resolve('0'),
-    });
+    const fetch = vi.fn();
     globalThis.fetch = fetch as unknown as typeof fetch;
   
     // Mock history methods

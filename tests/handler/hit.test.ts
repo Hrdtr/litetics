@@ -89,6 +89,154 @@ describe('handler/:hit', () => {
       });
     });
 
+    it('should return parsed data for a valid load event from stringified json', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com/path?utm_source=test',
+        p: true,
+        q: false,
+        a: 'pageview',
+        r: 'https://referrer.com',
+        t: 'Europe/London',
+        d: { customKey: 'customValue' }
+      };
+
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body) as unknown as HitEventLoadRequestBody);
+      const getRequestHeader = vi.fn((name) => {
+        switch (name) {
+          case 'accept-language': {
+            return 'en-US,en;q=0.9';
+          }
+          case 'user-agent': {
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+          }
+          default: {
+            return undefined;
+          }
+        }
+      });
+
+      const receivedAt = new Date(1998, 11, 19)
+      vi.useFakeTimers()
+      vi.setSystemTime(receivedAt)
+
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      vi.useRealTimers()
+
+      expect(result).toEqual({
+        event: 'load',
+        data: {
+          bid: 'test-beacon-id',
+          receivedAt,
+          host: 'example.com',
+          path: '/path',
+          queryString: 'utm_source=test',
+          isUniqueUser: true,
+          isUniquePage: false,
+          type: 'pageview',
+          durationMs: null,
+          timezone: 'Europe/London',
+          country: 'GB',
+          userAgent: 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20',
+          browserName: 'Mobile Safari',
+          browserVersion: '3.1.1',
+          browserEngineName: 'WebKit',
+          browserEngineVersion: '525.18.1',
+          deviceType: 'mobile',
+          deviceVendor: 'Apple',
+          deviceModel: 'iPhone',
+          cpuArchitecture: null,
+          osName: 'iOS',
+          osVersion: '2.1',
+          referrer: 'https://referrer.com',
+          referrerHost: 'referrer.com',
+          referrerPath: '/',
+          referrerQueryString: null,
+          referrerKnown: false,
+          referrerMedium: null,
+          referrerName: null,
+          referrerSearchParameter: null,
+          referrerSearchTerm: null,
+          acceptLanguage: 'en-US,en;q=0.9',
+          languageCode: 'en',
+          languageScript: null,
+          languageRegion: 'US',
+          secondaryLanguageCode: 'en',
+          secondaryLanguageScript: null,
+          secondaryLanguageRegion: null,
+          utmCampaign: null,
+          utmMedium: null,
+          utmSource: 'test',
+          additional: { customKey: 'customValue' }
+        }
+      });
+    });
+
+    it('should return null when handler failed to parse load event from stringified json', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com/path?utm_source=test',
+        p: true,
+        q: false,
+        a: 'pageview',
+        r: 'https://referrer.com',
+        t: 'Europe/London',
+        d: { customKey: 'customValue' }
+      };
+
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body).slice(1) as unknown as HitEventLoadRequestBody);
+      const getRequestHeader = vi.fn((name) => {
+        switch (name) {
+          case 'accept-language': {
+            return 'en-US,en;q=0.9';
+          }
+          case 'user-agent': {
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+          }
+          default: {
+            return undefined;
+          }
+        }
+      });
+
+      const result = await hit(getRequestBody, getRequestHeader)
+      expect(result).toEqual(null);
+    });
+
+    it('should return null when `u` body parameter is not valid url', async () => {
+      const body: HitEventLoadRequestBody = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'example/path?utm_source=test',
+        p: true,
+        q: false,
+        a: 'pageview',
+        r: 'https://referrer.com',
+        t: 'Europe/London',
+        d: { customKey: 'customValue' }
+      };
+
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestHeader = vi.fn((name) => {
+        switch (name) {
+          case 'accept-language': {
+            return 'en-US,en;q=0.9';
+          }
+          case 'user-agent': {
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+          }
+          default: {
+            return undefined;
+          }
+        }
+      });
+
+      const result = await hit(getRequestBody, getRequestHeader)
+      expect(result).toEqual(null);
+    });
+
     it('should handle missing referrer URL', async () => {
       const body: HitEventLoadRequestBody = {
         e: 'load',

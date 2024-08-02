@@ -67,6 +67,19 @@ describe('utils:parseAcceptLanguage', () => {
     ]);
   });
 
+  it('should parse language tags with script without region', () => {
+    const acceptLanguage = 'zh-Hant';
+    const result = parseAcceptLanguage(acceptLanguage);
+    expect(result).toEqual([
+      {
+        code: 'zh',
+        script: 'Hant',
+        region: null,
+        quality: 1,
+      },
+    ]);
+  });
+
   it('should handle invalid language tags gracefully', () => {
     const acceptLanguage = 'invalid-language-tag';
     const result = parseAcceptLanguage(acceptLanguage);

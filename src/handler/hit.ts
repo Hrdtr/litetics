@@ -221,7 +221,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
     
       // Parse the accept language header
       const languages = acceptLanguage && acceptLanguage.length > 0
-        ? parseAcceptLanguage(acceptLanguage) || []
+        ? parseAcceptLanguage(acceptLanguage)
         : []
       const languageCode = languages[0]?.code || null
       const languageScript = languages[0]?.script || null

@@ -15,9 +15,21 @@ describe('utils:isValidUrl', () => {
     expect(result).toBe(true);
   });
 
+  it('should return true for a valid URL with matching protocols (array)', () => {
+    const url = 'http://example.com';
+    const result = isValidUrl(url, { matchProtocols: ['http:'] });
+    expect(result).toBe(true);
+  });
+
   it('should return false for a valid URL with non-matching protocols', () => {
     const url = 'https://example.com';
     const result = isValidUrl(url, { matchProtocols: 'http:' });
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a valid URL with non-matching protocols (array)', () => {
+    const url = 'https://example.com';
+    const result = isValidUrl(url, { matchProtocols: ['http:'] });
     expect(result).toBe(false);
   });
 
