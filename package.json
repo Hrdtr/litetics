@@ -57,7 +57,7 @@
     "consola": "^3.2.3",
     "eslint": "^9.8.0",
     "eslint-config-unjs": "^0.3.2",
-    "happy-dom": "^14.12.3",
+    "happy-dom": "^15.0.0",
     "husky": "^9.1.4",
     "isbot": "^5.1.13",
     "jiti": "^1.21.6",
