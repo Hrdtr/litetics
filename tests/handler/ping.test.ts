@@ -32,11 +32,14 @@ describe('handler:ping', () => {
     const getRequestHeader = vi.fn().mockReturnValue(todayDate);
     const setResponseHeader = vi.fn();
 
-    const result: PingResult = await ping(getRequestHeader, setResponseHeader);
+    const result: PingResult = await ping(getRequestHeader, (...args) => {
+      console.info(args)
+      setResponseHeader(...args);
+    });
 
     expect(result).toEqual({ data: '1', status: 200 });
     expect(setResponseHeader).toHaveBeenCalledWith('Last-Modified', todayDate);
-    expect(setResponseHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
+    expect(setResponseHeader).toHaveBeenCalledTimes(2);
   });
 
   it('should return data "0" and status 200 if if-modified-since header is an extremely old date', async () => {

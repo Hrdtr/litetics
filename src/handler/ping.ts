@@ -7,6 +7,10 @@ const log = consola.withTag('litetics:ping')
  */
 export type PingResult = {
   /**
+   * The HTTP status code of the response.
+   */
+  status: number
+  /**
    * The data which should be returned by the server. Can be '0', '1', or null.
    */
   data: '0' | '1' | null,
@@ -14,10 +18,6 @@ export type PingResult = {
    * An error message, if applicable.
    */
   error?: string,
-  /**
-   * The HTTP status code of the response.
-   */
-  status: number
 }
 
 /**
@@ -33,30 +33,30 @@ export const ping = async (
   setResponseHeader: (name: string, value: string) => void,
 ): Promise<PingResult> => {
   // Retrieve the 'if-modified-since' header from the request
-  const ifModified = getRequestHeader('if-modified-since')
+  const ifModifiedSince = getRequestHeader('if-modified-since')
   // Get the current day with time set to 00:00:00.000
   const currentDay = new Date().setHours(0, 0, 0, 0)
 
-  if (!ifModified) {
+  if (!ifModifiedSince) {
     // Get the current day with time set to 00:00:00.000
     setResponseHeader('Last-Modified', new Date(currentDay).toUTCString())
     setResponseHeader('Cache-Control', 'no-cache')
-    // Return a response indicating the user is new for the day
+
     return {
+      status: 200,
       data: '0',
-      status: 200
     }
   }
 
-  const lastModifiedDate = new Date(ifModified)
+  const lastModifiedDate = new Date(ifModifiedSince)
   const lastModifiedTime = lastModifiedDate.getTime()
 
   // If the date is invalid
   if (Number.isNaN(lastModifiedTime) || lastModifiedDate.toUTCString() === 'Invalid Date') {
     log.error('Failed to parse if-modified-since header')
     return {
-      data: null,
       status: 400,
+      data: null,
       error: 'Bad Request',
     }
   }
@@ -64,30 +64,31 @@ export const ping = async (
   if (lastModifiedTime > Date.now()) {
     log.error('if-modified-since header is a future date')
     return {
-      data: null,
       status: 400,
+      data: null,
       error: 'Bad Request',
     }
   }
 
-  // If the date is earlier than the current day
+  // If the date is earlier than the current day, we want to reset the cache and mark as a unique visitor.
   if (lastModifiedTime < currentDay) {
     // Set 'Last-Modified' header to the start of the current day
     setResponseHeader('Last-Modified', new Date(currentDay).toUTCString())
     setResponseHeader('Cache-Control', 'no-cache')
-    // Return a response indicating the user is new for the day
+
     return {
+      status: 200,
       data: '0',
-      status: 200
     }
   }
 
   // If the date is today
-  setResponseHeader('Last-Modified', ifModified)
-  setResponseHeader('Cache-Control', 'no-cache')
-  // Return a response indicating the user is not new for the day
+  const nextResetTime = new Date(lastModifiedTime + (24 * 60 * 60 * 1000)).getTime()
+  setResponseHeader('Last-Modified', ifModifiedSince)
+  setResponseHeader('Cache-Control', `max-age=${Math.ceil((nextResetTime - Date.now()) / 1000)}`)
+  // Return a response indicating the visitor is not new for the day
   return {
+    status: 200,
     data: '1',
-    status: 200
   }
 }
