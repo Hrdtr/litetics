@@ -76,7 +76,7 @@
     "isbot": "^5.1.17",
     "ua-parser-js": "^1.0.39"
   },
-  "packageManager": "pnpm@9.2.0",
+  "packageManager": "pnpm@9.6.0",
   "lint-staged": {
     "**/*.{ts,js,mjs,vue,html,json,yml}": [
       "pnpm lint:fix"
