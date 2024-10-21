@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.0.0-rc.12
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.11...v1.0.0-rc.12)
+
+### 🚀 Enhancements
+
+- Add session timeout option ([f1741cd](https://github.com/Hrdtr/litetics/commit/f1741cd))
+
+### 🩹 Fixes
+
+- Cache non-unique user ping response ([94e500b](https://github.com/Hrdtr/litetics/commit/94e500b))
+
+### 🏡 Chore
+
+- Deps update ([1e6297f](https://github.com/Hrdtr/litetics/commit/1e6297f))
+
+### ✅ Tests
+
+- Increase coverage ([5536cc2](https://github.com/Hrdtr/litetics/commit/5536cc2))
+
+### ❤️ Contributors
+
+- Herdi Tr. ([@Hrdtr](http://github.com/Hrdtr))
+
 ## v1.0.0-rc.11
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.10...v1.0.0-rc.11)
