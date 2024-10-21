@@ -1,4 +1,4 @@
-import { countryTimezones } from "../data/country-timezones"
+import { countryTimezones } from '../data/country-timezones'
 
 /**
  * Retrieves the country code based on the provided timezone.

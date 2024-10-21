@@ -1,151 +1,89 @@
-// @vitest-environment happy-dom
-import { describe, it, expect, vi } from 'vitest';
-import { createTracker } from '../../src/tracker';
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest'
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+import { createTracker } from '../../src/tracker'
+
+const server = setupServer(
+  http.get('*', () => HttpResponse.text('0')),
+  http.post('*', () => HttpResponse.text('')),
+)
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
+afterEach(() => server.resetHandlers())
 
 describe('createTracker', () => {
-  it('should throw an error if apiEndpoint.hit is not a valid URL', () => {
-    const invalidUrl = 'invalid-url';
+  it('should throw an error if apiEndpoint.hit is invalid', () => {
+    expect(() => createTracker({ apiEndpoint: { hit: 'invalid-url', ping: 'http://example.com' } })).toThrowError('`apiEndpoint.hit` must be a valid URL')
+  })
 
-    expect(() => createTracker({
-      apiEndpoint: {
-        hit: invalidUrl,
-        ping: 'https://valid.url'
-      },
-    })).toThrow('`apiEndpoint.hit` must be a valid URL');
-  });
+  it('should throw an error if apiEndpoint.ping is invalid', () => {
+    expect(() => createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'invalid-url' } })).toThrowError('`apiEndpoint.ping` must be a valid URL')
+  })
 
-  it('should throw an error if apiEndpoint.ping is not a valid URL', () => {
-    const invalidUrl = 'invalid-url';
+  it('should create a tracker with default options', () => {
+    const tracker = createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } })
+    expect(tracker).toBeDefined()
+    expect(tracker.register).toBeDefined()
+    expect(tracker.track).toBeDefined()
+    expect(tracker.trackEndOf).toBeDefined()
+  })
+})
 
-    expect(() => createTracker({
-      apiEndpoint: {
-        hit: 'https://valid.url',
-        ping: invalidUrl
-      },
-    })).toThrow('`apiEndpoint.ping` must be a valid URL');
-  });
+describe('register', () => {
+  it('should send events correctly', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    const sendBeaconMock = vi.fn()
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock })
+    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    await new Promise(r => setTimeout(r, 1000))
+    expect(fetchSpy).toHaveBeenCalledTimes(1) // register load
 
-  it('should call sendBeacon on unload event', () => {
-    const hitEndpoint = 'https://valid.url';
-    const pingEndpoint = 'https://valid.url/ping';
+    window.dispatchEvent(new Event('pagehide'))
+    expect(sendBeaconMock).toHaveBeenCalledTimes(1)
 
-    // Mock navigator.sendBeacon
-    const sendBeacon = vi.fn();
-    globalThis.navigator.sendBeacon = sendBeacon as unknown as Navigator['sendBeacon'];
+    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    await new Promise(r => setTimeout(r, 1000))
+    expect(fetchSpy).toHaveBeenCalledTimes(2) // +1 register load
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
+    window.dispatchEvent(new Event('visibilitychange'))
+    expect(sendBeaconMock).toHaveBeenCalledTimes(1) // still on timeout
+    await new Promise(r => setTimeout(r, 1001))
+    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // timeout exceeded, unload event should be sent
 
-    const { register } = createTracker({
-      apiEndpoint: {
-        hit: hitEndpoint,
-        ping: pingEndpoint
-      },
-    });
+    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    await new Promise(r => setTimeout(r, 1000))
+    expect(fetchSpy).toHaveBeenCalledTimes(3) // +1 register load
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
+    window.dispatchEvent(new Event('visibilitychange'))
+    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // still on timeout
+    await new Promise(r => setTimeout(r, 500))
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false })
+    window.dispatchEvent(new Event('visibilitychange'))
+    await new Promise(r => setTimeout(r, 501))
+    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // no unload event sent since timeout isn't exceeded yet
 
-    register();
+    window.dispatchEvent(new Event('popstate'))
+    await new Promise(r => setTimeout(r, 1000))
+    expect(fetchSpy).toHaveBeenCalledTimes(6) // +2 other registered trackers (still listen to popstate)
+  })
+}, { timeout: 1000 * 60 * 5 })
 
-    // Simulate unload event
-    const unloadEvent = new Event('unload');
-    globalThis.window.dispatchEvent(unloadEvent);
+describe('track', () => {
+  it('should call fetch with correct parameters', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    await createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } }).track('test-event', { type: 'test' })
+    expect(fetchSpy).toHaveBeenCalledTimes(1) // track event
+  })
+})
 
-    expect(sendBeacon).toHaveBeenCalled();
-  });
-
-  // it('should call sendBeacon on pagehide event if supported', () => {
-  //   const hitEndpoint = 'https://valid.url';
-  //   const pingEndpoint = 'https://valid.url/ping';
-
-  //   // Mock navigator.sendBeacon
-  //   const sendBeacon = vi.fn();
-  //   globalThis.navigator.sendBeacon = sendBeacon as unknown as Navigator['sendBeacon'];
-
-  //   const { register } = createTracker({
-  //     apiEndpoint: {
-  //       hit: hitEndpoint,
-  //       ping: pingEndpoint
-  //     },
-  //   });
-
-  //   register();
-
-  //   // Simulate pagehide event
-  //   const pagehideEvent = new Event('pagehide');
-  //   globalThis.window.dispatchEvent(pagehideEvent);
-
-  //   expect(sendBeacon).toHaveBeenCalled();
-  // });
-
-  // it('should handle visibilitychange event', () => {
-  //   const hitEndpoint = 'https://valid.url';
-  //   const pingEndpoint = 'https://valid.url/ping';
-  
-  //   // Mock fetch response
-  //   const fetch = vi.fn().mockResolvedValue({
-  //     ok: true,
-  //     text: () => Promise.resolve('0'),
-  //   });
-  //   globalThis.fetch = fetch as unknown as typeof fetch;
-  
-  //   // Mock visibilityState changes
-  //   Object.defineProperty(document, 'visibilityState', {
-  //     configurable: true,
-  //     get: () => 'hidden',
-  //   });
-  
-  //   const { register } = createTracker({
-  //     apiEndpoint: {
-  //       hit: hitEndpoint,
-  //       ping: pingEndpoint
-  //     },
-  //   });
-  
-  //   register();
-  
-  //   // Mock addEventListener
-  //   const addEventListenerMock = vi.fn();
-  //   globalThis.window.addEventListener = addEventListenerMock;
-  
-  //   // Simulate visibilitychange event
-  //   const visibilityChangeEvent = new Event('visibilitychange');
-  //   globalThis.window.dispatchEvent(visibilityChangeEvent);
-  
-  //   // Simulate the page becoming visible again
-  //   Object.defineProperty(document, 'visibilityState', {
-  //     configurable: true,
-  //     get: () => 'visible',
-  //   });
-  //   globalThis.window.dispatchEvent(new Event('visibilitychange'));
-  
-  //   // Check if visibilitychange listener was added
-  //   expect(addEventListenerMock).toHaveBeenCalledWith('visibilitychange', expect.any(Function), { capture: true });
-  // });
-  
-  it('should call the proper history methods and send beacons', () => {
-    const hitEndpoint = 'https://valid.url';
-    const pingEndpoint = 'https://valid.url/ping';
-  
-    // Mock fetch response
-    const fetch = vi.fn();
-    globalThis.fetch = fetch as unknown as typeof fetch;
-  
-    // Mock history methods
-    const pushState = vi.fn();
-    const replaceState = vi.fn();
-    globalThis.history.pushState = pushState as unknown as History['pushState'];
-    globalThis.history.replaceState = replaceState as unknown as History['replaceState'];
-  
-    const { register } = createTracker({
-      apiEndpoint: {
-        hit: hitEndpoint,
-        ping: pingEndpoint
-      },
-    });
-  
-    register();
-  
-    // Simulate history changes
-    globalThis.history.pushState({}, '', '/new-url');
-    expect(pushState).toHaveBeenCalled();
-  
-    globalThis.history.replaceState({}, '', '/replaced-url');
-    expect(replaceState).toHaveBeenCalled();
-  });
-});
+describe('trackEndOf', () => {
+  it('should call fetch with correct parameters', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    const tracker = createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } })
+    await tracker.track('test-event', { type: 'test' }, { withDuration: true })
+    await tracker.trackEndOf('test-event')
+    expect(fetchSpy).toHaveBeenCalledTimes(2) // track event & track end of event
+  })
+})

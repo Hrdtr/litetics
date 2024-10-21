@@ -1,19 +1,10 @@
-import { HitEventLoadRequestBody, HitEventUnloadRequestBody } from "../handler";
-import { isValidUrl } from "../utils/is-valid-url"
+import type { HitEventLoadRequestBody, HitEventUnloadRequestBody } from '../handler'
+import { isValidUrl } from '../utils/is-valid-url'
 
 const AnalyticsEvent = {
   UNLOAD: 'unload',
   LOAD: 'load',
-  // These events must still be sent with the unload event when calling
-  // sendBeacon to ensure there are no duplicate events.
-  PAGEHIDE: 'pagehide',
-  BEFOREUNLOAD: 'beforeunload',
-  // Custom events that are not part of the event listener spec, but is
-  // used to determine what state visibilitychange is in.
-  VISIBILITYCHANGE: 'visibilitychange',
-  HIDDEN: 'hidden',
-  VISIBLE: 'visible',
-} as const;
+} as const
 
 /**
  * Represents the options object for creating a new tracker.
@@ -26,24 +17,33 @@ export interface CreateTrackerOptions {
     /**
      * The URL to send hit events to.
      */
-    hit: string;
+    hit: string
     /**
      * The URL to send ping events to.
      */
-    ping: string;
-  };
+    ping: string
+  }
+
   /**
-   * The mode of tracking to use. Either 'history' (default) or 'hash'.
+   * The mode of tracking to use. Either 'history' or 'hash'.
+   * @default 'history
    */
-  mode?: 'history' | 'hash';
+  mode?: 'history' | 'hash'
+
+  /**
+   * The maximum duration of a session before the user is considered inactive.
+   * @default 5 * 60 * 1000
+   */
+  sessionTimeoutDuration?: number
 }
 
 export const createTracker = ({
   apiEndpoint: {
     ping: pingEndpoint,
-    hit: hitEndpoint
+    hit: hitEndpoint,
   },
-  mode = 'history'
+  mode = 'history',
+  sessionTimeoutDuration = 5 * 60 * 1000,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(hitEndpoint)) {
     throw new Error('`apiEndpoint.hit` must be a valid URL')
@@ -60,7 +60,7 @@ export const createTracker = ({
    * because uniqueness against collisions is not a requirement and is worth
    * the tradeoff for bundle size and performance.
    */
-  const generateUid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+  const generateID = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
   /**
    * Ping the server with the cache endpoint and read the last modified header to determine
@@ -72,25 +72,19 @@ export const createTracker = ({
    * @param {string} url URL to ping.
    * @returns {Promise<boolean>} Is the cache unique or not.
    */
-  const ping = (url: string): Promise<boolean> =>
-    new Promise((resolve) => {
-      // We use XHR here because fetch GET request requires a CORS
-      // header to be set on the server, which adds additional requests and
-      // latency to ping the server.
-      const xhr = new XMLHttpRequest()
-      xhr.addEventListener('load', () => {
-        // @ts-expect-error - Double equals reduces bundle size.
-        resolve(xhr.responseText == 0)
-      })
-      xhr.open('GET', url)
-      xhr.setRequestHeader('Content-Type', 'text/plain')
-      xhr.send()
+  const ping = (url: string): Promise<boolean> => new Promise((resolve) => {
+    // We use XHR here because fetch GET request requires a CORS
+    // header to be set on the server, which adds additional requests and
+    // latency to ping the server.
+    const xhr = new XMLHttpRequest()
+    xhr.addEventListener('load', () => {
+      // @ts-expect-error - Double equals reduces bundle size.
+      resolve(xhr.responseText == 0)
     })
-
-  /**
-   * Unique ID linking multiple beacon events together for the same page view.
-   */
-  let uid: string = generateUid()
+    xhr.open('GET', url)
+    xhr.setRequestHeader('Content-Type', 'text/plain')
+    xhr.send()
+  })
 
   /**
    * Whether the user is unique or not.
@@ -98,23 +92,37 @@ export const createTracker = ({
    */
   let isUnique: boolean = true
 
-  /**
-   * A temporary variable to store the start time of the page when it is hidden.
-   */
-  let hiddenStartTime: number = 0
-
-  /**
-   * The total time the user has had the page hidden.
-   * It also signifies the start epoch time of the page.
-   */
-  let hiddenTotalTime: number = Date.now()
-
-  /**
-   * Ensure only the unload beacon is called once.
-   */
-  let isUnloadCalled: boolean = false
-
   const register = () => {
+    /**
+     * Unique ID linking multiple beacon events together for the same page view.
+     */
+    let id: string = generateID()
+
+    /**
+     * Variable to store the start time of the session.
+     */
+    let startTime = Date.now()
+
+    /**
+     * Variable to store the last time when the tab was active.
+     */
+    let lastActiveTime: number | null = null
+
+    /**
+     * Variable to store the total inactive time in the session.
+     */
+    let totalInactiveTime = 0
+
+    /**
+     * Ensure only the unload beacon is called once.
+     */
+    let isUnloadCalled: boolean = false
+
+    /**
+     * Variable to store the timeout to end the session.
+     */
+    let sessionTimeout: ReturnType<typeof setTimeout> | null = null
+
     /**
      * Copy of the original pushState and replaceState functions, used for overriding
      * the History API to track navigation changes.
@@ -129,10 +137,15 @@ export const createTracker = ({
       // Main ping cache won't be called again, so we can assume the user is not unique.
       // However, isFirstVisit will be called on each page load, so we don't need to reset it.
       isUnique = false
-      uid = generateUid()
-      hiddenStartTime = 0
-      hiddenTotalTime = Date.now()
+      id = generateID()
+      startTime = Date.now()
+      lastActiveTime = Date.now()
+      totalInactiveTime = 0
       isUnloadCalled = false
+      if (sessionTimeout) {
+        clearTimeout(sessionTimeout)
+      }
+      sessionTimeout = null
     }
 
     /**
@@ -149,8 +162,8 @@ export const createTracker = ({
        * @param {(string | URL)=} url - The URL to navigate to.
        * @returns {void}
        */
-    ): typeof historyPushState | typeof historyReplaceState =>
-      function (state, unused, url, ...rest) {
+    ): typeof historyPushState | typeof historyReplaceState => {
+      return function (state, unused, url, ...rest) {
         if (url && location.pathname !== new URL(url, location.href).pathname) {
           sendUnloadBeacon()
           // If the event is a history change, then we need to reset the id and timers
@@ -165,12 +178,14 @@ export const createTracker = ({
           Reflect.apply(original, this, [state, unused, url, ...rest])
         }
       }
+    }
 
     /**
      * Send a load beacon event to the server when the page is loaded.
      * @returns {Promise<void>}
      */
     const sendLoadBeacon = async (): Promise<void> => {
+      console.log({ id })
       // Returns true if it is the user's first visit to page, false if not.
       // The u query parameter is a cache busting parameter which is the page host and path
       // without protocol or query parameters.
@@ -182,18 +197,18 @@ export const createTracker = ({
          * @type {HitEventLoadRequestBody}
          */
         body: JSON.stringify({
-          'e': AnalyticsEvent.LOAD,
-          'b': uid,
-          'u': location.href,
-          'p': isUnique,
-          'q': isFirstVisit,
-          'a': 'pageview',
-          'r': document.referrer,
+          e: AnalyticsEvent.LOAD,
+          b: id,
+          u: location.href,
+          p: isUnique,
+          q: isFirstVisit,
+          a: 'pageview',
+          r: document.referrer,
           /**
            * Get timezone for country detection.
            * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
            */
-          't': Intl.DateTimeFormat().resolvedOptions().timeZone,
+          t: Intl.DateTimeFormat().resolvedOptions().timeZone,
         } satisfies HitEventLoadRequestBody),
         // Will make the response opaque, but we don't need it.
         mode: 'no-cors',
@@ -205,6 +220,7 @@ export const createTracker = ({
      * @returns {void}
      */
     const sendUnloadBeacon = (): void => {
+      console.log({ id })
       if (!isUnloadCalled) {
         // We use sendBeacon here because it is more reliable than fetch on page unloads.
         // The Fetch API keepalive flag has a few caveats and doesn't work very well on
@@ -221,9 +237,9 @@ export const createTracker = ({
            * @type {HitEventUnloadRequestBody}
            */
           JSON.stringify({
-            'e': AnalyticsEvent.UNLOAD,
-            'b': uid,
-            'm': Date.now() - hiddenTotalTime,
+            e: AnalyticsEvent.UNLOAD,
+            b: id,
+            m: Date.now() - (startTime - totalInactiveTime),
           } satisfies HitEventUnloadRequestBody),
         )
       }
@@ -235,33 +251,36 @@ export const createTracker = ({
     // Prefer pagehide if available because it's more reliable than unload.
     // We also prefer pagehide because it doesn't break bf-cache.
     if ('onpagehide' in self) {
-      addEventListener(AnalyticsEvent.PAGEHIDE, sendUnloadBeacon, { capture: true })
+      addEventListener('pagehide', sendUnloadBeacon, { capture: true })
     }
     else {
       // Otherwise, use unload and beforeunload. Using both is significantly more
       // reliable than just one due to browser differences. However, this will break
       // bf-cache, but it's better than nothing.
-      addEventListener(AnalyticsEvent.BEFOREUNLOAD, sendUnloadBeacon, { capture: true })
-      addEventListener(AnalyticsEvent.UNLOAD, sendUnloadBeacon, { capture: true })
+      addEventListener('beforeunload', sendUnloadBeacon, { capture: true })
+      addEventListener('unload', sendUnloadBeacon, { capture: true })
     }
 
     // Visibility change events allow us to track whether a user is tabbed out and
     // correct our timings.
-    addEventListener(
-      AnalyticsEvent.VISIBILITYCHANGE,
-      () => {
-        if (document.visibilityState == AnalyticsEvent.HIDDEN) {
-          // Page is hidden, record the current time.
-          hiddenStartTime = Date.now()
-        }
-        else {
-          // Page is visible, subtract the hidden time to calculate the total time hidden.
-          hiddenTotalTime += Date.now() - hiddenStartTime
-          hiddenStartTime = 0
-        }
-      },
-      { capture: true },
-    )
+    addEventListener('visibilitychange', () => {
+      if (sessionTimeout) clearTimeout(sessionTimeout)
+
+      if (document.hidden) {
+        console.log('document.hidden')
+        // Page is hidden, record the current time.
+        lastActiveTime = Date.now()
+        sessionTimeout = setTimeout(() => {
+          totalInactiveTime += Date.now() - (lastActiveTime ?? 0)
+          sendUnloadBeacon()
+        }, sessionTimeoutDuration)
+      }
+      else {
+        // Page is visible, subtract the hidden time to calculate the total time hidden.
+        totalInactiveTime += Date.now() - (lastActiveTime ?? 0)
+        lastActiveTime = null
+      }
+    }, { capture: true })
 
     ping(pingEndpoint).then((response: boolean) => {
       // The response is a boolean indicating if the user is unique or not.
@@ -300,7 +319,7 @@ export const createTracker = ({
    * Map of custom event tracking (track method usage) keys to beacon IDs.
    */
   const trackWithDurationMap = new Map<string, {
-    uid: string
+    id: string
     startTime: number
   }>()
 
@@ -320,12 +339,12 @@ export const createTracker = ({
     },
     options?: {
       withDuration?: boolean
-    }
+    },
   ): Promise<void> => {
     const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname) + '&k=' + encodeURIComponent(key))
-    const uid = generateUid()
+    const id = generateID()
     if (options?.withDuration) {
-      trackWithDurationMap.set(key, { uid, startTime: Date.now() })
+      trackWithDurationMap.set(key, { id, startTime: Date.now() })
     }
 
     const { type, ...rest } = data
@@ -337,19 +356,19 @@ export const createTracker = ({
        * @type {HitEventLoadRequestBody}
        */
       body: JSON.stringify({
-        'e': AnalyticsEvent.LOAD,
-        'b': uid,
-        'u': location.href,
-        'p': isUnique,
-        'q': isFirstVisit,
-        'a': type,
-        'r': document.referrer,
+        e: AnalyticsEvent.LOAD,
+        b: id,
+        u: location.href,
+        p: isUnique,
+        q: isFirstVisit,
+        a: type,
+        r: document.referrer,
         /**
          * Get timezone for country detection.
          * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
          */
-        't': Intl.DateTimeFormat().resolvedOptions().timeZone,
-        'd': rest,
+        t: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        d: rest,
       } satisfies HitEventLoadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
@@ -363,8 +382,8 @@ export const createTracker = ({
    * @return {Promise<void>} A promise that resolves when the unload event is sent.
    */
   const trackEndOf = async (key: string): Promise<void> => {
-    const { uid, startTime } = trackWithDurationMap.get(key) ?? {}
-    if (!uid || !startTime) {
+    const { id, startTime } = trackWithDurationMap.get(key) ?? {}
+    if (!id || !startTime) {
       // If the key is not being tracked, do nothing.
       return
     }
@@ -376,9 +395,9 @@ export const createTracker = ({
        * @type {HitEventUnloadRequestBody}
        */
       body: JSON.stringify({
-        'e': AnalyticsEvent.UNLOAD,
-        'b': uid,
-        'm': Date.now() - startTime,
+        e: AnalyticsEvent.UNLOAD,
+        b: id,
+        m: Date.now() - startTime,
       } satisfies HitEventUnloadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
@@ -387,11 +406,6 @@ export const createTracker = ({
   }
 
   return {
-    uid,
-    isUnique,
-    hiddenStartTime,
-    hiddenTotalTime,
-    isUnloadCalled,
     register,
     track,
     trackEndOf,

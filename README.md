@@ -3,7 +3,7 @@
 <!-- automd:badges color=yellow -->
 
 [![npm version](https://img.shields.io/npm/v/litetics?color=yellow)](https://npmjs.com/package/litetics)
-[![npm downloads](https://img.shields.io/npm/dm/litetics?color=yellow)](https://npmjs.com/package/litetics)
+[![npm downloads](https://img.shields.io/npm/dm/litetics?color=yellow)](https://npm.chart.dev/litetics)
 
 <!-- /automd -->
 
@@ -30,6 +30,9 @@ pnpm install litetics
 
 # bun
 bun install litetics
+
+# deno
+deno install litetics
 ```
 
 <!-- /automd -->
@@ -38,7 +41,6 @@ Mounting the event handlers to the api server:
 
 ```ts
 // TODO
-
 ```
 
 Register tracker in client:

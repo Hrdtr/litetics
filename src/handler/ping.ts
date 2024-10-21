@@ -13,11 +13,11 @@ export type PingResult = {
   /**
    * The data which should be returned by the server. Can be '0', '1', or null.
    */
-  data: '0' | '1' | null,
+  data: '0' | '1' | null
   /**
    * An error message, if applicable.
    */
-  error?: string,
+  error?: string
 }
 
 /**

@@ -2,7 +2,7 @@ export { hit } from './hit'
 export type {
   HitEventLoadRequestBody,
   HitEventUnloadRequestBody,
-  HitResult
+  HitResult,
 } from './hit'
 
 export { ping } from './ping'

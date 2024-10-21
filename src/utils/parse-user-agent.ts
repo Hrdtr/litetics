@@ -1,5 +1,4 @@
-import { UAParser } from "ua-parser-js"
-
+import { UAParser } from 'ua-parser-js'
 
 /**
  * An object containing parsed browser, device, CPU, engine, operating system information,
@@ -9,27 +8,27 @@ export interface ParsedUserAgent {
   /**
    * The parsed browser information.
    */
-  browser: UAParser.IBrowser;
+  browser: UAParser.IBrowser
   /**
    * The parsed browser engine information.
    */
-  browserEngine: UAParser.IEngine;
+  browserEngine: UAParser.IEngine
   /**
    * The parsed device information.
    */
-  device: UAParser.IDevice;
+  device: UAParser.IDevice
   /**
    * The parsed CPU information.
    */
-  cpu: UAParser.ICPU;
+  cpu: UAParser.ICPU
   /**
    * The parsed operating system information.
    */
-  os: UAParser.IOS;
+  os: UAParser.IOS
   /**
    * The original user agent string.
    */
-  _src: string;
+  _src: string
 }
 
 /**
@@ -46,7 +45,7 @@ export const parseUserAgent = (uaString: string): ParsedUserAgent => {
     cpu,
     os,
   } = new UAParser(uaString).getResult()
-  
+
   return {
     browser,
     browserEngine: engine,

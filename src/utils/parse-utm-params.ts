@@ -33,6 +33,6 @@ export const parseUTMParams = (url: URL): ParsedUTMParams => {
   return {
     source,
     medium,
-    campaign
+    campaign,
   }
 }

@@ -1,7 +1,7 @@
 // @vitest-environment node
-import { describe, it, expect, vi } from 'vitest';
-import { hit } from '../../src/handler/hit';
-import type { HitEventLoadRequestBody, HitEventUnloadRequestBody, HitResult } from '../../src/handler/hit';
+import { describe, it, expect, vi } from 'vitest'
+import { hit } from '../../src/handler/hit'
+import type { HitEventLoadRequestBody, HitEventUnloadRequestBody, HitResult } from '../../src/handler/hit'
 
 describe('handler/:hit', () => {
   describe('load event', () => {
@@ -15,29 +15,29 @@ describe('handler/:hit', () => {
         a: 'pageview',
         r: 'https://referrer.com',
         t: 'Europe/London',
-        d: { customKey: 'customValue' }
-      };
+        d: { customKey: 'customValue' },
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body)
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
-            return 'en-US,en;q=0.9';
+            return 'en-US,en;q=0.9'
           }
           case 'user-agent': {
-            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20'
           }
           default: {
-            return undefined;
+            return undefined
           }
         }
-      });
+      })
 
       const receivedAt = new Date(1998, 11, 19)
       vi.useFakeTimers()
       vi.setSystemTime(receivedAt)
 
-      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader)
       vi.useRealTimers()
 
       expect(result).toEqual({
@@ -84,10 +84,10 @@ describe('handler/:hit', () => {
           utmCampaign: null,
           utmMedium: null,
           utmSource: 'test',
-          additional: { customKey: 'customValue' }
-        }
-      });
-    });
+          additional: { customKey: 'customValue' },
+        },
+      })
+    })
 
     it('should return parsed data for a valid load event from stringified json', async () => {
       const body = {
@@ -99,29 +99,29 @@ describe('handler/:hit', () => {
         a: 'pageview',
         r: 'https://referrer.com',
         t: 'Europe/London',
-        d: { customKey: 'customValue' }
-      };
+        d: { customKey: 'customValue' },
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body) as unknown as HitEventLoadRequestBody);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body) as unknown as HitEventLoadRequestBody)
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
-            return 'en-US,en;q=0.9';
+            return 'en-US,en;q=0.9'
           }
           case 'user-agent': {
-            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20'
           }
           default: {
-            return undefined;
+            return undefined
           }
         }
-      });
+      })
 
       const receivedAt = new Date(1998, 11, 19)
       vi.useFakeTimers()
       vi.setSystemTime(receivedAt)
 
-      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader)
       vi.useRealTimers()
 
       expect(result).toEqual({
@@ -168,10 +168,10 @@ describe('handler/:hit', () => {
           utmCampaign: null,
           utmMedium: null,
           utmSource: 'test',
-          additional: { customKey: 'customValue' }
-        }
-      });
-    });
+          additional: { customKey: 'customValue' },
+        },
+      })
+    })
 
     it('should return null when handler failed to parse load event from stringified json', async () => {
       const body = {
@@ -183,27 +183,27 @@ describe('handler/:hit', () => {
         a: 'pageview',
         r: 'https://referrer.com',
         t: 'Europe/London',
-        d: { customKey: 'customValue' }
-      };
+        d: { customKey: 'customValue' },
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body).slice(1) as unknown as HitEventLoadRequestBody);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(JSON.stringify(body).slice(1) as unknown as HitEventLoadRequestBody)
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
-            return 'en-US,en;q=0.9';
+            return 'en-US,en;q=0.9'
           }
           case 'user-agent': {
-            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20'
           }
           default: {
-            return undefined;
+            return undefined
           }
         }
-      });
+      })
 
       const result = await hit(getRequestBody, getRequestHeader)
-      expect(result).toEqual(null);
-    });
+      expect(result).toEqual(null)
+    })
 
     it('should return null when `u` body parameter is not valid url', async () => {
       const body: HitEventLoadRequestBody = {
@@ -215,27 +215,27 @@ describe('handler/:hit', () => {
         a: 'pageview',
         r: 'https://referrer.com',
         t: 'Europe/London',
-        d: { customKey: 'customValue' }
-      };
+        d: { customKey: 'customValue' },
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body)
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
-            return 'en-US,en;q=0.9';
+            return 'en-US,en;q=0.9'
           }
           case 'user-agent': {
-            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20';
+            return 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20'
           }
           default: {
-            return undefined;
+            return undefined
           }
         }
-      });
+      })
 
       const result = await hit(getRequestBody, getRequestHeader)
-      expect(result).toEqual(null);
-    });
+      expect(result).toEqual(null)
+    })
 
     it('should handle missing referrer URL', async () => {
       const body: HitEventLoadRequestBody = {
@@ -245,16 +245,16 @@ describe('handler/:hit', () => {
         p: true,
         q: true,
         a: 'pageview',
-      };
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
-      const getRequestHeader = vi.fn(() => undefined);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body)
+      const getRequestHeader = vi.fn(() => undefined)
 
       const receivedAt = new Date(1998, 11, 19)
       vi.useFakeTimers()
       vi.setSystemTime(receivedAt)
 
-      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader)
       vi.useRealTimers()
 
       expect(result).toEqual({
@@ -301,10 +301,10 @@ describe('handler/:hit', () => {
           utmCampaign: null,
           utmMedium: null,
           utmSource: null,
-          additional: null
-        }
-      });
-    });
+          additional: null,
+        },
+      })
+    })
 
     it('should handle invalid URL in referrer', async () => {
       const body: HitEventLoadRequestBody = {
@@ -314,17 +314,17 @@ describe('handler/:hit', () => {
         p: true,
         q: true,
         a: 'pageview',
-        r: 'invalid-url'
-      };
+        r: 'invalid-url',
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
-      const getRequestHeader = vi.fn(() => undefined);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body)
+      const getRequestHeader = vi.fn(() => undefined)
 
       const receivedAt = new Date(1998, 11, 19)
       vi.useFakeTimers()
       vi.setSystemTime(receivedAt)
 
-      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader)
       vi.useRealTimers()
 
       expect(result).toEqual({
@@ -371,33 +371,33 @@ describe('handler/:hit', () => {
           utmCampaign: null,
           utmMedium: null,
           utmSource: null,
-          additional: null
-        }
-      });
-    });
-  });
+          additional: null,
+        },
+      })
+    })
+  })
 
   describe('unload event', () => {
     it('should return parsed data for a valid unload event', async () => {
       const body: HitEventUnloadRequestBody = {
         e: 'unload',
         b: 'test-beacon-id',
-        m: 1234
-      };
+        m: 1234,
+      }
 
-      const getRequestBody = vi.fn<() => HitEventUnloadRequestBody>().mockResolvedValue(body);
-      const getRequestHeader = vi.fn(() => undefined);
+      const getRequestBody = vi.fn<() => HitEventUnloadRequestBody>().mockResolvedValue(body)
+      const getRequestHeader = vi.fn(() => undefined)
 
-      const result: HitResult['unload'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['unload'] | null = await hit(getRequestBody, getRequestHeader)
 
       expect(result).toEqual({
         event: 'unload',
         data: {
           bid: 'test-beacon-id',
-          durationMs: 1234
-        }
-      });
-    });
+          durationMs: 1234,
+        },
+      })
+    })
 
     it('should return null if user-agent indicates a bot', async () => {
       const body: HitEventLoadRequestBody = {
@@ -407,33 +407,33 @@ describe('handler/:hit', () => {
         p: true,
         q: true,
         a: 'pageview',
-      };
+      }
 
-      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi.fn<() => HitEventLoadRequestBody>().mockResolvedValue(body)
       const getRequestHeader = vi.fn((name) => {
         if (name === 'user-agent') {
-          return 'Googlebot/2.1 (+http://www.google.com/bot.html)';
+          return 'Googlebot/2.1 (+http://www.google.com/bot.html)'
         }
-        return undefined;
-      });
+        return undefined
+      })
 
-      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult['load'] | null = await hit(getRequestBody, getRequestHeader)
 
-      expect(result).toBeNull();
-    });
+      expect(result).toBeNull()
+    })
 
     it('should handle unknown event', async () => {
       const body = {
         e: 'unknown' as 'load' | 'unload',
-        b: 'test-beacon-id'
-      };
+        b: 'test-beacon-id',
+      }
 
-      const getRequestBody = vi.fn().mockResolvedValue(body);
-      const getRequestHeader = vi.fn(() => undefined);
+      const getRequestBody = vi.fn().mockResolvedValue(body)
+      const getRequestHeader = vi.fn(() => undefined)
 
-      const result: HitResult[keyof HitResult] | null = await hit(getRequestBody, getRequestHeader);
+      const result: HitResult[keyof HitResult] | null = await hit(getRequestBody, getRequestHeader)
 
-      expect(result).toBeNull();
-    });
-  });
-});
+      expect(result).toBeNull()
+    })
+  })
+})

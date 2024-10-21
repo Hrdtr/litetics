@@ -75,17 +75,17 @@ export interface HitEventUnloadRequestBody {
   /**
    * The event name. Always 'unload'
    */
-  e: 'unload';
+  e: 'unload'
 
   /**
    * The beacon ID.
    */
-  b: string;
+  b: string
 
   /**
    * The duration in MS.
    */
-  m: number;
+  m: number
 }
 
 /**
@@ -99,12 +99,12 @@ export type HitResult = {
     /**
      * The event name. Always 'load'.
      */
-    event: 'load',
+    event: 'load'
     /**
      * The result of the load event.
      */
-    data: EventData,
-  },
+    data: EventData
+  }
   /**
    * The unload event result.
    */
@@ -112,15 +112,15 @@ export type HitResult = {
     /**
      * The event name. Always 'unload'.
      */
-    event: 'unload',
+    event: 'unload'
     /**
      * The result of the unload event.
      * This includes the beacon ID and the duration in milliseconds.
      */
     data: Pick<EventData, 'bid'> & {
-      durationMs: NonNullable<EventData['durationMs']>,
-    },
-  },
+      durationMs: NonNullable<EventData['durationMs']>
+    }
+  }
 }
 /**
  * Handles a hit event.
@@ -147,7 +147,8 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
   if (typeof body === 'string') {
     try {
       body = JSON.parse(body)
-    } catch {
+    }
+    catch {
       // Log an error message if the body cannot be parsed as JSON
       log.error('Failed to parse body as JSON')
       return null
@@ -182,13 +183,13 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       } = body
 
       const receivedAt = new Date()
-    
+
       // Parse the page URL
       const url = new URL(pageUrl)
       const host = url.hostname
       const path = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '')
       const queryString = url.searchParams.toString() || null
-    
+
       // Parse the user agent
       const ua = userAgent && userAgent.length > 0 ? parseUserAgent(userAgent) : null
       const browserName = ua?.browser.name || null
@@ -201,7 +202,7 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       const cpuArchitecture = ua?.cpu.architecture || null
       const osName = ua?.os.name || null
       const osVersion = ua?.os.version || null
-    
+
       // Parse the referrer URL
       const {
         host: referrerHost = null,
@@ -213,12 +214,12 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
         searchParameter: referrerSearchParameter = null,
         searchTerm: referrerSearchTerm = null,
       } = referrer && isValidUrl(referrer) ? parseReferrer(referrer, pageUrl) : {}
-    
+
       // Get the country code based on the timezone
       const country = timezone && timezone.length > 0
         ? getCountryCodeByTimezone(timezone)
         : null
-    
+
       // Parse the accept language header
       const languages = acceptLanguage && acceptLanguage.length > 0
         ? parseAcceptLanguage(acceptLanguage)
@@ -229,12 +230,12 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       const secondaryLanguageCode = languages[1]?.code || null
       const secondaryLanguageScript = languages[1]?.script || null
       const secondaryLanguageRegion = languages[1]?.region || null
-    
+
       // Parse the UTM parameters from the URL
       const {
         campaign: utmCampaign,
         medium: utmMedium,
-        source: utmSource
+        source: utmSource,
       } = parseUTMParams(url)
 
       // Return the load event result
@@ -283,8 +284,8 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
           utmCampaign,
           utmMedium,
           utmSource,
-          additional
-        }
+          additional,
+        },
       } as HitResult[T['e']]
     }
 
@@ -292,17 +293,17 @@ export const hit = async <T extends (HitEventLoadRequestBody | HitEventUnloadReq
       // Handle the unload event
       const {
         b: bid,
-        m: durationMs
+        m: durationMs,
       } = body
       return {
         event: 'unload',
         data: {
           bid,
-          durationMs
-        }
+          durationMs,
+        },
       } as HitResult[T['e']]
     }
-  
+
     default: {
       // Log a debug message if the event type is unknown
       log.debug('Unknown event received: ' + eventType)
