@@ -250,7 +250,7 @@ export const createTracker = ({
 
     // Prefer pagehide if available because it's more reliable than unload.
     // We also prefer pagehide because it doesn't break bf-cache.
-    if ('onpagehide' in self) {
+    if ('onpagehide' in globalThis) {
       addEventListener('pagehide', sendUnloadBeacon, { capture: true })
     }
     else {
