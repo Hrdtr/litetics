@@ -185,7 +185,6 @@ export const createTracker = ({
      * @returns {Promise<void>}
      */
     const sendLoadBeacon = async (): Promise<void> => {
-      console.log({ id })
       // Returns true if it is the user's first visit to page, false if not.
       // The u query parameter is a cache busting parameter which is the page host and path
       // without protocol or query parameters.
@@ -220,7 +219,6 @@ export const createTracker = ({
      * @returns {void}
      */
     const sendUnloadBeacon = (): void => {
-      console.log({ id })
       if (!isUnloadCalled) {
         // We use sendBeacon here because it is more reliable than fetch on page unloads.
         // The Fetch API keepalive flag has a few caveats and doesn't work very well on
@@ -267,7 +265,6 @@ export const createTracker = ({
       if (sessionTimeout) clearTimeout(sessionTimeout)
 
       if (document.hidden) {
-        console.log('document.hidden')
         // Page is hidden, record the current time.
         lastActiveTime = Date.now()
         sessionTimeout = setTimeout(() => {
