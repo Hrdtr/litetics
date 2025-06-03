@@ -1,4 +1,6 @@
-import type { HitEventLoadRequestBody, HitEventUnloadRequestBody } from '../handler'
+/* eslint-disable unicorn/prefer-global-this */
+
+import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler'
 import { isValidUrl } from '../utils/is-valid-url'
 
 const AnalyticsEvent = {
@@ -193,7 +195,7 @@ export const createTracker = ({
         method: 'POST',
         /**
          * Payload to send to the server.
-         * @type {HitEventLoadRequestBody}
+         * @type {EventHandlerLoadRequestBody}
          */
         body: JSON.stringify({
           e: AnalyticsEvent.LOAD,
@@ -208,7 +210,7 @@ export const createTracker = ({
            * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
            */
           t: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        } satisfies HitEventLoadRequestBody),
+        } satisfies EventHandlerLoadRequestBody),
         // Will make the response opaque, but we don't need it.
         mode: 'no-cors',
       })
@@ -232,13 +234,13 @@ export const createTracker = ({
           hitEndpoint,
           /**
            * Payload to send to the server.
-           * @type {HitEventUnloadRequestBody}
+           * @type {EventHandlerUnloadRequestBody}
            */
           JSON.stringify({
             e: AnalyticsEvent.UNLOAD,
             b: id,
             m: Date.now() - (startTime - totalInactiveTime),
-          } satisfies HitEventUnloadRequestBody),
+          } satisfies EventHandlerUnloadRequestBody),
         )
       }
 
@@ -350,7 +352,7 @@ export const createTracker = ({
       method: 'POST',
       /**
        * Payload to send to the server.
-       * @type {HitEventLoadRequestBody}
+       * @type {EventHandlerLoadRequestBody}
        */
       body: JSON.stringify({
         e: AnalyticsEvent.LOAD,
@@ -366,7 +368,7 @@ export const createTracker = ({
          */
         t: Intl.DateTimeFormat().resolvedOptions().timeZone,
         d: rest,
-      } satisfies HitEventLoadRequestBody),
+      } satisfies EventHandlerLoadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
     })
@@ -389,13 +391,13 @@ export const createTracker = ({
       method: 'POST',
       /**
        * Payload to send to the server.
-       * @type {HitEventUnloadRequestBody}
+       * @type {EventHandlerUnloadRequestBody}
        */
       body: JSON.stringify({
         e: AnalyticsEvent.UNLOAD,
         b: id,
         m: Date.now() - startTime,
-      } satisfies HitEventUnloadRequestBody),
+      } satisfies EventHandlerUnloadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
     })

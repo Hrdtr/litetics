@@ -43,11 +43,6 @@ export interface ParsedReferrer {
    * The search term of the referrer, or null if there is no search term.
    */
   searchTerm: string | null
-
-  /**
-   * The original referrer URL.
-   */
-  _src: string
 }
 
 /**
@@ -68,7 +63,6 @@ export const parseReferrer = (referrerURL: string, currentURL?: string): ParsedR
     name: null,
     searchParameter: null,
     searchTerm: null,
-    _src: referrerURL, // Store the original referrer URL.
   }
 
   // Check if currentURL is provided to determine if the referrer is internal.

@@ -1,4 +1,4 @@
-import { UAParser } from 'ua-parser-js'
+import { UAParser } from 'my-ua-parser'
 
 /**
  * An object containing parsed browser, device, CPU, engine, operating system information,
@@ -25,10 +25,6 @@ export interface ParsedUserAgent {
    * The parsed operating system information.
    */
   os: UAParser.IOS
-  /**
-   * The original user agent string.
-   */
-  _src: string
 }
 
 /**
@@ -52,6 +48,26 @@ export const parseUserAgent = (uaString: string): ParsedUserAgent => {
     device,
     cpu,
     os,
-    _src: uaString,
   }
+}
+
+export type Device = {
+  userAgent: string
+  isDesktop: boolean
+  isIos: boolean
+  isAndroid: boolean
+  isMobile: boolean
+  isMobileOrTablet: boolean
+  isDesktopOrTablet: boolean
+  isTablet: boolean
+  isLinux: boolean
+  isWindows: boolean
+  isMacOS: boolean
+  isApple: boolean
+  isSafari: boolean
+  isFirefox: boolean
+  isEdge: boolean
+  isChrome: boolean
+  isSamsung: boolean
+  isCrawler: boolean
 }

@@ -1,16 +1,16 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
 
-import * as handler from '../../src/handler'
+import * as handler from '../../src'
 
 describe('handle module exports', () => {
-  it('should export hit function', () => {
-    expect(handler.hit).toBeDefined()
-    expect(typeof handler.hit).toBe('function')
+  it('should export createEventHandler function', () => {
+    expect(handler.createEventHandler).toBeDefined()
+    expect(typeof handler.createEventHandler).toBe('function')
   })
 
-  it('should export ping function', () => {
-    expect(handler.ping).toBeDefined()
-    expect(typeof handler.ping).toBe('function')
+  it('should export createPingHandler function', () => {
+    expect(handler.createPingHandler).toBeDefined()
+    expect(typeof handler.createPingHandler).toBe('function')
   })
 })

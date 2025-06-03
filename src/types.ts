@@ -1,4 +1,4 @@
-export type EventData = {
+export interface EventData {
   /**
    * The beacon ID.
    */
@@ -172,3 +172,5 @@ export type EventData = {
     [key: string]: string | number | boolean | null | undefined
   } | null
 }
+
+export type MaybePromise<T> = T | Promise<T>

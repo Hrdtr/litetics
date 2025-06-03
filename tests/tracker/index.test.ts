@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-global-this */
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
@@ -68,7 +69,7 @@ describe('register', () => {
     await new Promise(r => setTimeout(r, 1000))
     expect(fetchSpy).toHaveBeenCalledTimes(6) // +2 other registered trackers (still listen to popstate)
   })
-}, { timeout: 1000 * 60 * 5 })
+}, 1000 * 60 * 5)
 
 describe('track', () => {
   it('should call fetch with correct parameters', async () => {
