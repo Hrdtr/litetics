@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.0.0-rc.13
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.12...v1.0.0-rc.13)
+
+### 💅 Refactors
+
+- ⚠️  Handler apis & replace ua-parser-js with my-ua-parser ([d9a88f6](https://github.com/Hrdtr/litetics/commit/d9a88f6))
+
+### 🏡 Chore
+
+- **tracker:** Remove console logs ([cda950f](https://github.com/Hrdtr/litetics/commit/cda950f))
+- Update referrers & country timezones data ([2ccbc6e](https://github.com/Hrdtr/litetics/commit/2ccbc6e))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Handler apis & replace ua-parser-js with my-ua-parser ([d9a88f6](https://github.com/Hrdtr/litetics/commit/d9a88f6))
+
+### ❤️ Contributors
+
+- Herdi Tr ([@Hrdtr](https://github.com/Hrdtr))
+
 ## v1.0.0-rc.12
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.11...v1.0.0-rc.12)
