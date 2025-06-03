@@ -182,10 +182,10 @@ export const referrers: ReferrersData = {
     },
     '1und1': {
       domains: [
-        'search.1und1.de',
+        'suche.1und1.de',
       ],
       parameters: [
-        'su',
+        'q',
       ],
     },
     'Virgilio': {
@@ -1236,6 +1236,14 @@ export const referrers: ReferrersData = {
         'searchTerm',
       ],
     },
+    'Brave': {
+      domains: [
+        'search.brave.com',
+      ],
+      parameters: [
+        'q',
+      ],
+    },
     'British Telecommunications': {
       domains: [
         'search.bt.com',
@@ -1437,6 +1445,15 @@ export const referrers: ReferrersData = {
       ],
       parameters: [
         'q',
+      ],
+    },
+    'Arianna': {
+      domains: [
+        'arianna.libero.it',
+        'www.arianna.com',
+      ],
+      parameters: [
+        'query',
       ],
     },
     'StepStone': {
@@ -2059,9 +2076,9 @@ export const referrers: ReferrersData = {
         'key',
       ],
     },
-    'Meta': {
+    'Startsiden': {
       domains: [
-        'meta.ua',
+        'www.startsiden.no',
       ],
       parameters: [
         'q',
@@ -2184,14 +2201,6 @@ export const referrers: ReferrersData = {
     'Zoeken': {
       domains: [
         'www.zoeken.nl',
-      ],
-      parameters: [
-        'q',
-      ],
-    },
-    'Startsiden': {
-      domains: [
-        'www.startsiden.no',
       ],
       parameters: [
         'q',
@@ -2421,6 +2430,14 @@ export const referrers: ReferrersData = {
       domains: [
         'daemon-search.com',
         'my.daemon-search.com',
+      ],
+      parameters: [
+        'q',
+      ],
+    },
+    'Meta.ua': {
+      domains: [
+        'meta.ua',
       ],
       parameters: [
         'q',
@@ -3226,13 +3243,12 @@ export const referrers: ReferrersData = {
         'q',
       ],
     },
-    'Arianna': {
+    'Rakuten': {
       domains: [
-        'arianna.libero.it',
-        'www.arianna.com',
+        'websearch.rakuten.co.jp',
       ],
       parameters: [
-        'query',
+        'qt',
       ],
     },
     'Mamma': {
@@ -3275,14 +3291,6 @@ export const referrers: ReferrersData = {
       ],
       parameters: [
         'q',
-      ],
-    },
-    'Rakuten': {
-      domains: [
-        'websearch.rakuten.co.jp',
-      ],
-      parameters: [
-        'qt',
       ],
     },
     'Google': {
@@ -3844,14 +3852,24 @@ export const referrers: ReferrersData = {
         'mail.naver.com',
       ],
     },
+    'T-online': {
+      domains: [
+        'email.t-online.de',
+      ],
+    },
     'Zoho': {
       domains: [
         'mail.zoho.com',
       ],
     },
-    'Virgin': {
+    '163 Mail': {
       domains: [
-        'webmail.virginbroadband.com.au',
+        'mail.163.com',
+      ],
+    },
+    'TIM': {
+      domains: [
+        'webmail.tim.it',
       ],
     },
     'Yahoo! Mail': {
@@ -3877,6 +3895,17 @@ export const referrers: ReferrersData = {
     'Vodafone': {
       domains: [
         'webmail.vodafone.co.nz',
+        'mail.vodafone.de',
+      ],
+    },
+    '1und1': {
+      domains: [
+        'deref-1und1-02.de',
+      ],
+    },
+    'Dodo': {
+      domains: [
+        'webmail.dodo.com.au',
       ],
     },
     '126 Mail': {
@@ -3897,6 +3926,15 @@ export const referrers: ReferrersData = {
     'iPrimus': {
       domains: [
         'webmail.iprimus.com.au',
+      ],
+    },
+    'Web.de': {
+      domains: [
+        'deref-web.de',
+        '3c.web.de',
+        '3c-bap.web.de',
+        'lightmailer-bap.web.de',
+        'lightmailer-bs.web.de',
       ],
     },
     'QQ Mail': {
@@ -3937,14 +3975,11 @@ export const referrers: ReferrersData = {
         'com.microsoft.office.outlook',
       ],
     },
-    'Dodo': {
+    'Mail.com': {
       domains: [
-        'webmail.dodo.com.au',
-      ],
-    },
-    '2degrees': {
-      domains: [
-        'webmail.2degreesbroadband.co.nz',
+        'deref-mail.com',
+        '3c-lxa.mail.com',
+        'lightmailer.mail.com',
       ],
     },
     'Daum Mail': {
@@ -3953,15 +3988,24 @@ export const referrers: ReferrersData = {
         'mail.daum.net',
       ],
     },
+    'UPC': {
+      domains: [
+        'upcmail.hispeed.ch',
+      ],
+    },
+    '2degrees': {
+      domains: [
+        'webmail.2degreesbroadband.co.nz',
+      ],
+    },
     'Beeline': {
       domains: [
         'post.ru',
       ],
     },
-    'Mail.ru': {
+    'Infomaniak': {
       domains: [
-        'e.mail.ru',
-        'touch.mail.ru',
+        'mail.infomaniak.com',
       ],
     },
     'Adam Internet': {
@@ -3972,11 +4016,43 @@ export const referrers: ReferrersData = {
     'Orange Webmail': {
       domains: [
         'orange.fr/webmail',
+        'mail01.orange.fr',
+        'mail02.orange.fr',
+        'wmail.orange.fr',
+        'messageriepro3.orange.fr',
+        'messagerie.orange.fr',
+      ],
+    },
+    'Ionos': {
+      domains: [
+        'email.ionos.de',
+        'email.ionos.es',
+        'email.ionos.fr',
+        'email.ionos.it',
+        'email.ionos.ca',
+        'email.ionos.mx',
+        'email.ionos.com',
+        'email.ionos.co.uk',
+        'mailbusiness.ionos.de',
+        'mailbusiness.ionos.es',
+        'mailbusiness.ionos.fr',
+        'mailbusiness.ionos.it',
+        'mailbusiness.ionos.ca',
+        'mailbusiness.ionos.mx',
+        'mailbusiness.ionos.com',
+        'mailbusiness.ionos.co.uk',
       ],
     },
     'earthlink': {
       domains: [
         'com.earthlink.myearthlink',
+      ],
+    },
+    'Bluewin': {
+      domains: [
+        'rich-v01.bluewin.ch',
+        'rich-v02.bluewin.ch',
+        'email.bluewin.ch',
       ],
     },
     'AOL Mail': {
@@ -3996,6 +4072,16 @@ export const referrers: ReferrersData = {
         'webmail.optusnet.com.au',
       ],
     },
+    'Virgin': {
+      domains: [
+        'webmail.virginbroadband.com.au',
+      ],
+    },
+    'Proton': {
+      domains: [
+        'mail.proton.me',
+      ],
+    },
     'Commander': {
       domains: [
         'webmail.commander.net.au',
@@ -4007,6 +4093,30 @@ export const referrers: ReferrersData = {
         'm.mastermail.ru',
       ],
     },
+    'GMX': {
+      domains: [
+        'deref-gmx.de',
+        'deref-gmx.at',
+        'deref-gmx.ch',
+        'deref-gmx.fr',
+        'deref-gmx.es',
+        'deref-gmx.it',
+        'deref-gmx.com',
+        'deref-gmx.net',
+        'deref-gmx.co.uk',
+        'lightmailer.gmx.de',
+        'lightmailer.gmx.at',
+        'lightmailer.gmx.ch',
+        'lightmailer.gmx.fr',
+        'lightmailer.gmx.es',
+        'lightmailer.gmx.it',
+        'lightmailer.gmx.com',
+        'lightmailer.gmx.net',
+        'lightmailer.gmx.co.uk',
+        'lightmailer-bs.gmx.net',
+        'lightmailer-bap.gmx.net',
+      ],
+    },
     'Yandex': {
       domains: [
         'mail.yandex.ru',
@@ -4016,9 +4126,10 @@ export const referrers: ReferrersData = {
         'mail.yandex.by',
       ],
     },
-    '163 Mail': {
+    'Mail.ru': {
       domains: [
-        'mail.163.com',
+        'e.mail.ru',
+        'touch.mail.ru',
       ],
     },
     'Ukr.net': {
@@ -4246,9 +4357,14 @@ export const referrers: ReferrersData = {
         'www.googleadservices.com',
         'partner.googleadservices.com',
         'googleads.g.doubleclick.net',
+        'tdsf.doubleclick.net',
         'tpc.googlesyndication.com',
+        'safeframe.googlesyndication.com',
         'googleadservices.com',
         'imasdk.googleapis.com',
+        'www.adsensecustomsearchads.com',
+        'syndicatedsearch.goog',
+        'pagead2.googlesyndication.com',
       ],
     },
     'Eyeota': {
@@ -4365,10 +4481,9 @@ export const referrers: ReferrersData = {
         'ok.ru',
       ],
     },
-    'Tildes': {
+    'GitHub': {
       domains: [
-        'tildes.net',
-        'com.talklittle.android.tildes',
+        'github.com',
       ],
     },
     'Classmates': {
@@ -4417,11 +4532,14 @@ export const referrers: ReferrersData = {
         'multiply.com',
       ],
     },
-    'Threads': {
+    'Facebook': {
       domains: [
-        'threads.net',
-        'l.threads.net',
-        'com.instagram.barcelona',
+        'facebook.com',
+        'fb.me',
+        'm.facebook.com',
+        'l.facebook.com',
+        'lm.facebook.com',
+        'com.facebook.katana',
       ],
     },
     'myYearbook': {
@@ -4629,6 +4747,11 @@ export const referrers: ReferrersData = {
         'blackplanet.com',
       ],
     },
+    'Lnk.Bio': {
+      domains: [
+        'lnk.bio',
+      ],
+    },
     'Cyworld': {
       domains: [
         'global.cyworld.com',
@@ -4644,14 +4767,11 @@ export const referrers: ReferrersData = {
         'skyrock.com',
       ],
     },
-    'Facebook': {
+    'Threads': {
       domains: [
-        'facebook.com',
-        'fb.me',
-        'm.facebook.com',
-        'l.facebook.com',
-        'lm.facebook.com',
-        'com.facebook.katana',
+        'threads.net',
+        'l.threads.net',
+        'com.instagram.barcelona',
       ],
     },
     'WhatsApp': {
@@ -4732,9 +4852,16 @@ export const referrers: ReferrersData = {
         'viadeo.com',
       ],
     },
-    'GitHub': {
+    'Tildes': {
       domains: [
-        'github.com',
+        'tildes.net',
+        'com.talklittle.android.tildes',
+      ],
+    },
+    'Workplace': {
+      domains: [
+        'l.workplace.com',
+        'lm.workplace.com',
       ],
     },
     'StackOverflow': {

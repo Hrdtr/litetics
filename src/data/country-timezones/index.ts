@@ -206,6 +206,7 @@ export const countryTimezones: CountryTimezonesData = {
   ],
   CL: [
     'America/Santiago',
+    'America/Coyhaique',
     'America/Punta_Arenas',
     'Pacific/Easter',
   ],
