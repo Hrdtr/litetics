@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.0-rc.14
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.13...v1.0.0-rc.14)
+
+### 🩹 Fixes
+
+- **tracker:** Change track endpoint option key ([a6a04ed](https://github.com/Hrdtr/litetics/commit/a6a04ed))
+
+### ❤️ Contributors
+
+- Herdi Tr ([@Hrdtr](https://github.com/Hrdtr))
+
 ## v1.0.0-rc.13
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.12...v1.0.0-rc.13)
