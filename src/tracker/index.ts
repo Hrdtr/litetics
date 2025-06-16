@@ -13,13 +13,13 @@ const AnalyticsEvent = {
  */
 export interface CreateTrackerOptions {
   /**
-   * The API endpoint to send hit events to.
+   * The API endpoint to send track events to.
    */
   apiEndpoint: {
     /**
-     * The URL to send hit events to.
+     * The URL to send track events to.
      */
-    hit: string
+    track: string
     /**
      * The URL to send ping events to.
      */
@@ -42,13 +42,13 @@ export interface CreateTrackerOptions {
 export const createTracker = ({
   apiEndpoint: {
     ping: pingEndpoint,
-    hit: hitEndpoint,
+    track: trackEndpoint,
   },
   mode = 'history',
   sessionTimeoutDuration = 5 * 60 * 1000,
 }: CreateTrackerOptions) => {
-  if (!isValidUrl(hitEndpoint)) {
-    throw new Error('`apiEndpoint.hit` must be a valid URL')
+  if (!isValidUrl(trackEndpoint)) {
+    throw new Error('`apiEndpoint.track` must be a valid URL')
   }
   if (!isValidUrl(pingEndpoint)) {
     throw new Error('`apiEndpoint.ping` must be a valid URL')
@@ -191,7 +191,7 @@ export const createTracker = ({
       // The u query parameter is a cache busting parameter which is the page host and path
       // without protocol or query parameters.
       const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname))
-      await fetch(hitEndpoint, {
+      await fetch(trackEndpoint, {
         method: 'POST',
         /**
          * Payload to send to the server.
@@ -231,7 +231,7 @@ export const createTracker = ({
         // Some ad-blockers block this API directly, but since this is the unload event,
         // it's an optional event to send.
         navigator.sendBeacon(
-          hitEndpoint,
+          trackEndpoint,
           /**
            * Payload to send to the server.
            * @type {EventHandlerUnloadRequestBody}
@@ -348,7 +348,7 @@ export const createTracker = ({
 
     const { type, ...rest } = data
     // We use fetch here because it is more reliable than XHR.
-    await fetch(hitEndpoint, {
+    await fetch(trackEndpoint, {
       method: 'POST',
       /**
        * Payload to send to the server.
@@ -387,7 +387,7 @@ export const createTracker = ({
       return
     }
 
-    await fetch(hitEndpoint, {
+    await fetch(trackEndpoint, {
       method: 'POST',
       /**
        * Payload to send to the server.

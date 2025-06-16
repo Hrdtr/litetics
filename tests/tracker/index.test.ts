@@ -15,16 +15,16 @@ afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 
 describe('createTracker', () => {
-  it('should throw an error if apiEndpoint.hit is invalid', () => {
-    expect(() => createTracker({ apiEndpoint: { hit: 'invalid-url', ping: 'http://example.com' } })).toThrowError('`apiEndpoint.hit` must be a valid URL')
+  it('should throw an error if apiEndpoint.track is invalid', () => {
+    expect(() => createTracker({ apiEndpoint: { track: 'invalid-url', ping: 'http://example.com' } })).toThrowError('`apiEndpoint.track` must be a valid URL')
   })
 
   it('should throw an error if apiEndpoint.ping is invalid', () => {
-    expect(() => createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'invalid-url' } })).toThrowError('`apiEndpoint.ping` must be a valid URL')
+    expect(() => createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'invalid-url' } })).toThrowError('`apiEndpoint.ping` must be a valid URL')
   })
 
   it('should create a tracker with default options', () => {
-    const tracker = createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } })
+    const tracker = createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' } })
     expect(tracker).toBeDefined()
     expect(tracker.register).toBeDefined()
     expect(tracker.track).toBeDefined()
@@ -37,14 +37,14 @@ describe('register', () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
     const sendBeaconMock = vi.fn()
     Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock })
-    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
     await new Promise(r => setTimeout(r, 1000))
     expect(fetchSpy).toHaveBeenCalledTimes(1) // register load
 
     window.dispatchEvent(new Event('pagehide'))
     expect(sendBeaconMock).toHaveBeenCalledTimes(1)
 
-    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
     await new Promise(r => setTimeout(r, 1000))
     expect(fetchSpy).toHaveBeenCalledTimes(2) // +1 register load
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
@@ -53,7 +53,7 @@ describe('register', () => {
     await new Promise(r => setTimeout(r, 1001))
     expect(sendBeaconMock).toHaveBeenCalledTimes(2) // timeout exceeded, unload event should be sent
 
-    createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
+    createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
     await new Promise(r => setTimeout(r, 1000))
     expect(fetchSpy).toHaveBeenCalledTimes(3) // +1 register load
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
@@ -74,7 +74,7 @@ describe('register', () => {
 describe('track', () => {
   it('should call fetch with correct parameters', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
-    await createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } }).track('test-event', { type: 'test' })
+    await createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' } }).track('test-event', { type: 'test' })
     expect(fetchSpy).toHaveBeenCalledTimes(1) // track event
   })
 })
@@ -82,7 +82,7 @@ describe('track', () => {
 describe('trackEndOf', () => {
   it('should call fetch with correct parameters', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
-    const tracker = createTracker({ apiEndpoint: { hit: 'http://example.com', ping: 'http://example.com' } })
+    const tracker = createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' } })
     await tracker.track('test-event', { type: 'test' }, { withDuration: true })
     await tracker.trackEndOf('test-event')
     expect(fetchSpy).toHaveBeenCalledTimes(2) // track event & track end of event
