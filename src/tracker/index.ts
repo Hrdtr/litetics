@@ -1,5 +1,4 @@
 /* eslint-disable unicorn/prefer-global-this */
-
 import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler'
 import { isValidUrl } from '../utils/is-valid-url'
 
@@ -45,7 +44,6 @@ export const createTracker = ({
     track: trackEndpoint,
   },
   mode = 'history',
-  sessionTimeoutDuration = 5 * 60 * 1000,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL')
@@ -106,24 +104,9 @@ export const createTracker = ({
     let startTime = Date.now()
 
     /**
-     * Variable to store the last time when the tab was active.
-     */
-    let lastActiveTime: number | null = null
-
-    /**
-     * Variable to store the total inactive time in the session.
-     */
-    let totalInactiveTime = 0
-
-    /**
      * Ensure only the unload beacon is called once.
      */
     let isUnloadCalled: boolean = false
-
-    /**
-     * Variable to store the timeout to end the session.
-     */
-    let sessionTimeout: ReturnType<typeof setTimeout> | null = null
 
     /**
      * Copy of the original pushState and replaceState functions, used for overriding
@@ -141,13 +124,7 @@ export const createTracker = ({
       isUnique = false
       id = generateID()
       startTime = Date.now()
-      lastActiveTime = Date.now()
-      totalInactiveTime = 0
       isUnloadCalled = false
-      if (sessionTimeout) {
-        clearTimeout(sessionTimeout)
-      }
-      sessionTimeout = null
     }
 
     /**
@@ -239,7 +216,7 @@ export const createTracker = ({
           JSON.stringify({
             e: AnalyticsEvent.UNLOAD,
             b: id,
-            m: Date.now() - (startTime - totalInactiveTime),
+            m: Date.now() - startTime,
           } satisfies EventHandlerUnloadRequestBody),
         )
       }
@@ -261,23 +238,11 @@ export const createTracker = ({
       addEventListener('unload', sendUnloadBeacon, { capture: true })
     }
 
-    // Visibility change events allow us to track whether a user is tabbed out and
-    // correct our timings.
+    // Visibility change events allow us to track whether a user is tabbed out
     addEventListener('visibilitychange', () => {
-      if (sessionTimeout) clearTimeout(sessionTimeout)
-
       if (document.hidden) {
-        // Page is hidden, record the current time.
-        lastActiveTime = Date.now()
-        sessionTimeout = setTimeout(() => {
-          totalInactiveTime += Date.now() - (lastActiveTime ?? 0)
-          sendUnloadBeacon()
-        }, sessionTimeoutDuration)
-      }
-      else {
-        // Page is visible, subtract the hidden time to calculate the total time hidden.
-        totalInactiveTime += Date.now() - (lastActiveTime ?? 0)
-        lastActiveTime = null
+        // Page is hidden, send unload beacon immediately
+        sendUnloadBeacon();
       }
     }, { capture: true })
 
@@ -305,10 +270,9 @@ export const createTracker = ({
 
         // popstate is fired when the back or forward button is pressed.
         addEventListener('popstate', () => {
-          // Unfortunately, we can't use unload here because we can't call it before
-          // the history change, so cleanup any temporary variables here.
-          cleanup()
-          sendLoadBeacon()
+          sendUnloadBeacon() // Send unload for previous page
+          cleanup() // Reset state for new page
+          sendLoadBeacon() // Send load for new page
         }, { capture: true })
       }
     })

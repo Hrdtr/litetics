@@ -49,21 +49,14 @@ describe('register', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2) // +1 register load
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
     window.dispatchEvent(new Event('visibilitychange'))
-    expect(sendBeaconMock).toHaveBeenCalledTimes(1) // still on timeout
-    await new Promise(r => setTimeout(r, 1001))
-    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // timeout exceeded, unload event should be sent
+    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // unload event should be sent
 
     createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' }, sessionTimeoutDuration: 1000 }).register()
     await new Promise(r => setTimeout(r, 1000))
     expect(fetchSpy).toHaveBeenCalledTimes(3) // +1 register load
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
     window.dispatchEvent(new Event('visibilitychange'))
-    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // still on timeout
-    await new Promise(r => setTimeout(r, 500))
-    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false })
-    window.dispatchEvent(new Event('visibilitychange'))
-    await new Promise(r => setTimeout(r, 501))
-    expect(sendBeaconMock).toHaveBeenCalledTimes(2) // no unload event sent since timeout isn't exceeded yet
+    expect(sendBeaconMock).toHaveBeenCalledTimes(3) // still on timeout
 
     window.dispatchEvent(new Event('popstate'))
     await new Promise(r => setTimeout(r, 1000))
