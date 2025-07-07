@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.0-rc.15
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.14...v1.0.0-rc.15)
+
+### 🩹 Fixes
+
+- **tracker:** Remove problematic inactive session substraction ([8c7a8e3](https://github.com/Hrdtr/litetics/commit/8c7a8e3))
+
+### 🏡 Chore
+
+- Deps update ([f48ed5a](https://github.com/Hrdtr/litetics/commit/f48ed5a))
+
+### ❤️ Contributors
+
+- Herdi Tr ([@Hrdtr](https://github.com/Hrdtr))
+
 ## v1.0.0-rc.14
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.13...v1.0.0-rc.14)

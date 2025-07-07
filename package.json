@@ -1,6 +1,6 @@
 {
   "name": "litetics",
-  "version": "1.0.0-rc.14",
+  "version": "1.0.0-rc.15",
   "description": "Embeddable javascript analytics event tracking library",
   "repository": "Hrdtr/litetics",
   "license": "MIT",
