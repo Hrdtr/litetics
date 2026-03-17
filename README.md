@@ -26,13 +26,13 @@ npm install litetics
 yarn add litetics
 
 # pnpm
-pnpm install litetics
+pnpm add litetics
 
 # bun
 bun install litetics
 
 # deno
-deno install litetics
+deno install npm:litetics
 ```
 
 <!-- /automd -->
