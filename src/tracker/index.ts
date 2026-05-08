@@ -8,6 +8,12 @@ const AnalyticsEvent = {
 
 /**
  * Represents the options object for creating a new tracker.
+ *
+ * @remarks This module is browser-only. It accesses DOM APIs (`location`,
+ * `history`, `document`, `navigator`, `self`, `addEventListener`, `fetch`,
+ * `XMLHttpRequest`, `Intl`) and must not be imported in a Node.js environment
+ * without a DOM polyfill. All global access is lazy — nothing is evaluated
+ * at import time beyond type imports and constant definitions.
  */
 export interface CreateTrackerOptions {
   /**
@@ -37,9 +43,15 @@ export interface CreateTrackerOptions {
   sessionTimeoutDuration?: number;
 }
 
-const originalPushState = history.pushState.bind(history);
-const originalReplaceState = history.replaceState.bind(history);
-
+/**
+ * Creates a new tracker instance for sending analytics events to a server.
+ *
+ * @remarks This module is browser-only. It accesses DOM APIs (`location`,
+ * `history`, `document`, `navigator`, `self`, `addEventListener`, `fetch`,
+ * `XMLHttpRequest`, `Intl`) and must not be imported in a Node.js environment
+ * without a DOM polyfill. All global access is lazy — nothing is evaluated
+ * at import time beyond type imports and constant definitions.
+ */
 export const createTracker = ({
   apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
   mode = 'history',
@@ -69,6 +81,9 @@ export const createTracker = ({
   let isUnique: boolean = true;
 
   const register = () => {
+    const originalPushState = history.pushState.bind(history);
+    const originalReplaceState = history.replaceState.bind(history);
+
     const ac = new AbortController();
     const { signal } = ac;
 
