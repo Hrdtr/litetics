@@ -219,10 +219,8 @@ export class EventHandler {
     switch (eventType) {
       case 'load': {
         // Handle the load event
-        if (body.u && !isValidUrl(body.u)) {
-          // Early return if the URL is invalid
-          return;
-        }
+        if (!body.u) return;
+        if (!isValidUrl(body.u)) return;
         if (body.r && !isValidUrl(body.r)) {
           // Omit the referrer if the referrer URL is invalid
           body.r = undefined;

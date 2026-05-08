@@ -48,7 +48,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "isbot": "^5.1.28",
+    "isbot": "^5.1.40",
     "my-ua-parser": "^2.0.4"
   },
   "devDependencies": {
@@ -68,7 +68,7 @@
     "msw": "^2.14.3",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
-    "typescript": "^6.0.3",
+    "typescript": "^5.9.2",
     "unbuild": "^3.6.1",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.5"
