@@ -17,16 +17,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    },
-    "./handler": {
-      "types": "./dist/handler/index.d.ts",
-      "import": "./dist/handler/index.mjs",
-      "require": "./dist/handler/index.cjs"
-    },
-    "./tracker": {
-      "types": "./dist/tracker/index.d.ts",
-      "import": "./dist/tracker/index.mjs",
-      "require": "./dist/tracker/index.cjs"
     }
   },
   "scripts": {
