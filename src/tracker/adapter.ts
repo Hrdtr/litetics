@@ -98,8 +98,8 @@ export interface BrowserAdapterOptions {
  * Wraps `history.pushState` / `history.replaceState` so that SPA
  * navigation via the History API is captured through `onNavigate`.
  *
- * The wrapping only happens once — subsequent calls return a new
- * adapter instance that shares the same wrapped history functions.
+ * The wrapping only happens once — the original functions are saved
+ * and all subsequent adapter instances share the same wrapper.
  *
  * @param options - Optional mode configuration.
  * @returns A fully configured browser adapter.
