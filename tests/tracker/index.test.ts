@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
 import { createTracker } from '../../src/tracker';
 
 const server = setupServer(
@@ -40,59 +40,72 @@ describe('createTracker', () => {
   });
 });
 
-describe(
-  'register',
-  () => {
-    const destroyFns: (() => void)[] = [];
+describe('register', () => {
+  const destroyFns: (() => void)[] = [];
 
-    afterEach(() => {
-      for (const fn of destroyFns) {
-        fn();
-      }
-      destroyFns.length = 0;
-    });
+  const settle = () => new Promise<void>((r) => setTimeout(r, 0));
 
-    it('should send events correctly', async () => {
-      const fetchSpy = vi.spyOn(global, 'fetch');
-      const sendBeaconMock = vi.fn();
-      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
-      const destroy1 = createTracker({
-        apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      }).register();
-      destroyFns.push(destroy1);
-      await new Promise((r) => setTimeout(r, 1000));
-      expect(fetchSpy).toHaveBeenCalledTimes(1); // register load
+  afterEach(() => {
+    for (const fn of destroyFns) {
+      fn();
+    }
+    destroyFns.length = 0;
+  });
 
-      window.dispatchEvent(new Event('pagehide'));
-      expect(sendBeaconMock).toHaveBeenCalledTimes(1);
+  it('should send events correctly', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const sendBeaconMock = vi.fn();
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    const destroy1 = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy1);
+    await settle();
+    expect(fetchSpy).toHaveBeenCalledTimes(1); // register load
 
-      const destroy2 = createTracker({
-        apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      }).register();
-      destroyFns.push(destroy2);
-      await new Promise((r) => setTimeout(r, 1000));
-      expect(fetchSpy).toHaveBeenCalledTimes(2); // +1 register load
-      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
-      window.dispatchEvent(new Event('visibilitychange'));
-      expect(sendBeaconMock).toHaveBeenCalledTimes(2); // unload event should be sent
+    window.dispatchEvent(new Event('pagehide'));
+    expect(sendBeaconMock).toHaveBeenCalledTimes(1);
 
-      const destroy3 = createTracker({
-        apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      }).register();
-      destroyFns.push(destroy3);
-      await new Promise((r) => setTimeout(r, 1000));
-      expect(fetchSpy).toHaveBeenCalledTimes(3); // +1 register load
-      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
-      window.dispatchEvent(new Event('visibilitychange'));
-      expect(sendBeaconMock).toHaveBeenCalledTimes(3); // still on timeout
+    const destroy2 = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy2);
+    await settle();
+    expect(fetchSpy).toHaveBeenCalledTimes(2); // +1 register load
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    window.dispatchEvent(new Event('visibilitychange'));
+    expect(sendBeaconMock).toHaveBeenCalledTimes(2); // unload event should be sent
 
-      window.dispatchEvent(new Event('popstate'));
-      await new Promise((r) => setTimeout(r, 1000));
-      expect(fetchSpy).toHaveBeenCalledTimes(6); // +2 other registered trackers (still listen to popstate)
-    });
-  },
-  1000 * 60 * 5,
-);
+    const destroy3 = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy3);
+    await settle();
+    expect(fetchSpy).toHaveBeenCalledTimes(3); // +1 register load
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    window.dispatchEvent(new Event('visibilitychange'));
+    expect(sendBeaconMock).toHaveBeenCalledTimes(3); // still on timeout
+
+    window.dispatchEvent(new Event('popstate'));
+    await settle();
+    expect(fetchSpy).toHaveBeenCalledTimes(6); // +2 other registered trackers (still listen to popstate)
+  });
+
+  it('should listen to hashchange events in hash mode', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+      mode: 'hash',
+    }).register();
+    await settle();
+    fetchSpy.mockClear();
+
+    window.dispatchEvent(new Event('hashchange'));
+    await settle();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    destroy();
+  });
+});
 
 describe('track', () => {
   it('should call fetch with correct parameters', async () => {
@@ -114,16 +127,33 @@ describe('trackEndOf', () => {
     await tracker.trackEndOf('test-event');
     expect(fetchSpy).toHaveBeenCalledTimes(2); // track event & track end of event
   });
+
+  it('should not call fetch for non-existent key', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const tracker = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    });
+    await tracker.trackEndOf('non-existent-key');
+    expect(fetchSpy).toHaveBeenCalledTimes(0);
+  });
 });
 
 describe('sessionTimeoutDuration', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should end session and start a new one when timeout fires', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
       sessionTimeoutDuration: 50,
     }).register();
-    await new Promise((r) => setTimeout(r, 100));
+    await vi.advanceTimersByTimeAsync(100);
     expect(fetchSpy).toHaveBeenCalledTimes(2); // initial load + session timeout load
     destroy();
   });
@@ -134,9 +164,9 @@ describe('sessionTimeoutDuration', () => {
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
       sessionTimeoutDuration: 200,
     }).register();
-    await new Promise((r) => setTimeout(r, 50));
+    await vi.advanceTimersByTimeAsync(50);
     window.dispatchEvent(new Event('mousedown')); // reset timer
-    await new Promise((r) => setTimeout(r, 100));
+    await vi.advanceTimersByTimeAsync(100);
     expect(fetchSpy).toHaveBeenCalledTimes(1); // only initial load, timer was reset
     destroy();
   });

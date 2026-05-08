@@ -10,7 +10,8 @@ describe('utils:getCountryCodeByTimezone', () => {
   });
 
   it('should return the country code for a timezone with multiple countries', () => {
-    // This assumes that the mock data has multiple countries for a single timezone
+    // The country-timezones data has no timezone shared across multiple countries,
+    // so this follows the same lookup path as any valid timezone.
     const timezone = 'Europe/London';
     const countryCode = getCountryCodeByTimezone(timezone);
     expect(countryCode).toBe('GB');

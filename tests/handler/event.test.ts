@@ -360,6 +360,34 @@ describe('handler:event', () => {
         additional: null,
       });
     });
+
+    it('should handle async persist', async () => {
+      const asyncPersist = vi.fn().mockResolvedValue(undefined);
+      const asyncUpdate = vi.fn().mockResolvedValue(undefined);
+      const handler = createEventHandler({ persist: asyncPersist, update: asyncUpdate });
+
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      await handler.track({ getRequestBody, getRequestHeader });
+      vi.useRealTimers();
+
+      expect(asyncPersist).toBeCalledTimes(1);
+      expect(asyncPersist).toHaveResolved();
+    });
   });
 
   describe('unload event', () => {
@@ -420,6 +448,26 @@ describe('handler:event', () => {
       await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
+    });
+
+    it('should handle unload event via Request object', async () => {
+      const body: EventHandlerUnloadRequestBody = {
+        e: 'unload',
+        b: 'test-beacon-id',
+        m: 5678,
+      };
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+
+      await eventHandler.track(request);
+
+      expect(mockUpdate).toBeCalledWith({
+        bid: 'test-beacon-id',
+        durationMs: 5678,
+      });
     });
   });
 });

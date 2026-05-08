@@ -1,7 +1,7 @@
 import type { PingHandlerResult } from '../../src';
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
-import { createPingHandler } from '../../src';
+import { createPingHandler, createPingResponse } from '../../src';
 
 const pingHandler = createPingHandler();
 
@@ -86,5 +86,43 @@ describe('handler:ping', () => {
     expect(result.status).toEqual(400);
     expect(result.body).toEqual(null);
     expect(result.error).toEqual('Bad Request');
+  });
+
+  describe('createPingResponse', () => {
+    it('should return a Response with the correct status, headers, and body', async () => {
+      const data: PingHandlerResult = {
+        status: 200,
+        headers: { 'Cache-Control': 'no-cache', 'Last-Modified': 'some-date' },
+        body: '0',
+      };
+      const response = createPingResponse(data);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Cache-Control')).toBe('no-cache');
+      expect(response.headers.get('Last-Modified')).toBe('some-date');
+      await expect(response.text()).resolves.toBe('0');
+    });
+
+    it('should use error as body when present', async () => {
+      const data: PingHandlerResult = {
+        status: 400,
+        headers: {},
+        body: null,
+        error: 'Bad Request',
+      };
+      const response = createPingResponse(data);
+      expect(response.status).toBe(400);
+      await expect(response.text()).resolves.toBe('Bad Request');
+    });
+
+    it('should use body when error is undefined', async () => {
+      const data: PingHandlerResult = {
+        status: 200,
+        headers: {},
+        body: '1',
+      };
+      const response = createPingResponse(data);
+      expect(response.status).toBe(200);
+      await expect(response.text()).resolves.toBe('1');
+    });
   });
 });

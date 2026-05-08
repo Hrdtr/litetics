@@ -56,4 +56,16 @@ describe('utils:isValidUrl', () => {
     const result = isValidUrl(url, { matchProtocols: 'http:' });
     expect(result).toBe(false);
   });
+
+  it('should return true when URL matches any protocol in a multi-protocol array', () => {
+    const url = 'https://example.com';
+    const result = isValidUrl(url, { matchProtocols: ['http:', 'https:'] });
+    expect(result).toBe(true);
+  });
+
+  it('should return false when URL matches no protocol in a multi-protocol array', () => {
+    const url = 'ftp://example.com';
+    const result = isValidUrl(url, { matchProtocols: ['http:', 'https:'] });
+    expect(result).toBe(false);
+  });
 });

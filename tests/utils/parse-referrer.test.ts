@@ -35,20 +35,20 @@ describe('utils:parseReferrer', () => {
   });
 
   it('should handle empty referrer URL gracefully', () => {
-    try {
-      const result = parseReferrer('');
-      expect(result).toEqual({
-        known: false,
-        name: null,
-        medium: null,
-        searchParameter: null,
-        searchTerm: null,
-        url: new URL(''),
-        _src: '',
-      });
-    } catch (error) {
-      expect(error).toBeInstanceOf(TypeError);
-      expect((error as TypeError).message).toBe('Invalid URL');
-    }
+    expect(() => parseReferrer('')).toThrow(TypeError);
+  });
+
+  it('should match known referrer exactly when hostname is in domain list', () => {
+    const result = parseReferrer('https://google.com/search?q=exact-match', 'https://other.com');
+    expect(result.known).toBe(true);
+    expect(result.medium).toBe('search');
+    expect(result.searchTerm).toBe('exact-match');
+  });
+
+  it('should match known referrer non-exactly when hostname ends with a listed domain', () => {
+    const result = parseReferrer('https://sub.google.com/search?q=non-exact', 'https://other.com');
+    expect(result.known).toBe(true);
+    expect(result.medium).toBe('search');
+    expect(result.searchTerm).toBe('non-exact');
   });
 });
