@@ -1,5 +1,9 @@
 import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler';
+import type { RuntimeAdapter } from './adapter';
 import { isValidUrl } from '../utils/is-valid-url';
+import { createBrowserAdapter } from './adapter';
+export type { RuntimeAdapter, BrowserAdapterOptions } from './adapter';
+export { createBrowserAdapter } from './adapter';
 
 const AnalyticsEvent = {
   UNLOAD: 'unload',
@@ -8,12 +12,6 @@ const AnalyticsEvent = {
 
 /**
  * Represents the options object for creating a new tracker.
- *
- * @remarks This module is browser-only. It accesses DOM APIs (`location`,
- * `history`, `document`, `navigator`, `self`, `addEventListener`, `fetch`,
- * `XMLHttpRequest`, `Intl`) and must not be imported in a Node.js environment
- * without a DOM polyfill. All global access is lazy — nothing is evaluated
- * at import time beyond type imports and constant definitions.
  */
 export interface CreateTrackerOptions {
   /**
@@ -31,10 +29,11 @@ export interface CreateTrackerOptions {
   };
 
   /**
-   * The mode of tracking to use. Either 'history' or 'hash'.
-   * @default 'history
+   * An optional runtime adapter. When not provided, the browser adapter
+   * is used automatically. Supply a custom adapter to run the tracker
+   * in non-browser environments.
    */
-  mode?: 'history' | 'hash';
+  adapter?: RuntimeAdapter;
 
   /**
    * The maximum duration of a session before the user is considered inactive.
@@ -56,17 +55,16 @@ export interface CreateTrackerOptions {
 /**
  * Creates a new tracker instance for sending analytics events to a server.
  *
- * @remarks This module is browser-only. It accesses DOM APIs (`location`,
- * `history`, `document`, `navigator`, `self`, `addEventListener`, `fetch`,
- * `XMLHttpRequest`, `Intl`) and must not be imported in a Node.js environment
- * without a DOM polyfill. All global access is lazy — nothing is evaluated
- * at import time beyond type imports and constant definitions.
+ * @remarks All browser API access is routed through the provided
+ * `RuntimeAdapter`. When no adapter is given, `createBrowserAdapter()`
+ * is used automatically, making the tracker work in the browser without
+ * any additional setup.
  */
 export const createTracker = ({
   apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
-  mode = 'history',
   sessionTimeoutDuration,
   fetchMode = 'no-cors',
+  adapter: providedAdapter,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL');
@@ -74,6 +72,8 @@ export const createTracker = ({
   if (!isValidUrl(pingEndpoint)) {
     throw new Error('`apiEndpoint.ping` must be a valid URL');
   }
+
+  const adapter = providedAdapter ?? createBrowserAdapter();
 
   const generateID = () => {
     // ID format: timestamp(36) + random(36). Timestamp provides
@@ -85,10 +85,9 @@ export const createTracker = ({
 
   const ping = (url: string): Promise<boolean> =>
     new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
+      const xhr = adapter.transport.xmlHttpRequest?.() ?? new XMLHttpRequest();
       xhr.addEventListener('load', () => {
-        // @ts-expect-error - Double equals reduces bundle size.
-        resolve(xhr.responseText == 0);
+        resolve(xhr.responseText === '0');
       });
       xhr.open('GET', url);
       xhr.send();
@@ -97,11 +96,7 @@ export const createTracker = ({
   let isUnique: boolean = true;
 
   const register = () => {
-    const originalPushState = history.pushState.bind(history);
-    const originalReplaceState = history.replaceState.bind(history);
-
-    const ac = new AbortController();
-    const { signal } = ac;
+    const unsubs: (() => void)[] = [];
 
     let id: string = generateID();
     let startTime = Date.now();
@@ -132,40 +127,22 @@ export const createTracker = ({
       isUnloadCalled = false;
     };
 
-    const wrapHistoryFunc = (original: typeof originalPushState) => {
-      return function (
-        this: History,
-        state: unknown,
-        unused: string,
-        url?: string | URL | null,
-        ...rest: unknown[]
-      ) {
-        if (url && location.pathname !== new URL(url, location.href).pathname) {
-          sendUnloadBeacon();
-          cleanup();
-          Reflect.apply(original, this, [state, unused, url, ...rest]);
-          sendLoadBeacon();
-        } else {
-          Reflect.apply(original, this, [state, unused, url, ...rest]);
-        }
-      };
-    };
-
     const sendLoadBeacon = async (): Promise<void> => {
+      const env = adapter.environment;
       const isFirstVisit = await ping(
-        pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname),
+        pingEndpoint + '?u=' + encodeURIComponent(env.location.host + env.location.pathname),
       );
-      await fetch(trackEndpoint, {
+      await adapter.transport.fetch(trackEndpoint, {
         method: 'POST',
         body: JSON.stringify({
           e: AnalyticsEvent.LOAD,
           b: id,
-          u: location.href,
+          u: env.location.href,
           p: isUnique,
           q: isFirstVisit,
           a: 'pageview',
-          r: document.referrer,
-          t: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          r: env.referrer,
+          t: env.timezone,
         } satisfies EventHandlerLoadRequestBody),
         ...(fetchMode ? { mode: fetchMode } : {}),
       });
@@ -173,41 +150,41 @@ export const createTracker = ({
 
     const sendUnloadBeacon = (): void => {
       if (!isUnloadCalled) {
-        navigator.sendBeacon(
-          trackEndpoint,
-          JSON.stringify({
-            e: AnalyticsEvent.UNLOAD,
-            b: id,
-            m: Date.now() - startTime,
-          } satisfies EventHandlerUnloadRequestBody),
-        );
+        const body = JSON.stringify({
+          e: AnalyticsEvent.UNLOAD,
+          b: id,
+          m: Date.now() - startTime,
+        } satisfies EventHandlerUnloadRequestBody);
+
+        if (adapter.transport.sendBeacon) {
+          adapter.transport.sendBeacon(trackEndpoint, body);
+        } else {
+          adapter.transport.fetch(trackEndpoint, {
+            method: 'POST',
+            body,
+            keepalive: true,
+            ...(fetchMode ? { mode: fetchMode } : {}),
+          });
+        }
       }
 
       isUnloadCalled = true;
     };
 
-    if ('onpagehide' in self) {
-      addEventListener('pagehide', sendUnloadBeacon, { signal, capture: true });
-    } else {
-      addEventListener('beforeunload', sendUnloadBeacon, { signal, capture: true });
-      addEventListener('unload', sendUnloadBeacon, { signal, capture: true });
-    }
+    // Register lifecycle hooks — each returns an unsubscribe function.
+    unsubs.push(adapter.hooks.onUnload(() => sendUnloadBeacon()));
 
-    addEventListener(
-      'visibilitychange',
-      () => {
-        if (document.hidden) {
+    unsubs.push(
+      adapter.hooks.onVisibilityChange((hidden: boolean) => {
+        if (hidden) {
           clearSessionTimer();
           sendUnloadBeacon();
         }
-      },
-      { signal, capture: true },
+      }),
     );
 
     if (sessionTimeoutDuration) {
-      for (const type of ['mousedown', 'keydown', 'touchstart'] as const) {
-        addEventListener(type, resetSessionTimer, { signal, passive: true });
-      }
+      unsubs.push(adapter.hooks.onInteract(() => resetSessionTimer()));
     }
 
     ping(pingEndpoint).then((response: boolean) => {
@@ -218,32 +195,20 @@ export const createTracker = ({
         resetSessionTimer();
       }
 
-      if (mode === 'hash') {
-        addEventListener('hashchange', sendLoadBeacon, { signal, capture: true });
-      } else {
-        history.pushState = wrapHistoryFunc(originalPushState);
-        history.replaceState = wrapHistoryFunc(originalReplaceState);
-        addEventListener(
-          'popstate',
-          () => {
-            clearSessionTimer();
-            sendUnloadBeacon();
-            cleanup();
-            sendLoadBeacon();
-          },
-          { signal, capture: true },
-        );
-      }
+      unsubs.push(
+        adapter.hooks.onNavigate(() => {
+          clearSessionTimer();
+          sendUnloadBeacon();
+          cleanup();
+          sendLoadBeacon();
+        }),
+      );
     });
 
     return () => {
       clearSessionTimer();
-      ac.abort();
-      if (history.pushState !== originalPushState) {
-        history.pushState = originalPushState;
-      }
-      if (history.replaceState !== originalReplaceState) {
-        history.replaceState = originalReplaceState;
+      for (const unsub of unsubs) {
+        unsub();
       }
     };
   };
@@ -277,10 +242,11 @@ export const createTracker = ({
       withDuration?: boolean;
     },
   ): Promise<void> => {
+    const env = adapter.environment;
     const isFirstVisit = await ping(
       pingEndpoint +
         '?u=' +
-        encodeURIComponent(location.host + location.pathname) +
+        encodeURIComponent(env.location.host + env.location.pathname) +
         '&k=' +
         encodeURIComponent(key),
     );
@@ -290,17 +256,17 @@ export const createTracker = ({
     }
 
     const { type, ...rest } = data;
-    await fetch(trackEndpoint, {
+    await adapter.transport.fetch(trackEndpoint, {
       method: 'POST',
       body: JSON.stringify({
         e: AnalyticsEvent.LOAD,
         b: id,
-        u: location.href,
+        u: env.location.href,
         p: isUnique,
         q: isFirstVisit,
         a: type,
-        r: document.referrer,
-        t: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        r: env.referrer,
+        t: env.timezone,
         d: rest,
       } satisfies EventHandlerLoadRequestBody),
       ...(fetchMode ? { mode: fetchMode } : {}),
@@ -316,19 +282,20 @@ export const createTracker = ({
   const trackEndOf = async (key: string): Promise<void> => {
     const { id, startTime } = trackWithDurationMap.get(key) ?? {};
     if (!id || !startTime) {
-      // If the key is not being tracked, do nothing.
       return;
     }
 
-    await fetch(trackEndpoint, {
-      method: 'POST',
-      body: JSON.stringify({
-        e: AnalyticsEvent.UNLOAD,
-        b: id,
-        m: Date.now() - startTime,
-      } satisfies EventHandlerUnloadRequestBody),
-      ...(fetchMode ? { mode: fetchMode } : {}),
-    }).then(() => trackWithDurationMap.delete(key));
+    await adapter.transport
+      .fetch(trackEndpoint, {
+        method: 'POST',
+        body: JSON.stringify({
+          e: AnalyticsEvent.UNLOAD,
+          b: id,
+          m: Date.now() - startTime,
+        } satisfies EventHandlerUnloadRequestBody),
+        ...(fetchMode ? { mode: fetchMode } : {}),
+      })
+      .then(() => trackWithDurationMap.delete(key));
   };
 
   return {

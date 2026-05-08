@@ -17,6 +17,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./tracker": {
+      "types": "./dist/tracker/index.d.ts",
+      "import": "./dist/tracker/index.mjs",
+      "require": "./dist/tracker/index.cjs"
     }
   },
   "scripts": {

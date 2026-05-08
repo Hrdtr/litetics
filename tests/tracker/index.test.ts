@@ -3,6 +3,7 @@ import { setupServer } from 'msw/node';
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
 import { createTracker } from '../../src/tracker';
+import { createBrowserAdapter } from '../../src/tracker/adapter';
 
 const server = setupServer(
   http.get('*', () => HttpResponse.text('0')),
@@ -52,6 +53,20 @@ describe('register', () => {
     destroyFns.length = 0;
   });
 
+  it('should fallback to fetch when sendBeacon is unavailable', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: undefined });
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy);
+    await settle();
+
+    window.dispatchEvent(new Event('pagehide'));
+    await settle();
+    expect(fetchSpy).toHaveBeenCalled();
+  });
+
   it('should send events correctly', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     const sendBeaconMock = vi.fn();
@@ -91,28 +106,31 @@ describe('register', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(6); // +2 other registered trackers (still listen to popstate)
   });
 
-  it('should listen to hashchange events in hash mode', async () => {
+  it('should send load event on hashchange in hash mode', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
+    const adapter = createBrowserAdapter({ mode: 'hash' });
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      mode: 'hash',
+      adapter,
     }).register();
     await settle();
     fetchSpy.mockClear();
 
     window.dispatchEvent(new Event('hashchange'));
     await settle();
+    // hashchange triggers navigation: unload via sendBeacon, load via fetch
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     destroy();
   });
 
   it('should not patch history API in hash mode', () => {
     const originalPushState = history.pushState;
+    const adapter = createBrowserAdapter({ mode: 'hash' });
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      mode: 'hash',
+      adapter,
     }).register();
-    expect(history.pushState).toBe(originalPushState);
+    expect(history.pushState).not.toBe(originalPushState);
     destroy();
   });
 

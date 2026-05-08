@@ -1,4 +1,9 @@
 import type { EventData, MaybePromise } from '../types';
+import type { ParsedAcceptLanguage } from '../utils/parse-accept-language';
+import type { ParsedReferrer } from '../utils/parse-referrer';
+import type { ParsedUserAgent } from '../utils/parse-user-agent';
+import type { ParsedUTMParams } from '../utils/parse-utm-params';
+import type { Middleware, MiddlewareContext } from './middleware';
 import { isbot } from 'isbot';
 import { getCountryCodeByTimezone } from '../utils/get-country-code-by-timezone';
 import { isValidUrl } from '../utils/is-valid-url';
@@ -6,6 +11,7 @@ import { parseAcceptLanguage } from '../utils/parse-accept-language';
 import { parseReferrer } from '../utils/parse-referrer';
 import { parseUserAgent } from '../utils/parse-user-agent';
 import { parseUTMParams } from '../utils/parse-utm-params';
+import { applyMiddleware } from './middleware';
 
 const defaultUA = {
   browserName: null as null,
@@ -131,6 +137,17 @@ export type EventHandlerUnloadResult = Pick<EventData, 'bid'> & {
 };
 
 /**
+ * Overridable parser functions. Each parser falls back to the built-in
+ * implementation when not provided.
+ */
+export interface EventHandlerParsers {
+  userAgent?: (ua: string) => ParsedUserAgent;
+  referrer?: (referrerUrl: string, currentUrl: string) => ParsedReferrer;
+  acceptLanguage?: (header: string) => ParsedAcceptLanguage;
+  utm?: (url: URL) => ParsedUTMParams;
+}
+
+/**
  * Options to configure the `EventHandler`.
  */
 export type EventHandlerOptions = {
@@ -152,6 +169,26 @@ export type EventHandlerOptions = {
    * Optional logger for debugging. Defaults to `console`.
    */
   logger?: Pick<Console, 'debug' | 'info' | 'warn' | 'error'>;
+
+  /**
+   * An ordered list of middleware functions. Each middleware can inspect,
+   * transform, or abort events before they are persisted.
+   */
+  middlewares?: Middleware[];
+
+  /**
+   * Overridable parser functions. When not provided the built-in parsers
+   * are used. Supply custom parsers to enrich, replace, or skip parsing
+   * for specific fields.
+   */
+  parsers?: EventHandlerParsers;
+
+  /**
+   * Determines whether a user-agent should be treated as a bot.
+   * Receives the raw user-agent string and returns `true` to skip
+   * processing. Defaults to `isbot` from the `isbot` package.
+   */
+  shouldIgnoreUserAgent?: (ua: string) => boolean;
 };
 
 /**
@@ -231,7 +268,7 @@ export class EventHandler {
     const acceptLanguage = (await getRequestHeader('accept-language')) || null;
     const userAgent = (await getRequestHeader('user-agent')) || null;
 
-    if (userAgent && isbot(userAgent)) {
+    if (userAgent && (this.options.shouldIgnoreUserAgent ?? isbot)(userAgent)) {
       this.log('debug', 'User agent is a bot');
       return;
     }
@@ -247,6 +284,25 @@ export class EventHandler {
     }
 
     const eventType = body.e;
+    const headers: Record<string, string | null | undefined> = {
+      'accept-language': acceptLanguage,
+      'user-agent': userAgent,
+    };
+
+    const runMiddleware = async (data: Partial<EventData>): Promise<boolean> => {
+      if (!this.options.middlewares?.length) return true;
+      const ctx: MiddlewareContext = {
+        event: body,
+        headers,
+        data,
+        aborted: false,
+        abort() {
+          this.aborted = true;
+        },
+      };
+      await applyMiddleware(this.options.middlewares, ctx);
+      return !ctx.aborted;
+    };
 
     switch (eventType) {
       case 'load': {
@@ -264,7 +320,7 @@ export class EventHandler {
           a: type,
           r: referrer = null,
           t: timezone = null,
-          d: additional = null,
+          d: properties = null,
         } = body;
 
         const receivedAt = new Date();
@@ -275,7 +331,7 @@ export class EventHandler {
           campaign: utmCampaign,
           medium: utmMedium,
           source: utmSource,
-        } = parseUTMParams(new URL(pageUrl));
+        } = (this.options.parsers?.utm ?? parseUTMParams)(new URL(pageUrl));
 
         const {
           browserName,
@@ -288,7 +344,7 @@ export class EventHandler {
           cpuArchitecture,
           osName,
           osVersion,
-        } = userAgent ? parseUserAgent(userAgent) : defaultUA;
+        } = userAgent ? (this.options.parsers?.userAgent ?? parseUserAgent)(userAgent) : defaultUA;
 
         const {
           referrerHost,
@@ -299,7 +355,9 @@ export class EventHandler {
           referrerName,
           referrerSearchParameter,
           referrerSearchTerm,
-        } = referrer ? parseReferrer(referrer, pageUrl) : defaultRef;
+        } = referrer
+          ? (this.options.parsers?.referrer ?? parseReferrer)(referrer, pageUrl)
+          : defaultRef;
 
         const {
           languageCode,
@@ -308,9 +366,11 @@ export class EventHandler {
           secondaryLanguageCode,
           secondaryLanguageScript,
           secondaryLanguageRegion,
-        } = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : defaultLang;
+        } = acceptLanguage
+          ? (this.options.parsers?.acceptLanguage ?? parseAcceptLanguage)(acceptLanguage)
+          : defaultLang;
 
-        await this.options.persist({
+        const data: EventData = {
           bid,
           receivedAt,
           host,
@@ -352,20 +412,20 @@ export class EventHandler {
           utmCampaign,
           utmMedium,
           utmSource,
-          additional,
-        });
+          properties,
+        };
 
+        if (!(await runMiddleware(data))) return;
+        await this.options.persist(data);
         break;
       }
 
       case 'unload': {
         const { b: bid, m: durationMs } = body;
+        const data: Pick<EventData, 'bid'> & { durationMs: number } = { bid, durationMs };
 
-        await this.options.update({
-          bid,
-          durationMs,
-        });
-
+        if (!(await runMiddleware(data))) return;
+        await this.options.update(data);
         break;
       }
 
