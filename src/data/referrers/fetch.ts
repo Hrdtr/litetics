@@ -1,11 +1,15 @@
-import { writeFile } from 'node:fs/promises'
-import { execSync } from 'node:child_process'
+import { execSync } from 'node:child_process';
+import { writeFile } from 'node:fs/promises';
 
 const fetchData = async () => {
-  const response = await fetch('https://s3-eu-west-1.amazonaws.com/snowplow-hosted-assets/third-party/referer-parser/referers-latest.json')
-  const data = await response.json()
+  const response = await fetch(
+    'https://s3-eu-west-1.amazonaws.com/snowplow-hosted-assets/third-party/referer-parser/referers-latest.json',
+  );
+  const data = await response.json();
 
-  await writeFile('./src/data/referrers/index.ts', `export interface ReferrersData {
+  await writeFile(
+    './src/data/referrers/index.ts',
+    `export interface ReferrersData {
   [medium: string]: {
     [name: string]: {
       domains: string[]
@@ -15,8 +19,9 @@ const fetchData = async () => {
 }
 
 export const referrers: ReferrersData = ${JSON.stringify(data, null, 2)}
-`)
+`,
+  );
 
-  execSync('pnpm eslint --fix ./src/data/referrers/index.ts', { stdio: 'inherit' })
-}
-fetchData()
+  execSync('pnpm oxlint --fix ./src/data/referrers/index.ts', { stdio: 'inherit' });
+};
+fetchData();

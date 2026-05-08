@@ -1,15 +1,15 @@
 export interface ReferrersData {
   [medium: string]: {
     [name: string]: {
-      domains: string[]
-      parameters?: string[]
-    }
-  }
+      domains: string[];
+      parameters?: string[];
+    };
+  };
 }
 
 export const referrers: ReferrersData = {
   unknown: {
-    'Google': {
+    Google: {
       domains: [
         'support.google.com',
         'developers.google.com',
@@ -29,9 +29,7 @@ export const referrers: ReferrersData = {
         'maps.yandex.by',
         'n.maps.yandex.ru',
       ],
-      parameters: [
-        'text',
-      ],
+      parameters: ['text'],
     },
     'Yahoo!': {
       domains: [
@@ -56,139 +54,70 @@ export const referrers: ReferrersData = {
     },
   },
   search: {
-    'TalkTalk': {
-      domains: [
-        'www.talktalk.co.uk',
-      ],
-      parameters: [
-        'query',
-      ],
+    TalkTalk: {
+      domains: ['www.talktalk.co.uk'],
+      parameters: ['query'],
     },
     '1.cz': {
-      domains: [
-        '1.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['1.cz'],
+      parameters: ['q'],
     },
-    'Softonic': {
-      domains: [
-        'search.softonic.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Softonic: {
+      domains: ['search.softonic.com'],
+      parameters: ['q'],
     },
-    'GAIS': {
-      domains: [
-        'gais.cs.ccu.edu.tw',
-      ],
-      parameters: [
-        'q',
-      ],
+    GAIS: {
+      domains: ['gais.cs.ccu.edu.tw'],
+      parameters: ['q'],
     },
-    'Freecause': {
-      domains: [
-        'search.freecause.com',
-      ],
-      parameters: [
-        'p',
-      ],
+    Freecause: {
+      domains: ['search.freecause.com'],
+      parameters: ['p'],
     },
     '360.cn': {
-      domains: [
-        'so.360.cn',
-        'www.so.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['so.360.cn', 'www.so.com'],
+      parameters: ['q'],
     },
-    'RPMFind': {
-      domains: [
-        'rpmfind.net',
-        'fr2.rpmfind.net',
-      ],
-      parameters: [
-        'query',
-      ],
+    RPMFind: {
+      domains: ['rpmfind.net', 'fr2.rpmfind.net'],
+      parameters: ['query'],
     },
-    'Comcast': {
-      domains: [
-        'serach.comcast.net',
-      ],
-      parameters: [
-        'q',
-      ],
+    Comcast: {
+      domains: ['serach.comcast.net'],
+      parameters: ['q'],
     },
-    'Voila': {
-      domains: [
-        'search.ke.voila.fr',
-        'www.lemoteur.fr',
-      ],
-      parameters: [
-        'rdata',
-        'kw',
-      ],
+    Voila: {
+      domains: ['search.ke.voila.fr', 'www.lemoteur.fr'],
+      parameters: ['rdata', 'kw'],
     },
-    'Nifty': {
-      domains: [
-        'search.nifty.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Nifty: {
+      domains: ['search.nifty.com'],
+      parameters: ['q'],
     },
-    'Atlas': {
-      domains: [
-        'searchatlas.centrum.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+    Atlas: {
+      domains: ['searchatlas.centrum.cz'],
+      parameters: ['q'],
     },
     '2gis': {
-      domains: [
-        '2gis.ru',
-        'www.2gis.ru',
-        'link.2gis.ru',
-        'www.link.2gis.ru',
-      ],
+      domains: ['2gis.ru', 'www.2gis.ru', 'link.2gis.ru', 'www.link.2gis.ru'],
     },
     'Lo.st': {
-      domains: [
-        'lo.st',
-      ],
-      parameters: [
-        'x_query',
-      ],
+      domains: ['lo.st'],
+      parameters: ['x_query'],
     },
-    'DasTelefonbuch': {
-      domains: [
-        'www1.dastelefonbuch.de',
-      ],
-      parameters: [
-        'kw',
-      ],
+    DasTelefonbuch: {
+      domains: ['www1.dastelefonbuch.de'],
+      parameters: ['kw'],
     },
-    'Fireball': {
-      domains: [
-        'www.fireball.de',
-      ],
-      parameters: [
-        'q',
-      ],
+    Fireball: {
+      domains: ['www.fireball.de'],
+      parameters: ['q'],
     },
     '1und1': {
-      domains: [
-        'suche.1und1.de',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['suche.1und1.de'],
+      parameters: ['q'],
     },
-    'Virgilio': {
+    Virgilio: {
       domains: [
         'ricerca.virgilio.it',
         'ricercaimmagini.virgilio.it',
@@ -196,43 +125,25 @@ export const referrers: ReferrersData = {
         'ricercanews.virgilio.it',
         'mobile.virgilio.it',
       ],
-      parameters: [
-        'qs',
-      ],
+      parameters: ['qs'],
     },
-    'Telstra': {
-      domains: [
-        'search.media.telstra.com.au',
-      ],
-      parameters: [
-        'find',
-      ],
+    Telstra: {
+      domains: ['search.media.telstra.com.au'],
+      parameters: ['find'],
     },
     'Web.nl': {
-      domains: [
-        'www.web.nl',
-      ],
-      parameters: [
-        'zoekwoord',
-      ],
+      domains: ['www.web.nl'],
+      parameters: ['zoekwoord'],
     },
-    'Plazoo': {
-      domains: [
-        'www.plazoo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Plazoo: {
+      domains: ['www.plazoo.com'],
+      parameters: ['q'],
     },
     'Goyellow.de': {
-      domains: [
-        'www.goyellow.de',
-      ],
-      parameters: [
-        'MDN',
-      ],
+      domains: ['www.goyellow.de'],
+      parameters: ['MDN'],
     },
-    'AOL': {
+    AOL: {
       domains: [
         'search.aol.com',
         'search.aol.it',
@@ -261,130 +172,63 @@ export const referrers: ReferrersData = {
         'search.hp.my.aol.it',
         'search-intl.netscape.com',
       ],
-      parameters: [
-        'q',
-        'query',
-      ],
+      parameters: ['q', 'query'],
     },
-    'Acoon': {
-      domains: [
-        'www.acoon.de',
-      ],
-      parameters: [
-        'begriff',
-      ],
+    Acoon: {
+      domains: ['www.acoon.de'],
+      parameters: ['begriff'],
     },
-    'Free': {
-      domains: [
-        'search.free.fr',
-        'search1-2.free.fr',
-        'search1-1.free.fr',
-      ],
-      parameters: [
-        'q',
-      ],
+    Free: {
+      domains: ['search.free.fr', 'search1-2.free.fr', 'search1-1.free.fr'],
+      parameters: ['q'],
     },
     'Apollo Latvia': {
-      domains: [
-        'apollo.lv/portal/search/',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['apollo.lv/portal/search/'],
+      parameters: ['q'],
     },
-    'HighBeam': {
-      domains: [
-        'www.highbeam.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    HighBeam: {
+      domains: ['www.highbeam.com'],
+      parameters: ['q'],
     },
     'I-play': {
-      domains: [
-        'start.iplay.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['start.iplay.com'],
+      parameters: ['q'],
     },
-    'FriendFeed': {
-      domains: [
-        'friendfeed.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    FriendFeed: {
+      domains: ['friendfeed.com'],
+      parameters: ['q'],
     },
-    'Yasni': {
-      domains: [
-        'www.yasni.de',
-        'www.yasni.com',
-        'www.yasni.co.uk',
-        'www.yasni.ch',
-        'www.yasni.at',
-      ],
-      parameters: [
-        'query',
-      ],
+    Yasni: {
+      domains: ['www.yasni.de', 'www.yasni.com', 'www.yasni.co.uk', 'www.yasni.ch', 'www.yasni.at'],
+      parameters: ['query'],
     },
-    'Gigablast': {
-      domains: [
-        'www.gigablast.com',
-        'dir.gigablast.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Gigablast: {
+      domains: ['www.gigablast.com', 'dir.gigablast.com'],
+      parameters: ['q'],
     },
-    'Arcor': {
-      domains: [
-        'www.arcor.de',
-      ],
-      parameters: [
-        'Keywords',
-      ],
+    Arcor: {
+      domains: ['www.arcor.de'],
+      parameters: ['Keywords'],
     },
-    'arama': {
-      domains: [
-        'arama.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    arama: {
+      domains: ['arama.com'],
+      parameters: ['q'],
     },
-    'Fixsuche': {
-      domains: [
-        'www.fixsuche.de',
-      ],
-      parameters: [
-        'q',
-      ],
+    Fixsuche: {
+      domains: ['www.fixsuche.de'],
+      parameters: ['q'],
     },
-    'Apontador': {
-      domains: [
-        'apontador.com.br',
-        'www.apontador.com.br',
-      ],
-      parameters: [
-        'q',
-      ],
+    Apontador: {
+      domains: ['apontador.com.br', 'www.apontador.com.br'],
+      parameters: ['q'],
     },
     'Search.com': {
-      domains: [
-        'www.search.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.search.com'],
+      parameters: ['q'],
     },
-    'Monstercrawler': {
-      domains: [
-        'www.monstercrawler.com',
-      ],
-      parameters: [
-        'qry',
-      ],
+    Monstercrawler: {
+      domains: ['www.monstercrawler.com'],
+      parameters: ['qry'],
     },
     'Google Images': {
       domains: [
@@ -780,18 +624,11 @@ export const referrers: ReferrersData = {
         'images.google.vg',
         'images.google.vu',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'ABCsøk': {
-      domains: [
-        'abcsolk.no',
-        'verden.abcsok.no',
-      ],
-      parameters: [
-        'q',
-      ],
+    ABCsøk: {
+      domains: ['abcsolk.no', 'verden.abcsok.no'],
+      parameters: ['q'],
     },
     'Google Product Search': {
       domains: [
@@ -1188,19 +1025,13 @@ export const referrers: ReferrersData = {
         'www.google.vu/products',
         'www.google.ws/products',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'DasOertliche': {
-      domains: [
-        'www.dasoertliche.de',
-      ],
-      parameters: [
-        'kw',
-      ],
+    DasOertliche: {
+      domains: ['www.dasoertliche.de'],
+      parameters: ['kw'],
     },
-    'InfoSpace': {
+    InfoSpace: {
       domains: [
         'infospace.com',
         'dogpile.com',
@@ -1215,145 +1046,73 @@ export const referrers: ReferrersData = {
         'search.searchcompletion.com',
         'clusty.com',
       ],
-      parameters: [
-        'q',
-        's',
-      ],
+      parameters: ['q', 's'],
     },
-    'Weborama': {
-      domains: [
-        'www.weborama.com',
-      ],
-      parameters: [
-        'QUERY',
-      ],
+    Weborama: {
+      domains: ['www.weborama.com'],
+      parameters: ['QUERY'],
     },
-    'Bluewin': {
-      domains: [
-        'search.bluewin.ch',
-      ],
-      parameters: [
-        'searchTerm',
-      ],
+    Bluewin: {
+      domains: ['search.bluewin.ch'],
+      parameters: ['searchTerm'],
     },
-    'Brave': {
-      domains: [
-        'search.brave.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Brave: {
+      domains: ['search.brave.com'],
+      parameters: ['q'],
     },
     'British Telecommunications': {
-      domains: [
-        'search.bt.com',
-      ],
-      parameters: [
-        'p',
-      ],
+      domains: ['search.bt.com'],
+      parameters: ['p'],
     },
-    'Neti': {
-      domains: [
-        'www.neti.ee',
-      ],
-      parameters: [
-        'query',
-      ],
+    Neti: {
+      domains: ['www.neti.ee'],
+      parameters: ['query'],
     },
-    'Nigma': {
-      domains: [
-        'nigma.ru',
-      ],
-      parameters: [
-        's',
-      ],
+    Nigma: {
+      domains: ['nigma.ru'],
+      parameters: ['s'],
     },
     'Yahoo! Images': {
-      domains: [
-        'image.yahoo.cn',
-        'images.search.yahoo.com',
-      ],
-      parameters: [
-        'p',
-        'q',
-      ],
+      domains: ['image.yahoo.cn', 'images.search.yahoo.com'],
+      parameters: ['p', 'q'],
     },
-    'Exalead': {
-      domains: [
-        'www.exalead.fr',
-        'www.exalead.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Exalead: {
+      domains: ['www.exalead.fr', 'www.exalead.com'],
+      parameters: ['q'],
     },
-    'Teoma': {
-      domains: [
-        'www.teoma.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Teoma: {
+      domains: ['www.teoma.com'],
+      parameters: ['q'],
     },
-    'Needtofind': {
-      domains: [
-        'ko.search.need2find.com',
-      ],
-      parameters: [
-        'searchfor',
-      ],
+    Needtofind: {
+      domains: ['ko.search.need2find.com'],
+      parameters: ['searchfor'],
     },
-    'Looksmart': {
-      domains: [
-        'www.looksmart.com',
-      ],
-      parameters: [
-        'key',
-      ],
+    Looksmart: {
+      domains: ['www.looksmart.com'],
+      parameters: ['key'],
     },
-    'Flyingbird': {
-      domains: [
-        'inspsearch.com',
-        'viview.inspsearch.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Flyingbird: {
+      domains: ['inspsearch.com', 'viview.inspsearch.com'],
+      parameters: ['q'],
     },
-    'Everyclick': {
-      domains: [
-        'www.everyclick.com',
-      ],
-      parameters: [
-        'keyword',
-      ],
+    Everyclick: {
+      domains: ['www.everyclick.com'],
+      parameters: ['keyword'],
     },
     'Wirtualna Polska': {
-      domains: [
-        'szukaj.wp.pl',
-      ],
-      parameters: [
-        'szukaj',
-      ],
+      domains: ['szukaj.wp.pl'],
+      parameters: ['szukaj'],
     },
-    'Toolbarhome': {
-      domains: [
-        'www.toolbarhome.com',
-        'vshare.toolbarhome.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Toolbarhome: {
+      domains: ['www.toolbarhome.com', 'vshare.toolbarhome.com'],
+      parameters: ['q'],
     },
-    'Searchalot': {
-      domains: [
-        'searchalot.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Searchalot: {
+      domains: ['searchalot.com'],
+      parameters: ['q'],
     },
-    'Yandex': {
+    Yandex: {
       domains: [
         'yandex.ru',
         'yandex.ua',
@@ -1368,11 +1127,9 @@ export const referrers: ReferrersData = {
         'clck.yandex.com',
         'clck.yandex.by',
       ],
-      parameters: [
-        'text',
-      ],
+      parameters: ['text'],
     },
-    'Indeed': {
+    Indeed: {
       domains: [
         'de.indeed.com',
         'at.indeed.com',
@@ -1383,80 +1140,42 @@ export const referrers: ReferrersData = {
       ],
     },
     'canoe.ca': {
-      domains: [
-        'web.canoe.ca',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['web.canoe.ca'],
+      parameters: ['q'],
     },
-    'Compuserve': {
-      domains: [
-        'websearch.cs.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Compuserve: {
+      domains: ['websearch.cs.com'],
+      parameters: ['query'],
     },
-    'Blogdigger': {
-      domains: [
-        'www.blogdigger.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Blogdigger: {
+      domains: ['www.blogdigger.com'],
+      parameters: ['q'],
     },
-    'Startpagina': {
-      domains: [
-        'startgoogle.startpagina.nl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Startpagina: {
+      domains: ['startgoogle.startpagina.nl'],
+      parameters: ['q'],
     },
-    'eo': {
-      domains: [
-        'eo.st',
-      ],
-      parameters: [
-        'x_query',
-      ],
+    eo: {
+      domains: ['eo.st'],
+      parameters: ['x_query'],
     },
-    'Zhongsou': {
-      domains: [
-        'p.zhongsou.com',
-      ],
-      parameters: [
-        'w',
-      ],
+    Zhongsou: {
+      domains: ['p.zhongsou.com'],
+      parameters: ['w'],
     },
     'La Toile Du Quebec Via Google': {
-      domains: [
-        'www.toile.com',
-        'web.toile.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.toile.com', 'web.toile.com'],
+      parameters: ['q'],
     },
-    'Paperball': {
-      domains: [
-        'www.paperball.de',
-      ],
-      parameters: [
-        'q',
-      ],
+    Paperball: {
+      domains: ['www.paperball.de'],
+      parameters: ['q'],
     },
-    'Arianna': {
-      domains: [
-        'arianna.libero.it',
-        'www.arianna.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Arianna: {
+      domains: ['arianna.libero.it', 'www.arianna.com'],
+      parameters: ['query'],
     },
-    'StepStone': {
+    StepStone: {
       domains: [
         'www.stepstone.de',
         'www.stepstone.at',
@@ -1468,176 +1187,86 @@ export const referrers: ReferrersData = {
       ],
     },
     'Jungle Spider': {
-      domains: [
-        'www.jungle-spider.de',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.jungle-spider.de'],
+      parameters: ['q'],
     },
-    'PeoplePC': {
-      domains: [
-        'search.peoplepc.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    PeoplePC: {
+      domains: ['search.peoplepc.com'],
+      parameters: ['q'],
     },
     'The Smart Search': {
-      domains: [
-        'thesmartsearch.net',
-        'www.thesmartsearch.net',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['thesmartsearch.net', 'www.thesmartsearch.net'],
+      parameters: ['q'],
     },
     'MetaCrawler.de': {
-      domains: [
-        's1.metacrawler.de',
-        's2.metacrawler.de',
-        's3.metacrawler.de',
-      ],
-      parameters: [
-        'qry',
-      ],
+      domains: ['s1.metacrawler.de', 's2.metacrawler.de', 's3.metacrawler.de'],
+      parameters: ['qry'],
     },
-    'Orange': {
-      domains: [
-        'busca.orange.es',
-        'search.orange.co.uk',
-        'lemoteur.orange.fr',
-      ],
-      parameters: [
-        'q',
-        'kw',
-      ],
+    Orange: {
+      domains: ['busca.orange.es', 'search.orange.co.uk', 'lemoteur.orange.fr'],
+      parameters: ['q', 'kw'],
     },
     'Gule Sider': {
-      domains: [
-        'www.gulesider.no',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.gulesider.no'],
+      parameters: ['q'],
     },
     'I.ua': {
-      domains: [
-        'search.i.ua',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['search.i.ua'],
+      parameters: ['q'],
     },
-    'Francite': {
-      domains: [
-        'recherche.francite.com',
-      ],
-      parameters: [
-        'name',
-      ],
+    Francite: {
+      domains: ['recherche.francite.com'],
+      parameters: ['name'],
     },
     'Ask Toolbar': {
-      domains: [
-        'search.tb.ask.com',
-      ],
-      parameters: [
-        'searchfor',
-      ],
+      domains: ['search.tb.ask.com'],
+      parameters: ['searchfor'],
     },
     'Tut.by': {
-      domains: [
-        'search.tut.by',
-      ],
-      parameters: [
-        'query',
-      ],
+      domains: ['search.tut.by'],
+      parameters: ['query'],
     },
     'Trusted-Search': {
-      domains: [
-        'www.trusted--search.com',
-      ],
-      parameters: [
-        'w',
-      ],
+      domains: ['www.trusted--search.com'],
+      parameters: ['w'],
     },
-    'goo': {
-      domains: [
-        'search.goo.ne.jp',
-        'ocnsearch.goo.ne.jp',
-      ],
-      parameters: [
-        'MT',
-      ],
+    goo: {
+      domains: ['search.goo.ne.jp', 'ocnsearch.goo.ne.jp'],
+      parameters: ['MT'],
     },
     'Fast Browser Search': {
-      domains: [
-        'www.fastbrowsersearch.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.fastbrowsersearch.com'],
+      parameters: ['q'],
     },
-    'kununu': {
-      domains: [
-        'kununu.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    kununu: {
+      domains: ['kununu.com'],
+      parameters: ['q'],
     },
-    'Volny': {
-      domains: [
-        'web.volny.cz',
-      ],
-      parameters: [
-        'search',
-      ],
+    Volny: {
+      domains: ['web.volny.cz'],
+      parameters: ['search'],
     },
-    'Icerockeet': {
-      domains: [
-        'blogs.icerocket.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Icerockeet: {
+      domains: ['blogs.icerocket.com'],
+      parameters: ['q'],
     },
-    'Terra': {
-      domains: [
-        'buscador.terra.es',
-        'buscador.terra.cl',
-        'buscador.terra.com.br',
-      ],
-      parameters: [
-        'query',
-      ],
+    Terra: {
+      domains: ['buscador.terra.es', 'buscador.terra.cl', 'buscador.terra.com.br'],
+      parameters: ['query'],
     },
-    'Amazon': {
-      domains: [
-        'amazon.com',
-        'www.amazon.com',
-      ],
-      parameters: [
-        'keywords',
-      ],
+    Amazon: {
+      domains: ['amazon.com', 'www.amazon.com'],
+      parameters: ['keywords'],
     },
-    'Onet': {
-      domains: [
-        'szukaj.onet.pl',
-      ],
-      parameters: [
-        'qt',
-      ],
+    Onet: {
+      domains: ['szukaj.onet.pl'],
+      parameters: ['qt'],
     },
-    'Digg': {
-      domains: [
-        'digg.com',
-      ],
-      parameters: [
-        's',
-      ],
+    Digg: {
+      domains: ['digg.com'],
+      parameters: ['s'],
     },
-    'Abacho': {
+    Abacho: {
       domains: [
         'www.abacho.de',
         'www.abacho.com',
@@ -1650,58 +1279,31 @@ export const referrers: ReferrersData = {
         'www.abacho.ch',
         'www.abacho.it',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'maailm': {
-      domains: [
-        'www.maailm.com',
-      ],
-      parameters: [
-        'tekst',
-      ],
+    maailm: {
+      domains: ['www.maailm.com'],
+      parameters: ['tekst'],
     },
-    'Flix': {
-      domains: [
-        'www.flix.de',
-      ],
-      parameters: [
-        'keyword',
-      ],
+    Flix: {
+      domains: ['www.flix.de'],
+      parameters: ['keyword'],
     },
     'Inbox.com': {
-      domains: [
-        'inbox.com/search/',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['inbox.com/search/'],
+      parameters: ['q'],
     },
-    'Freenet': {
-      domains: [
-        'suche.freenet.de',
-      ],
-      parameters: [
-        'query',
-        'Keywords',
-      ],
+    Freenet: {
+      domains: ['suche.freenet.de'],
+      parameters: ['query', 'Keywords'],
     },
-    'Suchnase': {
-      domains: [
-        'www.suchnase.de',
-      ],
-      parameters: [
-        'q',
-      ],
+    Suchnase: {
+      domains: ['www.suchnase.de'],
+      parameters: ['q'],
     },
-    'Dodo': {
-      domains: [
-        'google.dodo.com.au',
-      ],
-      parameters: [
-        'q',
-      ],
+    Dodo: {
+      domains: ['google.dodo.com.au'],
+      parameters: ['q'],
     },
     'Google Blogsearch': {
       domains: [
@@ -1902,112 +1504,57 @@ export const referrers: ReferrersData = {
         'blogsearch.google.vu',
         'blogsearch.google.ws',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
     'Poisk.ru': {
-      domains: [
-        'poisk.ru',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['poisk.ru'],
+      parameters: ['q'],
     },
-    'Sharelook': {
-      domains: [
-        'www.sharelook.fr',
-      ],
-      parameters: [
-        'keyword',
-      ],
+    Sharelook: {
+      domains: ['www.sharelook.fr'],
+      parameters: ['keyword'],
     },
-    'Finderoo': {
-      domains: [
-        'www.finderoo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Finderoo: {
+      domains: ['www.finderoo.com'],
+      parameters: ['q'],
     },
-    'Najdi': {
-      domains: [
-        'www.najdi.si',
-      ],
-      parameters: [
-        'q',
-      ],
+    Najdi: {
+      domains: ['www.najdi.si'],
+      parameters: ['q'],
     },
-    'Picsearch': {
-      domains: [
-        'www.picsearch.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Picsearch: {
+      domains: ['www.picsearch.com'],
+      parameters: ['q'],
     },
     'Mail.ru': {
-      domains: [
-        'mail.ru',
-        'm.mail.ru',
-        'go.mail.ru',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['mail.ru', 'm.mail.ru', 'go.mail.ru'],
+      parameters: ['q'],
     },
-    'Alexa': {
-      domains: [
-        'alexa.com',
-        'search.toolbars.alexa.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Alexa: {
+      domains: ['alexa.com', 'search.toolbars.alexa.com'],
+      parameters: ['q'],
     },
-    'Metager': {
-      domains: [
-        'meta.rrzn.uni-hannover.de',
-        'www.metager.de',
-      ],
-      parameters: [
-        'eingabe',
-      ],
+    Metager: {
+      domains: ['meta.rrzn.uni-hannover.de', 'www.metager.de'],
+      parameters: ['eingabe'],
     },
-    'Technorati': {
-      domains: [
-        'technorati.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Technorati: {
+      domains: ['technorati.com'],
+      parameters: ['q'],
     },
-    'Globososo': {
-      domains: [
-        'searches.globososo.com',
-        'search.globososo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Globososo: {
+      domains: ['searches.globososo.com', 'search.globososo.com'],
+      parameters: ['q'],
     },
-    'WWW': {
-      domains: [
-        'search.www.ee',
-      ],
-      parameters: [
-        'query',
-      ],
+    WWW: {
+      domains: ['search.www.ee'],
+      parameters: ['query'],
     },
     'Trouvez.com': {
-      domains: [
-        'www.trouvez.com',
-      ],
-      parameters: [
-        'query',
-      ],
+      domains: ['www.trouvez.com'],
+      parameters: ['query'],
     },
-    'IXquick': {
+    IXquick: {
       domains: [
         'ixquick.com',
         'www.eu.ixquick.com',
@@ -2023,118 +1570,57 @@ export const referrers: ReferrersData = {
         's8-eu.ixquick.com',
         's1-eu.ixquick.de',
       ],
-      parameters: [
-        'query',
-      ],
+      parameters: ['query'],
     },
     'Naver Images': {
-      domains: [
-        'image.search.naver.com',
-        'imagesearch.naver.com',
-      ],
-      parameters: [
-        'query',
-      ],
+      domains: ['image.search.naver.com', 'imagesearch.naver.com'],
+      parameters: ['query'],
     },
-    'Zapmeta': {
-      domains: [
-        'www.zapmeta.com',
-        'www.zapmeta.nl',
-        'www.zapmeta.de',
-        'uk.zapmeta.com',
-      ],
-      parameters: [
-        'q',
-        'query',
-      ],
+    Zapmeta: {
+      domains: ['www.zapmeta.com', 'www.zapmeta.nl', 'www.zapmeta.de', 'uk.zapmeta.com'],
+      parameters: ['q', 'query'],
     },
-    'Yippy': {
-      domains: [
-        'search.yippy.com',
-      ],
-      parameters: [
-        'q',
-        'query',
-      ],
+    Yippy: {
+      domains: ['search.yippy.com'],
+      parameters: ['q', 'query'],
     },
-    'Clix': {
-      domains: [
-        'pesquisa.clix.pt',
-      ],
-      parameters: [
-        'question',
-      ],
+    Clix: {
+      domains: ['pesquisa.clix.pt'],
+      parameters: ['question'],
     },
-    'Walhello': {
-      domains: [
-        'www.walhello.info',
-        'www.walhello.com',
-        'www.walhello.de',
-        'www.walhello.nl',
-      ],
-      parameters: [
-        'key',
-      ],
+    Walhello: {
+      domains: ['www.walhello.info', 'www.walhello.com', 'www.walhello.de', 'www.walhello.nl'],
+      parameters: ['key'],
     },
-    'Startsiden': {
-      domains: [
-        'www.startsiden.no',
-      ],
-      parameters: [
-        'q',
-      ],
+    Startsiden: {
+      domains: ['www.startsiden.no'],
+      parameters: ['q'],
     },
-    'Skynet': {
-      domains: [
-        'www.skynet.be',
-      ],
-      parameters: [
-        'q',
-      ],
+    Skynet: {
+      domains: ['www.skynet.be'],
+      parameters: ['q'],
     },
-    'Searchy': {
-      domains: [
-        'www.searchy.co.uk',
-      ],
-      parameters: [
-        'q',
-      ],
+    Searchy: {
+      domains: ['www.searchy.co.uk'],
+      parameters: ['q'],
     },
-    'Findwide': {
-      domains: [
-        'search.findwide.com',
-      ],
-      parameters: [
-        'k',
-      ],
+    Findwide: {
+      domains: ['search.findwide.com'],
+      parameters: ['k'],
     },
-    'WebSearch': {
-      domains: [
-        'www.websearch.com',
-      ],
-      parameters: [
-        'qkw',
-        'q',
-      ],
+    WebSearch: {
+      domains: ['www.websearch.com'],
+      parameters: ['qkw', 'q'],
     },
-    'Rambler': {
-      domains: [
-        'nova.rambler.ru',
-      ],
-      parameters: [
-        'query',
-        'words',
-      ],
+    Rambler: {
+      domains: ['nova.rambler.ru'],
+      parameters: ['query', 'words'],
     },
-    'Latne': {
-      domains: [
-        'www.latne.lv',
-      ],
-      parameters: [
-        'q',
-      ],
+    Latne: {
+      domains: ['www.latne.lv'],
+      parameters: ['q'],
     },
-    'MySearch': {
+    MySearch: {
       domains: [
         'mysearch.com',
         'www.mysearch.com',
@@ -2145,120 +1631,61 @@ export const referrers: ReferrersData = {
         'search.myway.com',
         'search.mywebsearch.com',
       ],
-      parameters: [
-        'searchfor',
-        'searchFor',
-      ],
+      parameters: ['searchfor', 'searchFor'],
     },
-    'Cuil': {
-      domains: [
-        'www.cuil.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Cuil: {
+      domains: ['www.cuil.com'],
+      parameters: ['q'],
     },
-    'Tixuma': {
-      domains: [
-        'www.tixuma.de',
-      ],
-      parameters: [
-        'sc',
-      ],
+    Tixuma: {
+      domains: ['www.tixuma.de'],
+      parameters: ['sc'],
     },
-    'Sapo': {
-      domains: [
-        'pesquisa.sapo.pt',
-      ],
-      parameters: [
-        'q',
-      ],
+    Sapo: {
+      domains: ['pesquisa.sapo.pt'],
+      parameters: ['q'],
     },
-    'Gnadenmeer': {
-      domains: [
-        'www.gnadenmeer.de',
-      ],
-      parameters: [
-        'keyword',
-      ],
+    Gnadenmeer: {
+      domains: ['www.gnadenmeer.de'],
+      parameters: ['keyword'],
     },
-    'Lilo': {
-      domains: [
-        'search.lilo.org',
-      ],
-      parameters: [
-        'q',
-      ],
+    Lilo: {
+      domains: ['search.lilo.org'],
+      parameters: ['q'],
     },
-    'Naver': {
-      domains: [
-        'search.naver.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Naver: {
+      domains: ['search.naver.com'],
+      parameters: ['query'],
     },
-    'Zoeken': {
-      domains: [
-        'www.zoeken.nl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Zoeken: {
+      domains: ['www.zoeken.nl'],
+      parameters: ['q'],
     },
-    'Yam': {
-      domains: [
-        'search.yam.com',
-      ],
-      parameters: [
-        'k',
-      ],
+    Yam: {
+      domains: ['search.yam.com'],
+      parameters: ['k'],
     },
-    'Eniro': {
-      domains: [
-        'www.eniro.se',
-      ],
-      parameters: [
-        'q',
-        'search_word',
-      ],
+    Eniro: {
+      domains: ['www.eniro.se'],
+      parameters: ['q', 'search_word'],
     },
-    'APOLL07': {
-      domains: [
-        'apollo7.de',
-      ],
-      parameters: [
-        'query',
-      ],
+    APOLL07: {
+      domains: ['apollo7.de'],
+      parameters: ['query'],
     },
-    'Biglobe': {
-      domains: [
-        'cgi.search.biglobe.ne.jp',
-      ],
-      parameters: [
-        'q',
-      ],
+    Biglobe: {
+      domains: ['cgi.search.biglobe.ne.jp'],
+      parameters: ['q'],
     },
-    'Mozbot': {
-      domains: [
-        'www.mozbot.fr',
-        'www.mozbot.co.uk',
-        'www.mozbot.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Mozbot: {
+      domains: ['www.mozbot.fr', 'www.mozbot.co.uk', 'www.mozbot.com'],
+      parameters: ['q'],
     },
-    'ICQ': {
-      domains: [
-        'www.icq.com',
-        'search.icq.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    ICQ: {
+      domains: ['www.icq.com', 'search.icq.com'],
+      parameters: ['q'],
     },
-    'Baidu': {
+    Baidu: {
       domains: [
         'www.baidu.com',
         'www1.baidu.com',
@@ -2268,82 +1695,41 @@ export const referrers: ReferrersData = {
         'web.gougou.com',
         'm.baidu.com',
       ],
-      parameters: [
-        'wd',
-        'word',
-        'kw',
-        'k',
-      ],
+      parameters: ['wd', 'word', 'kw', 'k'],
     },
-    'Conduit': {
-      domains: [
-        'search.conduit.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Conduit: {
+      domains: ['search.conduit.com'],
+      parameters: ['q'],
     },
-    'Vindex': {
-      domains: [
-        'www.vindex.nl',
-        'search.vindex.nl',
-      ],
-      parameters: [
-        'search_for',
-      ],
+    Vindex: {
+      domains: ['www.vindex.nl', 'search.vindex.nl'],
+      parameters: ['search_for'],
     },
-    'Babylon': {
-      domains: [
-        'search.babylon.com',
-        'searchassist.babylon.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Babylon: {
+      domains: ['search.babylon.com', 'searchassist.babylon.com'],
+      parameters: ['q'],
     },
-    'TrovaRapido': {
-      domains: [
-        'www.trovarapido.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    TrovaRapido: {
+      domains: ['www.trovarapido.com'],
+      parameters: ['q'],
     },
-    'Winamp': {
-      domains: [
-        'search.winamp.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Winamp: {
+      domains: ['search.winamp.com'],
+      parameters: ['q'],
     },
     'Suchmaschine.com': {
-      domains: [
-        'www.suchmaschine.com',
-      ],
-      parameters: [
-        'suchstr',
-      ],
+      domains: ['www.suchmaschine.com'],
+      parameters: ['suchstr'],
     },
-    'Lycos': {
-      domains: [
-        'search.lycos.com',
-        'www.lycos.com',
-        'lycos.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Lycos: {
+      domains: ['search.lycos.com', 'www.lycos.com', 'lycos.com'],
+      parameters: ['query'],
     },
-    'Vinden': {
-      domains: [
-        'www.vinden.nl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Vinden: {
+      domains: ['www.vinden.nl'],
+      parameters: ['q'],
     },
-    'Altavista': {
+    Altavista: {
       domains: [
         'www.altavista.com',
         'search.altavista.com',
@@ -2353,97 +1739,49 @@ export const referrers: ReferrersData = {
         'be-nl.altavista.com',
         'be-fr.altavista.com',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'dmoz': {
-      domains: [
-        'dmoz.org',
-        'editors.dmoz.org',
-      ],
-      parameters: [
-        'q',
-      ],
+    dmoz: {
+      domains: ['dmoz.org', 'editors.dmoz.org'],
+      parameters: ['q'],
     },
-    'Ecosia': {
-      domains: [
-        'ecosia.org',
-      ],
-      parameters: [
-        'q',
-      ],
+    Ecosia: {
+      domains: ['ecosia.org'],
+      parameters: ['q'],
     },
-    'Maxwebsearch': {
-      domains: [
-        'maxwebsearch.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Maxwebsearch: {
+      domains: ['maxwebsearch.com'],
+      parameters: ['query'],
     },
-    'Euroseek': {
-      domains: [
-        'www.euroseek.com',
-      ],
-      parameters: [
-        'string',
-      ],
+    Euroseek: {
+      domains: ['www.euroseek.com'],
+      parameters: ['string'],
     },
-    'Qwant': {
-      domains: [
-        'www.qwant.com',
-        'lite.qwant.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Qwant: {
+      domains: ['www.qwant.com', 'lite.qwant.com'],
+      parameters: ['q'],
     },
     'X-recherche': {
-      domains: [
-        'www.x-recherche.com',
-      ],
-      parameters: [
-        'MOTS',
-      ],
+      domains: ['www.x-recherche.com'],
+      parameters: ['MOTS'],
     },
     'Yandex Images': {
-      domains: [
-        'images.yandex.ru',
-        'images.yandex.ua',
-        'images.yandex.com',
-        'images.yandex.by',
-      ],
-      parameters: [
-        'text',
-      ],
+      domains: ['images.yandex.ru', 'images.yandex.ua', 'images.yandex.com', 'images.yandex.by'],
+      parameters: ['text'],
     },
-    'GMX': {
-      domains: [
-        'suche.gmx.net',
-      ],
-      parameters: [
-        'su',
-      ],
+    GMX: {
+      domains: ['suche.gmx.net'],
+      parameters: ['su'],
     },
     'Daemon search': {
-      domains: [
-        'daemon-search.com',
-        'my.daemon-search.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['daemon-search.com', 'my.daemon-search.com'],
+      parameters: ['q'],
     },
     'Meta.ua': {
-      domains: [
-        'meta.ua',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['meta.ua'],
+      parameters: ['q'],
     },
-    'Shenma': {
+    Shenma: {
       domains: [
         'so.m.sm.cn',
         'yz.m.sm.cn',
@@ -2453,190 +1791,95 @@ export const referrers: ReferrersData = {
         'm.yz2.sm.cn',
         'm.yz.sm.cn',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'Firstfind': {
-      domains: [
-        'www.firstsfind.com',
-      ],
-      parameters: [
-        'qry',
-      ],
+    Firstfind: {
+      domains: ['www.firstsfind.com'],
+      parameters: ['qry'],
     },
-    'Crawler': {
-      domains: [
-        'www.crawler.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Crawler: {
+      domains: ['www.crawler.com'],
+      parameters: ['q'],
     },
-    'Holmes': {
-      domains: [
-        'holmes.ge',
-      ],
-      parameters: [
-        'q',
-      ],
+    Holmes: {
+      domains: ['holmes.ge'],
+      parameters: ['q'],
     },
-    'Charter': {
-      domains: [
-        'www.charter.net',
-      ],
-      parameters: [
-        'q',
-      ],
+    Charter: {
+      domains: ['www.charter.net'],
+      parameters: ['q'],
     },
-    'Ilse': {
-      domains: [
-        'www.ilse.nl',
-      ],
-      parameters: [
-        'search_for',
-      ],
+    Ilse: {
+      domains: ['www.ilse.nl'],
+      parameters: ['search_for'],
     },
-    'earthlink': {
-      domains: [
-        'search.earthlink.net',
-      ],
-      parameters: [
-        'q',
-      ],
+    earthlink: {
+      domains: ['search.earthlink.net'],
+      parameters: ['q'],
     },
-    'Qualigo': {
-      domains: [
-        'www.qualigo.at',
-        'www.qualigo.ch',
-        'www.qualigo.de',
-        'www.qualigo.nl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Qualigo: {
+      domains: ['www.qualigo.at', 'www.qualigo.ch', 'www.qualigo.de', 'www.qualigo.nl'],
+      parameters: ['q'],
     },
     'El Mundo': {
-      domains: [
-        'ariadna.elmundo.es',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['ariadna.elmundo.es'],
+      parameters: ['q'],
     },
-    'Metager2': {
-      domains: [
-        'metager2.de',
-      ],
-      parameters: [
-        'q',
-      ],
+    Metager2: {
+      domains: ['metager2.de'],
+      parameters: ['q'],
     },
-    'Forestle': {
-      domains: [
-        'forestle.org',
-        'www.forestle.org',
-        'forestle.mobi',
-      ],
-      parameters: [
-        'q',
-      ],
+    Forestle: {
+      domains: ['forestle.org', 'www.forestle.org', 'forestle.mobi'],
+      parameters: ['q'],
     },
     'Search.ch': {
-      domains: [
-        'www.search.ch',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.search.ch'],
+      parameters: ['q'],
     },
-    'Liveinternet': {
-      domains: [
-        'liveinternet.ru',
-      ],
-      parameters: [
-        'q',
-      ],
+    Liveinternet: {
+      domains: ['liveinternet.ru'],
+      parameters: ['q'],
     },
-    'Meinestadt': {
-      domains: [
-        'www.meinestadt.de',
-      ],
-      parameters: [
-        'words',
-      ],
+    Meinestadt: {
+      domains: ['www.meinestadt.de'],
+      parameters: ['words'],
     },
-    'Freshweather': {
-      domains: [
-        'www.fresh-weather.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Freshweather: {
+      domains: ['www.fresh-weather.com'],
+      parameters: ['q'],
     },
-    'AllTheWeb': {
-      domains: [
-        'www.alltheweb.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    AllTheWeb: {
+      domains: ['www.alltheweb.com'],
+      parameters: ['q'],
     },
-    'Coccoc': {
-      domains: [
-        'coccoc.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Coccoc: {
+      domains: ['coccoc.com'],
+      parameters: ['q'],
     },
-    'Snapdo': {
-      domains: [
-        'search.snapdo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Snapdo: {
+      domains: ['search.snapdo.com'],
+      parameters: ['q'],
     },
     'UKR.net': {
-      domains: [
-        'search.ukr.net',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['search.ukr.net'],
+      parameters: ['q'],
     },
-    'Zoek': {
-      domains: [
-        'www3.zoek.nl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Zoek: {
+      domains: ['www3.zoek.nl'],
+      parameters: ['q'],
     },
-    'Daum': {
-      domains: [
-        'search.daum.net',
-      ],
-      parameters: [
-        'q',
-      ],
+    Daum: {
+      domains: ['search.daum.net'],
+      parameters: ['q'],
     },
-    'Marktplaats': {
-      domains: [
-        'www.marktplaats.nl',
-      ],
-      parameters: [
-        'query',
-      ],
+    Marktplaats: {
+      domains: ['www.marktplaats.nl'],
+      parameters: ['query'],
     },
     'suche.info': {
-      domains: [
-        'suche.info',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['suche.info'],
+      parameters: ['q'],
     },
     'Google News': {
       domains: [
@@ -2837,117 +2080,61 @@ export const referrers: ReferrersData = {
         'news.google.vu',
         'news.google.ws',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'Zoohoo': {
-      domains: [
-        'zoohoo.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+    Zoohoo: {
+      domains: ['zoohoo.cz'],
+      parameters: ['q'],
     },
-    'Seznam': {
-      domains: [
-        'search.seznam.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+    Seznam: {
+      domains: ['search.seznam.cz'],
+      parameters: ['q'],
     },
     'Online.no': {
-      domains: [
-        'online.no',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['online.no'],
+      parameters: ['q'],
     },
-    'Eurip': {
-      domains: [
-        'www.eurip.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Eurip: {
+      domains: ['www.eurip.com'],
+      parameters: ['q'],
     },
     'all.by': {
-      domains: [
-        'all.by',
-      ],
-      parameters: [
-        'query',
-      ],
+      domains: ['all.by'],
+      parameters: ['query'],
     },
     'Road Runner Search': {
-      domains: [
-        'search.rr.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['search.rr.com'],
+      parameters: ['q'],
     },
     'Opplysningen 1881': {
-      domains: [
-        'www.1881.no',
-      ],
-      parameters: [
-        'Query',
-      ],
+      domains: ['www.1881.no'],
+      parameters: ['Query'],
     },
-    'YouGoo': {
-      domains: [
-        'www.yougoo.fr',
-      ],
-      parameters: [
-        'q',
-      ],
+    YouGoo: {
+      domains: ['www.yougoo.fr'],
+      parameters: ['q'],
     },
     'Bing Images': {
-      domains: [
-        'bing.com/images/search',
-        'www.bing.com/images/search',
-      ],
-      parameters: [
-        'q',
-        'Q',
-      ],
+      domains: ['bing.com/images/search', 'www.bing.com/images/search'],
+      parameters: ['q', 'Q'],
     },
-    'Geona': {
-      domains: [
-        'geona.net',
-      ],
-      parameters: [
-        'q',
-      ],
+    Geona: {
+      domains: ['geona.net'],
+      parameters: ['q'],
     },
-    'Nate': {
-      domains: [
-        'search.nate.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Nate: {
+      domains: ['search.nate.com'],
+      parameters: ['q'],
     },
     'Search This': {
-      domains: [
-        'www.searchthis.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.searchthis.com'],
+      parameters: ['q'],
     },
-    'DuckDuckGo': {
-      domains: [
-        'duckduckgo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    DuckDuckGo: {
+      domains: ['duckduckgo.com'],
+      parameters: ['q'],
     },
-    'Monster': {
+    Monster: {
       domains: [
         'www.monster.be',
         'www.monster.cz',
@@ -2960,45 +2147,25 @@ export const referrers: ReferrersData = {
         'www.monster.ch',
         'www.monster.co.uk',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'Hotbot': {
-      domains: [
-        'www.hotbot.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Hotbot: {
+      domains: ['www.hotbot.com'],
+      parameters: ['query'],
     },
-    'Kvasir': {
-      domains: [
-        'www.kvasir.no',
-      ],
-      parameters: [
-        'q',
-      ],
+    Kvasir: {
+      domains: ['www.kvasir.no'],
+      parameters: ['q'],
     },
-    'Austronaut': {
-      domains: [
-        'www2.austronaut.at',
-        'www1.astronaut.at',
-      ],
-      parameters: [
-        'q',
-      ],
+    Austronaut: {
+      domains: ['www2.austronaut.at', 'www1.astronaut.at'],
+      parameters: ['q'],
     },
-    'SoSoDesk': {
-      domains: [
-        'sosodesktop.com',
-        'search.sosodesktop.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    SoSoDesk: {
+      domains: ['sosodesktop.com', 'search.sosodesktop.com'],
+      parameters: ['q'],
     },
-    'Excite': {
+    Excite: {
       domains: [
         'search.excite.it',
         'search.excite.fr',
@@ -3009,34 +2176,19 @@ export const referrers: ReferrersData = {
         'msxml.excite.com',
         'www.excite.co.jp',
       ],
-      parameters: [
-        'q',
-        'search',
-      ],
+      parameters: ['q', 'search'],
     },
     '1&1': {
-      domains: [
-        'search.1and1.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['search.1and1.com'],
+      parameters: ['q'],
     },
-    'qip': {
-      domains: [
-        'search.qip.ru',
-      ],
-      parameters: [
-        'query',
-      ],
+    qip: {
+      domains: ['search.qip.ru'],
+      parameters: ['query'],
     },
     'Certified-Toolbar': {
-      domains: [
-        'search.certified-toolbar.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['search.certified-toolbar.com'],
+      parameters: ['q'],
     },
     'Yahoo!': {
       domains: [
@@ -3103,53 +2255,29 @@ export const referrers: ReferrersData = {
         'search.offerbox.com',
         'ys.mirostart.com',
       ],
-      parameters: [
-        'p',
-        'q',
-      ],
+      parameters: ['p', 'q'],
     },
     'URL.ORGanizier': {
-      domains: [
-        'www.url.org',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['www.url.org'],
+      parameters: ['q'],
     },
-    'Witch': {
-      domains: [
-        'www.witch.de',
-      ],
-      parameters: [
-        'search',
-      ],
+    Witch: {
+      domains: ['www.witch.de'],
+      parameters: ['search'],
     },
     'Mister Wong': {
-      domains: [
-        'www.mister-wong.com',
-        'www.mister-wong.de',
-      ],
-      parameters: [
-        'Keywords',
-      ],
+      domains: ['www.mister-wong.com', 'www.mister-wong.de'],
+      parameters: ['Keywords'],
     },
-    'Aport': {
-      domains: [
-        'sm.aport.ru',
-      ],
-      parameters: [
-        'r',
-      ],
+    Aport: {
+      domains: ['sm.aport.ru'],
+      parameters: ['r'],
     },
     'Web.de': {
-      domains: [
-        'suche.web.de',
-      ],
-      parameters: [
-        'su',
-      ],
+      domains: ['suche.web.de'],
+      parameters: ['su'],
     },
-    'Ask': {
+    Ask: {
       domains: [
         'ask.com',
         'www.ask.com',
@@ -3168,20 +2296,13 @@ export const referrers: ReferrersData = {
         'www.search-results.com',
         'int.search-results.com',
       ],
-      parameters: [
-        'q',
-      ],
+      parameters: ['q'],
     },
-    'Centrum': {
-      domains: [
-        'serach.centrum.cz',
-        'morfeo.centrum.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+    Centrum: {
+      domains: ['serach.centrum.cz', 'morfeo.centrum.cz'],
+      parameters: ['q'],
     },
-    'Bing': {
+    Bing: {
       domains: [
         'bing.com',
         'www.bing.com',
@@ -3190,110 +2311,57 @@ export const referrers: ReferrersData = {
         'cc.bingj.com',
         'm.bing.com',
       ],
-      parameters: [
-        'q',
-        'Q',
-      ],
+      parameters: ['q', 'Q'],
     },
     'Google Video': {
-      domains: [
-        'video.google.com',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['video.google.com'],
+      parameters: ['q'],
     },
-    'Delfi': {
-      domains: [
-        'otsing.delfi.ee',
-      ],
-      parameters: [
-        'q',
-      ],
+    Delfi: {
+      domains: ['otsing.delfi.ee'],
+      parameters: ['q'],
     },
-    'blekko': {
-      domains: [
-        'blekko.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    blekko: {
+      domains: ['blekko.com'],
+      parameters: ['q'],
     },
-    'Jyxo': {
-      domains: [
-        'jyxo.1188.cz',
-      ],
-      parameters: [
-        'q',
-      ],
+    Jyxo: {
+      domains: ['jyxo.1188.cz'],
+      parameters: ['q'],
     },
-    'Kataweb': {
-      domains: [
-        'www.kataweb.it',
-      ],
-      parameters: [
-        'q',
-      ],
+    Kataweb: {
+      domains: ['www.kataweb.it'],
+      parameters: ['q'],
     },
     'uol.com.br': {
-      domains: [
-        'busca.uol.com.br',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['busca.uol.com.br'],
+      parameters: ['q'],
     },
-    'Rakuten': {
-      domains: [
-        'websearch.rakuten.co.jp',
-      ],
-      parameters: [
-        'qt',
-      ],
+    Rakuten: {
+      domains: ['websearch.rakuten.co.jp'],
+      parameters: ['qt'],
     },
-    'Mamma': {
-      domains: [
-        'www.mamma.com',
-        'mamma75.mamma.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Mamma: {
+      domains: ['www.mamma.com', 'mamma75.mamma.com'],
+      parameters: ['query'],
     },
-    'Yatedo': {
-      domains: [
-        'www.yatedo.com',
-        'www.yatedo.fr',
-      ],
-      parameters: [
-        'q',
-      ],
+    Yatedo: {
+      domains: ['www.yatedo.com', 'www.yatedo.fr'],
+      parameters: ['q'],
     },
-    'Twingly': {
-      domains: [
-        'www.twingly.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Twingly: {
+      domains: ['www.twingly.com'],
+      parameters: ['q'],
     },
     'Delfi latvia': {
-      domains: [
-        'smart.delfi.lv',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['smart.delfi.lv'],
+      parameters: ['q'],
     },
-    'PriceRunner': {
-      domains: [
-        'www.pricerunner.co.uk',
-      ],
-      parameters: [
-        'q',
-      ],
+    PriceRunner: {
+      domains: ['www.pricerunner.co.uk'],
+      parameters: ['q'],
     },
-    'Google': {
+    Google: {
       domains: [
         'www.google.com',
         'www.google.ac',
@@ -3717,129 +2785,63 @@ export const referrers: ReferrersData = {
         'googlesyndicatedsearch.com',
         'com.google.android.googlequicksearchbox',
       ],
-      parameters: [
-        'q',
-        'query',
-        'Keywords',
-      ],
+      parameters: ['q', 'query', 'Keywords'],
     },
-    'Blogpulse': {
-      domains: [
-        'www.blogpulse.com',
-      ],
-      parameters: [
-        'query',
-      ],
+    Blogpulse: {
+      domains: ['www.blogpulse.com'],
+      parameters: ['query'],
     },
     'Hooseek.com': {
-      domains: [
-        'www.hooseek.com',
-      ],
-      parameters: [
-        'recherche',
-      ],
+      domains: ['www.hooseek.com'],
+      parameters: ['recherche'],
     },
-    'Dalesearch': {
-      domains: [
-        'www.dalesearch.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Dalesearch: {
+      domains: ['www.dalesearch.com'],
+      parameters: ['q'],
     },
     'Alice Adsl': {
-      domains: [
-        'rechercher.aliceadsl.fr',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['rechercher.aliceadsl.fr'],
+      parameters: ['q'],
     },
     'T-Online': {
-      domains: [
-        'suche.t-online.de',
-        'brisbane.t-online.de',
-        'navigationshilfe.t-online.de',
-      ],
-      parameters: [
-        'q',
-      ],
+      domains: ['suche.t-online.de', 'brisbane.t-online.de', 'navigationshilfe.t-online.de'],
+      parameters: ['q'],
     },
-    'Sogou': {
-      domains: [
-        'www.sougou.com',
-        'www.soso.com',
-      ],
-      parameters: [
-        'query',
-        'w',
-      ],
+    Sogou: {
+      domains: ['www.sougou.com', 'www.soso.com'],
+      parameters: ['query', 'w'],
     },
     'Hit-Parade': {
-      domains: [
-        'req.-hit-parade.com',
-        'class.hit-parade.com',
-        'www.hit-parade.com',
-      ],
-      parameters: [
-        'p7',
-      ],
+      domains: ['req.-hit-parade.com', 'class.hit-parade.com', 'www.hit-parade.com'],
+      parameters: ['p7'],
     },
-    'SearchCanvas': {
-      domains: [
-        'www.searchcanvas.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    SearchCanvas: {
+      domains: ['www.searchcanvas.com'],
+      parameters: ['q'],
     },
     'Jungle Key': {
-      domains: [
-        'junglekey.com',
-        'junglekey.fr',
-      ],
-      parameters: [
-        'query',
-      ],
+      domains: ['junglekey.com', 'junglekey.fr'],
+      parameters: ['query'],
     },
-    'Interia': {
-      domains: [
-        'www.google.interia.pl',
-      ],
-      parameters: [
-        'q',
-      ],
+    Interia: {
+      domains: ['www.google.interia.pl'],
+      parameters: ['q'],
     },
-    'Genieo': {
-      domains: [
-        'search.genieo.com',
-      ],
-      parameters: [
-        'q',
-      ],
+    Genieo: {
+      domains: ['search.genieo.com'],
+      parameters: ['q'],
     },
-    'Tiscali': {
-      domains: [
-        'search.tiscali.it',
-        'search-dyn.tiscali.it',
-        'hledani.tiscali.cz',
-      ],
-      parameters: [
-        'q',
-        'key',
-      ],
+    Tiscali: {
+      domains: ['search.tiscali.it', 'search-dyn.tiscali.it', 'hledani.tiscali.cz'],
+      parameters: ['q', 'key'],
     },
-    'Gomeo': {
-      domains: [
-        'www.gomeo.com',
-      ],
-      parameters: [
-        'Keywords',
-      ],
+    Gomeo: {
+      domains: ['www.gomeo.com'],
+      parameters: ['Keywords'],
     },
   },
   email: {
-    'Bigpond': {
+    Bigpond: {
       domains: [
         'webmail.bigpond.com',
         'webmail2.bigpond.com',
@@ -3848,29 +2850,19 @@ export const referrers: ReferrersData = {
       ],
     },
     'Naver Mail': {
-      domains: [
-        'mail.naver.com',
-      ],
+      domains: ['mail.naver.com'],
     },
     'T-online': {
-      domains: [
-        'email.t-online.de',
-      ],
+      domains: ['email.t-online.de'],
     },
-    'Zoho': {
-      domains: [
-        'mail.zoho.com',
-      ],
+    Zoho: {
+      domains: ['mail.zoho.com'],
     },
     '163 Mail': {
-      domains: [
-        'mail.163.com',
-      ],
+      domains: ['mail.163.com'],
     },
-    'TIM': {
-      domains: [
-        'webmail.tim.it',
-      ],
+    TIM: {
+      domains: ['webmail.tim.it'],
     },
     'Yahoo! Mail': {
       domains: [
@@ -3881,52 +2873,32 @@ export const referrers: ReferrersData = {
         'com.yahoo.mobile.client.android.mail',
       ],
     },
-    'iiNet': {
-      domains: [
-        'webmail.iinet.net.au',
-        'mail.iinet.net.au',
-      ],
+    iiNet: {
+      domains: ['webmail.iinet.net.au', 'mail.iinet.net.au'],
     },
     'E1.ru': {
-      domains: [
-        'mail.e1.ru',
-      ],
+      domains: ['mail.e1.ru'],
     },
-    'Vodafone': {
-      domains: [
-        'webmail.vodafone.co.nz',
-        'mail.vodafone.de',
-      ],
+    Vodafone: {
+      domains: ['webmail.vodafone.co.nz', 'mail.vodafone.de'],
     },
     '1und1': {
-      domains: [
-        'deref-1und1-02.de',
-      ],
+      domains: ['deref-1und1-02.de'],
     },
-    'Dodo': {
-      domains: [
-        'webmail.dodo.com.au',
-      ],
+    Dodo: {
+      domains: ['webmail.dodo.com.au'],
     },
     '126 Mail': {
-      domains: [
-        'mail.126.com',
-      ],
+      domains: ['mail.126.com'],
     },
-    'Mailchimp': {
-      domains: [
-        'com.mailchimp.mailchimp',
-      ],
+    Mailchimp: {
+      domains: ['com.mailchimp.mailchimp'],
     },
     'Inbox.com': {
-      domains: [
-        'inbox.com',
-      ],
+      domains: ['inbox.com'],
     },
-    'iPrimus': {
-      domains: [
-        'webmail.iprimus.com.au',
-      ],
+    iPrimus: {
+      domains: ['webmail.iprimus.com.au'],
     },
     'Web.de': {
       domains: [
@@ -3938,80 +2910,46 @@ export const referrers: ReferrersData = {
       ],
     },
     'QQ Mail': {
-      domains: [
-        'mail.qq.com',
-        'exmail.qq.com',
-      ],
+      domains: ['mail.qq.com', 'exmail.qq.com'],
     },
-    'QIP': {
-      domains: [
-        'mail.qip.ru',
-      ],
+    QIP: {
+      domains: ['mail.qip.ru'],
     },
-    'Sibmail': {
-      domains: [
-        'sibmail.com',
-      ],
+    Sibmail: {
+      domains: ['sibmail.com'],
     },
-    'Freenet': {
-      domains: [
-        'webmail.freenet.de',
-      ],
+    Freenet: {
+      domains: ['webmail.freenet.de'],
     },
     'Seznam Mail': {
-      domains: [
-        'email.seznam.cz',
-      ],
+      domains: ['email.seznam.cz'],
     },
-    'Westnet': {
-      domains: [
-        'webmail.westnet.com.au',
-      ],
+    Westnet: {
+      domains: ['webmail.westnet.com.au'],
     },
     'Outlook.com': {
-      domains: [
-        'mail.live.com',
-        'outlook.live.com',
-        'com.microsoft.office.outlook',
-      ],
+      domains: ['mail.live.com', 'outlook.live.com', 'com.microsoft.office.outlook'],
     },
     'Mail.com': {
-      domains: [
-        'deref-mail.com',
-        '3c-lxa.mail.com',
-        'lightmailer.mail.com',
-      ],
+      domains: ['deref-mail.com', '3c-lxa.mail.com', 'lightmailer.mail.com'],
     },
     'Daum Mail': {
-      domains: [
-        'mail2.daum.net',
-        'mail.daum.net',
-      ],
+      domains: ['mail2.daum.net', 'mail.daum.net'],
     },
-    'UPC': {
-      domains: [
-        'upcmail.hispeed.ch',
-      ],
+    UPC: {
+      domains: ['upcmail.hispeed.ch'],
     },
     '2degrees': {
-      domains: [
-        'webmail.2degreesbroadband.co.nz',
-      ],
+      domains: ['webmail.2degreesbroadband.co.nz'],
     },
-    'Beeline': {
-      domains: [
-        'post.ru',
-      ],
+    Beeline: {
+      domains: ['post.ru'],
     },
-    'Infomaniak': {
-      domains: [
-        'mail.infomaniak.com',
-      ],
+    Infomaniak: {
+      domains: ['mail.infomaniak.com'],
     },
     'Adam Internet': {
-      domains: [
-        'webmail.adam.com.au',
-      ],
+      domains: ['webmail.adam.com.au'],
     },
     'Orange Webmail': {
       domains: [
@@ -4023,7 +2961,7 @@ export const referrers: ReferrersData = {
         'messagerie.orange.fr',
       ],
     },
-    'Ionos': {
+    Ionos: {
       domains: [
         'email.ionos.de',
         'email.ionos.es',
@@ -4043,57 +2981,34 @@ export const referrers: ReferrersData = {
         'mailbusiness.ionos.co.uk',
       ],
     },
-    'earthlink': {
-      domains: [
-        'com.earthlink.myearthlink',
-      ],
+    earthlink: {
+      domains: ['com.earthlink.myearthlink'],
     },
-    'Bluewin': {
-      domains: [
-        'rich-v01.bluewin.ch',
-        'rich-v02.bluewin.ch',
-        'email.bluewin.ch',
-      ],
+    Bluewin: {
+      domains: ['rich-v01.bluewin.ch', 'rich-v02.bluewin.ch', 'email.bluewin.ch'],
     },
     'AOL Mail': {
-      domains: [
-        'mail.aol.com',
-        'com.aol.mobile.aolapp',
-      ],
+      domains: ['mail.aol.com', 'com.aol.mobile.aolapp'],
     },
-    'Netspace': {
-      domains: [
-        'webmail.netspace.net.au',
-      ],
+    Netspace: {
+      domains: ['webmail.netspace.net.au'],
     },
     'Optus Zoo': {
-      domains: [
-        'webmail.optuszoo.com.au',
-        'webmail.optusnet.com.au',
-      ],
+      domains: ['webmail.optuszoo.com.au', 'webmail.optusnet.com.au'],
     },
-    'Virgin': {
-      domains: [
-        'webmail.virginbroadband.com.au',
-      ],
+    Virgin: {
+      domains: ['webmail.virginbroadband.com.au'],
     },
-    'Proton': {
-      domains: [
-        'mail.proton.me',
-      ],
+    Proton: {
+      domains: ['mail.proton.me'],
     },
-    'Commander': {
-      domains: [
-        'webmail.commander.net.au',
-      ],
+    Commander: {
+      domains: ['webmail.commander.net.au'],
     },
-    'Mastermail': {
-      domains: [
-        'mastermail.ru',
-        'm.mastermail.ru',
-      ],
+    Mastermail: {
+      domains: ['mastermail.ru', 'm.mastermail.ru'],
     },
-    'GMX': {
+    GMX: {
       domains: [
         'deref-gmx.de',
         'deref-gmx.at',
@@ -4117,7 +3032,7 @@ export const referrers: ReferrersData = {
         'lightmailer-bap.gmx.net',
       ],
     },
-    'Yandex': {
+    Yandex: {
       domains: [
         'mail.yandex.ru',
         'mail.yandex.com',
@@ -4127,92 +3042,53 @@ export const referrers: ReferrersData = {
       ],
     },
     'Mail.ru': {
-      domains: [
-        'e.mail.ru',
-        'touch.mail.ru',
-      ],
+      domains: ['e.mail.ru', 'touch.mail.ru'],
     },
     'Ukr.net': {
-      domains: [
-        'mail.ukr.net',
-      ],
+      domains: ['mail.ukr.net'],
     },
-    'Rambler': {
-      domains: [
-        'mail.rambler.ru',
-      ],
+    Rambler: {
+      domains: ['mail.rambler.ru'],
     },
     'Mynet Mail': {
-      domains: [
-        'mail.mynet.com',
-      ],
+      domains: ['mail.mynet.com'],
     },
-    'Gmail': {
-      domains: [
-        'mail.google.com',
-        'com.google.android.gm',
-        'inbox.google.com',
-      ],
+    Gmail: {
+      domains: ['mail.google.com', 'com.google.android.gm', 'inbox.google.com'],
     },
   },
   paid: {
-    'AdSpirit': {
-      domains: [
-        'adspirit.de',
-        'rtbcity.com',
-        'plusperformance.com',
-      ],
+    AdSpirit: {
+      domains: ['adspirit.de', 'rtbcity.com', 'plusperformance.com'],
     },
-    'Flashtalking': {
-      domains: [
-        'flashtalking.com',
-        'servedby.flashtalking.com',
-      ],
+    Flashtalking: {
+      domains: ['flashtalking.com', 'servedby.flashtalking.com'],
     },
-    'AudienceScience': {
-      domains: [
-        'wunderloop.net',
-      ],
+    AudienceScience: {
+      domains: ['wunderloop.net'],
     },
-    'Outbrain': {
-      domains: [
-        'paid.outbrain.com',
-      ],
+    Outbrain: {
+      domains: ['paid.outbrain.com'],
     },
-    'Yieldmo': {
-      domains: [
-        'yieldmo.com',
-      ],
+    Yieldmo: {
+      domains: ['yieldmo.com'],
     },
-    'Mozo': {
-      domains: [
-        'mozo.com.au',
-        'a.mozo.com.au',
-      ],
+    Mozo: {
+      domains: ['mozo.com.au', 'a.mozo.com.au'],
     },
     'Acuity Ads': {
-      domains: [
-        'acuityplatform.com',
-      ],
+      domains: ['acuityplatform.com'],
     },
-    'LifeStreet': {
-      domains: [
-        'lfstmedia.com',
-      ],
+    LifeStreet: {
+      domains: ['lfstmedia.com'],
     },
-    'MicroAd': {
-      domains: [
-        'microad.jp',
-      ],
+    MicroAd: {
+      domains: ['microad.jp'],
     },
-    'Taboola': {
-      domains: [
-        'trc.taboola.com',
-        'api.taboola.com',
-        'taboola.com',
-      ],
+    Taboola: {
+      domains: ['trc.taboola.com', 'api.taboola.com', 'taboola.com'],
     },
-    'Doubleclick': {
+    Doubleclick: {
       domains: [
         'ad.doubleclick.net',
         'ad-apac.doubleclick.net',
@@ -4222,137 +3098,80 @@ export const referrers: ReferrersData = {
         'pubads.g.doubleclick.net',
       ],
     },
-    'Adform': {
-      domains: [
-        'adform.net',
-      ],
+    Adform: {
+      domains: ['adform.net'],
     },
-    'Sizmek': {
-      domains: [
-        'bs.serving-sys.com',
-      ],
+    Sizmek: {
+      domains: ['bs.serving-sys.com'],
     },
-    'Criteo': {
-      domains: [
-        'cas.jp.as.criteo.com',
-        'cas.criteo.com',
-      ],
+    Criteo: {
+      domains: ['cas.jp.as.criteo.com', 'cas.criteo.com'],
     },
-    'Fluct': {
-      domains: [
-        'adingo.jp',
-      ],
+    Fluct: {
+      domains: ['adingo.jp'],
     },
-    'LowerMyBills': {
-      domains: [
-        'lowermybills.com',
-      ],
-      parameters: [
-        'leadid',
-      ],
+    LowerMyBills: {
+      domains: ['lowermybills.com'],
+      parameters: ['leadid'],
     },
     'White Pages': {
-      domains: [
-        'www.whitepages.com.au',
-        'mobile.whitepages.com.au',
-      ],
+      domains: ['www.whitepages.com.au', 'mobile.whitepages.com.au'],
     },
     'Neustar AdAdvisor': {
-      domains: [
-        'adadvisor.net',
-      ],
+      domains: ['adadvisor.net'],
     },
     'ONE by AOL': {
-      domains: [
-        'nexage.com',
-      ],
+      domains: ['nexage.com'],
     },
-    'Mixpo': {
-      domains: [
-        'mixpo.com',
-      ],
+    Mixpo: {
+      domains: ['mixpo.com'],
     },
     'Rubicon Project': {
-      domains: [
-        'optimized-by.rubiconproject.com',
-      ],
+      domains: ['optimized-by.rubiconproject.com'],
     },
-    'PubMatic': {
-      domains: [
-        'sshowads.pubmatic.com',
-      ],
+    PubMatic: {
+      domains: ['sshowads.pubmatic.com'],
     },
-    'Jivox': {
-      domains: [
-        'jivox.com',
-      ],
+    Jivox: {
+      domains: ['jivox.com'],
     },
-    'BidSwitch': {
-      domains: [
-        'bidswitch.net',
-      ],
+    BidSwitch: {
+      domains: ['bidswitch.net'],
     },
-    'Sonobi': {
-      domains: [
-        'sonobi.com',
-      ],
+    Sonobi: {
+      domains: ['sonobi.com'],
     },
-    'SteelHouse': {
-      domains: [
-        'steelhousemedia.com',
-      ],
+    SteelHouse: {
+      domains: ['steelhousemedia.com'],
     },
-    'AdRoll': {
-      domains: [
-        'adroll.com',
-      ],
+    AdRoll: {
+      domains: ['adroll.com'],
     },
-    'AdNET': {
-      domains: [
-        'adnet.de',
-      ],
+    AdNET: {
+      domains: ['adnet.de'],
     },
     'Tribal Fusion': {
-      domains: [
-        'cdnx.tribalfusion.com',
-      ],
+      domains: ['cdnx.tribalfusion.com'],
     },
     'Yandex.Market': {
-      domains: [
-        'market.yandex.ru',
-        'm.market.yandex.ru',
-      ],
+      domains: ['market.yandex.ru', 'm.market.yandex.ru'],
     },
     'StickyADS.tv': {
-      domains: [
-        'stickyadstv.com',
-        'sfx.stickyadstv.com',
-      ],
+      domains: ['stickyadstv.com', 'sfx.stickyadstv.com'],
     },
-    'ZEDO': {
-      domains: [
-        'zedo.com',
-        'z1.zedo.com',
-      ],
+    ZEDO: {
+      domains: ['zedo.com', 'z1.zedo.com'],
     },
-    'Plista': {
-      domains: [
-        'farm.plista.com',
-      ],
+    Plista: {
+      domains: ['farm.plista.com'],
     },
-    'AppNexus': {
-      domains: [
-        'ib.adnxs.com',
-        'adnxs.com',
-        '247realmedia.com',
-      ],
+    AppNexus: {
+      domains: ['ib.adnxs.com', 'adnxs.com', '247realmedia.com'],
     },
-    'Sovrn': {
-      domains: [
-        'lijit.com',
-      ],
+    Sovrn: {
+      domains: ['lijit.com'],
     },
-    'Google': {
+    Google: {
       domains: [
         'www.googleadservices.com',
         'partner.googleadservices.com',
@@ -4367,34 +3186,20 @@ export const referrers: ReferrersData = {
         'pagead2.googlesyndication.com',
       ],
     },
-    'Eyeota': {
-      domains: [
-        'eyeota.net',
-      ],
+    Eyeota: {
+      domains: ['eyeota.net'],
     },
     'Price.ru': {
-      domains: [
-        'price.ru',
-        'v.price.ru',
-      ],
+      domains: ['price.ru', 'v.price.ru'],
     },
-    'OpenX': {
-      domains: [
-        'us-ads.openx.net',
-        'openx.net',
-        'servedbyopenx.com',
-        'openxenterprise.com',
-      ],
+    OpenX: {
+      domains: ['us-ads.openx.net', 'openx.net', 'servedbyopenx.com', 'openxenterprise.com'],
     },
     'Casale Media': {
-      domains: [
-        'casalemedia.com',
-      ],
+      domains: ['casalemedia.com'],
     },
-    'Adition': {
-      domains: [
-        'adition.com',
-      ],
+    Adition: {
+      domains: ['adition.com'],
     },
     'Yandex.Direct': {
       domains: [
@@ -4405,134 +3210,81 @@ export const referrers: ReferrersData = {
         'yabs.yandex.by',
       ],
     },
-    'ADFOX': {
-      domains: [
-        'adfox.ru',
-        'www.adfox.ru',
-        'ads.adfox.ru',
-        'www.ads.adfox.ru',
-      ],
+    ADFOX: {
+      domains: ['adfox.ru', 'www.adfox.ru', 'ads.adfox.ru', 'www.ads.adfox.ru'],
     },
     'Torg.Mail.ru': {
-      domains: [
-        'torg.mail.ru',
-      ],
+      domains: ['torg.mail.ru'],
     },
     'Sociomantic Labs': {
-      domains: [
-        'sociomantic.com',
-      ],
+      domains: ['sociomantic.com'],
     },
   },
   social: {
-    'hi5': {
-      domains: [
-        'hi5.com',
-      ],
+    hi5: {
+      domains: ['hi5.com'],
     },
-    'Friendster': {
-      domains: [
-        'friendster.com',
-      ],
+    Friendster: {
+      domains: ['friendster.com'],
     },
     'vKruguDruzei.ru': {
-      domains: [
-        'vkrugudruzei.ru',
-      ],
+      domains: ['vkrugudruzei.ru'],
     },
-    'Xanga': {
-      domains: [
-        'xanga.com',
-      ],
+    Xanga: {
+      domains: ['xanga.com'],
     },
-    'Myspace': {
-      domains: [
-        'myspace.com',
-      ],
+    Myspace: {
+      domains: ['myspace.com'],
     },
-    'Buzznet': {
-      domains: [
-        'buzznet.com',
-      ],
+    Buzznet: {
+      domains: ['buzznet.com'],
     },
-    'MyLife': {
-      domains: [
-        'mylife.ru',
-      ],
+    MyLife: {
+      domains: ['mylife.ru'],
     },
-    'Flickr': {
-      domains: [
-        'flickr.com',
-      ],
+    Flickr: {
+      domains: ['flickr.com'],
     },
-    'Whirlpool': {
-      domains: [
-        'forums.whirlpool.net.au',
-      ],
+    Whirlpool: {
+      domains: ['forums.whirlpool.net.au'],
     },
     'Sonico.com': {
-      domains: [
-        'sonico.com',
-      ],
+      domains: ['sonico.com'],
     },
-    'Odnoklassniki': {
-      domains: [
-        'odnoklassniki.ru',
-        'ok.ru',
-      ],
+    Odnoklassniki: {
+      domains: ['odnoklassniki.ru', 'ok.ru'],
     },
-    'GitHub': {
-      domains: [
-        'github.com',
-      ],
+    GitHub: {
+      domains: ['github.com'],
     },
-    'Classmates': {
-      domains: [
-        'classmates.com',
-      ],
+    Classmates: {
+      domains: ['classmates.com'],
     },
     'Friends Reunited': {
-      domains: [
-        'friendsreunited.com',
-      ],
+      domains: ['friendsreunited.com'],
     },
     'Hacker News': {
-      domains: [
-        'news.ycombinator.com',
-        'io.github.hidroh.materialistic',
-      ],
+      domains: ['news.ycombinator.com', 'io.github.hidroh.materialistic'],
     },
-    'Quora': {
-      domains: [
-        'quora.com',
-      ],
+    Quora: {
+      domains: ['quora.com'],
     },
-    'LiveJournal': {
-      domains: [
-        'livejournal.ru',
-      ],
+    LiveJournal: {
+      domains: ['livejournal.ru'],
     },
-    'Netlog': {
-      domains: [
-        'netlog.com',
-      ],
+    Netlog: {
+      domains: ['netlog.com'],
     },
-    'Orkut': {
-      domains: [
-        'orkut.com',
-      ],
+    Orkut: {
+      domains: ['orkut.com'],
     },
-    'MyHeritage': {
-      domains: [
-        'myheritage.com',
-      ],
+    MyHeritage: {
+      domains: ['myheritage.com'],
     },
-    'Multiply': {
-      domains: [
-        'multiply.com',
-      ],
+    Multiply: {
+      domains: ['multiply.com'],
     },
-    'Facebook': {
+    Facebook: {
       domains: [
         'facebook.com',
         'fb.me',
@@ -4542,101 +3294,58 @@ export const referrers: ReferrersData = {
         'com.facebook.katana',
       ],
     },
-    'myYearbook': {
-      domains: [
-        'myyearbook.com',
-      ],
+    myYearbook: {
+      domains: ['myyearbook.com'],
     },
-    'Renren': {
-      domains: [
-        'renren.com',
-      ],
+    Renren: {
+      domains: ['renren.com'],
     },
-    'Slack': {
-      domains: [
-        'app.slack.com',
-        'com.slack',
-      ],
+    Slack: {
+      domains: ['app.slack.com', 'com.slack'],
     },
-    'WeeWorld': {
-      domains: [
-        'weeworld.com',
-      ],
+    WeeWorld: {
+      domains: ['weeworld.com'],
     },
-    'Vimeo': {
-      domains: [
-        'vimeo.com',
-      ],
+    Vimeo: {
+      domains: ['vimeo.com'],
     },
     'Eksi Sozluk': {
-      domains: [
-        'Sozluk.com',
-        'sourtimes.org',
-      ],
+      domains: ['Sozluk.com', 'sourtimes.org'],
     },
-    'Mixi': {
-      domains: [
-        'mixi.jp',
-      ],
+    Mixi: {
+      domains: ['mixi.jp'],
     },
-    'Geni': {
-      domains: [
-        'geni.com',
-      ],
+    Geni: {
+      domains: ['geni.com'],
     },
     'Uludag Sozluk': {
-      domains: [
-        'uludagsozluk.com',
-        'ulusozluk.com',
-      ],
+      domains: ['uludagsozluk.com', 'ulusozluk.com'],
     },
-    'SourceForge': {
-      domains: [
-        'sourceforge.net',
-      ],
+    SourceForge: {
+      domains: ['sourceforge.net'],
     },
-    'Plaxo': {
-      domains: [
-        'plaxo.com',
-      ],
+    Plaxo: {
+      domains: ['plaxo.com'],
     },
     'Taringa!': {
-      domains: [
-        'taringa.net',
-      ],
+      domains: ['taringa.net'],
     },
-    'Tagged': {
-      domains: [
-        'login.tagged.com',
-      ],
+    Tagged: {
+      domains: ['login.tagged.com'],
     },
-    'XING': {
-      domains: [
-        'xing.com',
-      ],
+    XING: {
+      domains: ['xing.com'],
     },
-    'Instagram': {
-      domains: [
-        'instagram.com',
-        'l.instagram.com',
-        'com.instagram.android',
-      ],
+    Instagram: {
+      domains: ['instagram.com', 'l.instagram.com', 'com.instagram.android'],
     },
-    'Vkontakte': {
-      domains: [
-        'm.vk.com',
-        'vk.com',
-        'away.vk.com',
-        'vkontakte.ru',
-      ],
+    Vkontakte: {
+      domains: ['m.vk.com', 'vk.com', 'away.vk.com', 'vkontakte.ru'],
     },
-    'Weibo': {
-      domains: [
-        'weibo.com',
-        't.cn',
-      ],
+    Weibo: {
+      domains: ['weibo.com', 't.cn'],
     },
-    'Telegram': {
+    Telegram: {
       domains: [
         'web.telegram.org',
         'org.telegram.messenger',
@@ -4646,55 +3355,34 @@ export const referrers: ReferrersData = {
         'org.telegram.plus',
       ],
     },
-    'Twitter': {
-      domains: [
-        'twitter.com',
-        't.co',
-        'com.twitter.android',
-      ],
+    Twitter: {
+      domains: ['twitter.com', 't.co', 'com.twitter.android'],
     },
-    'Snapchat': {
-      domains: [
-        'com.snapchat.android',
-        'snapchat.com',
-      ],
+    Snapchat: {
+      domains: ['com.snapchat.android', 'snapchat.com'],
     },
-    'Donanimhaber': {
-      domains: [
-        'donanimhaber.com',
-      ],
+    Donanimhaber: {
+      domains: ['donanimhaber.com'],
     },
-    'WAYN': {
-      domains: [
-        'wayn.com',
-      ],
+    WAYN: {
+      domains: ['wayn.com'],
     },
-    'Skype': {
-      domains: [
-        'web.skype.com',
-      ],
+    Skype: {
+      domains: ['web.skype.com'],
     },
     'Mail.ru': {
-      domains: [
-        'my.mail.ru',
-      ],
+      domains: ['my.mail.ru'],
     },
-    'Badoo': {
-      domains: [
-        'badoo.com',
-      ],
+    Badoo: {
+      domains: ['badoo.com'],
     },
-    'Instela': {
-      domains: [
-        'instela.com',
-      ],
+    Instela: {
+      domains: ['instela.com'],
     },
-    'Habbo': {
-      domains: [
-        'habbo.com',
-      ],
+    Habbo: {
+      domains: ['habbo.com'],
     },
-    'Pinterest': {
+    Pinterest: {
       domains: [
         'pinterest.ca',
         'pinterest.cl',
@@ -4720,126 +3408,73 @@ export const referrers: ReferrersData = {
         'com.pinterest',
       ],
     },
-    'LinkedIn': {
-      domains: [
-        'com.linkedin.android',
-        'linkedin.com',
-        'lnkd.in',
-      ],
+    LinkedIn: {
+      domains: ['com.linkedin.android', 'linkedin.com', 'lnkd.in'],
     },
-    'Foursquare': {
-      domains: [
-        'foursquare.com',
-      ],
+    Foursquare: {
+      domains: ['foursquare.com'],
     },
-    'Douban': {
-      domains: [
-        'douban.com',
-      ],
+    Douban: {
+      domains: ['douban.com'],
     },
     'Windows Live Spaces': {
-      domains: [
-        'login.live.com',
-      ],
+      domains: ['login.live.com'],
     },
-    'BlackPlanet': {
-      domains: [
-        'blackplanet.com',
-      ],
+    BlackPlanet: {
+      domains: ['blackplanet.com'],
     },
     'Lnk.Bio': {
-      domains: [
-        'lnk.bio',
-      ],
+      domains: ['lnk.bio'],
     },
-    'Cyworld': {
-      domains: [
-        'global.cyworld.com',
-      ],
+    Cyworld: {
+      domains: ['global.cyworld.com'],
     },
-    'Pocket': {
-      domains: [
-        'getpocket.com',
-      ],
+    Pocket: {
+      domains: ['getpocket.com'],
     },
-    'Skyrock': {
-      domains: [
-        'skyrock.com',
-      ],
+    Skyrock: {
+      domains: ['skyrock.com'],
     },
-    'Threads': {
-      domains: [
-        'threads.net',
-        'l.threads.net',
-        'com.instagram.barcelona',
-      ],
+    Threads: {
+      domains: ['threads.net', 'l.threads.net', 'com.instagram.barcelona'],
     },
-    'WhatsApp': {
-      domains: [
-        'web.whatsapp.com',
-        'com.whatsapp',
-      ],
+    WhatsApp: {
+      domains: ['web.whatsapp.com', 'com.whatsapp'],
     },
-    'Disqus': {
-      domains: [
-        'redirect.disqus.com',
-        'disq.us',
-        'disqus.com',
-      ],
+    Disqus: {
+      domains: ['redirect.disqus.com', 'disq.us', 'disqus.com'],
     },
-    'StudiVZ': {
-      domains: [
-        'studivz.net',
-      ],
+    StudiVZ: {
+      domains: ['studivz.net'],
     },
-    'Fotolog': {
-      domains: [
-        'fotolog.com',
-      ],
+    Fotolog: {
+      domains: ['fotolog.com'],
     },
     'ITU Sozluk': {
-      domains: [
-        'itusozluk.com',
-      ],
+      domains: ['itusozluk.com'],
     },
     'Google+': {
-      domains: [
-        'url.google.com',
-        'plus.google.com',
-      ],
+      domains: ['url.google.com', 'plus.google.com'],
     },
     'Nasza-klasa.pl': {
-      domains: [
-        'nk.pl',
-      ],
+      domains: ['nk.pl'],
     },
-    'Qzone': {
-      domains: [
-        'qzone.qq.com',
-      ],
+    Qzone: {
+      domains: ['qzone.qq.com'],
     },
-    'Flixster': {
-      domains: [
-        'flixster.com',
-      ],
+    Flixster: {
+      domains: ['flixster.com'],
     },
-    'Bebo': {
-      domains: [
-        'bebo.com',
-      ],
+    Bebo: {
+      domains: ['bebo.com'],
     },
-    'Tuenti': {
-      domains: [
-        'tuenti.com',
-      ],
+    Tuenti: {
+      domains: ['tuenti.com'],
     },
-    'Youtube': {
-      domains: [
-        'youtube.com',
-        'youtu.be',
-      ],
+    Youtube: {
+      domains: ['youtube.com', 'youtu.be'],
     },
-    'Reddit': {
+    Reddit: {
       domains: [
         'reddit.com',
         'io.syncapps.lemmy_sync',
@@ -4847,90 +3482,53 @@ export const referrers: ReferrersData = {
         'com.laurencedawson.reddit_sync.pro',
       ],
     },
-    'Viadeo': {
-      domains: [
-        'viadeo.com',
-      ],
+    Viadeo: {
+      domains: ['viadeo.com'],
     },
-    'Tildes': {
-      domains: [
-        'tildes.net',
-        'com.talklittle.android.tildes',
-      ],
+    Tildes: {
+      domains: ['tildes.net', 'com.talklittle.android.tildes'],
     },
-    'Workplace': {
-      domains: [
-        'l.workplace.com',
-        'lm.workplace.com',
-      ],
+    Workplace: {
+      domains: ['l.workplace.com', 'lm.workplace.com'],
     },
-    'StackOverflow': {
-      domains: [
-        'stackoverflow.com',
-      ],
+    StackOverflow: {
+      domains: ['stackoverflow.com'],
     },
     'Gaia Online': {
-      domains: [
-        'gaiaonline.com',
-      ],
+      domains: ['gaiaonline.com'],
     },
-    'StumbleUpon': {
-      domains: [
-        'stumbleupon.com',
-      ],
+    StumbleUpon: {
+      domains: ['stumbleupon.com'],
     },
     'Inci Sozluk': {
-      domains: [
-        'inci.sozlukspot.com',
-        'incisozluk.com',
-        'incisozluk.cc',
-      ],
+      domains: ['inci.sozlukspot.com', 'incisozluk.com', 'incisozluk.cc'],
     },
     'Identi.ca': {
-      domains: [
-        'identi.ca',
-      ],
+      domains: ['identi.ca'],
     },
     'Last.fm': {
-      domains: [
-        'lastfm.ru',
-      ],
+      domains: ['lastfm.ru'],
     },
-    'Tumblr': {
-      domains: [
-        'tumblr.com',
-        't.umblr.com',
-      ],
+    Tumblr: {
+      domains: ['tumblr.com', 't.umblr.com'],
     },
-    'TikTok': {
-      domains: [
-        'tiktok.com',
-      ],
+    TikTok: {
+      domains: ['tiktok.com'],
     },
     'Hocam.com': {
-      domains: [
-        'hocam.com',
-      ],
+      domains: ['hocam.com'],
     },
-    'Delicious': {
-      domains: [
-        'delicious.com',
-      ],
+    Delicious: {
+      domains: ['delicious.com'],
     },
-    'Hyves': {
-      domains: [
-        'hyves.nl',
-      ],
+    Hyves: {
+      domains: ['hyves.nl'],
     },
     'Paper.li': {
-      domains: [
-        'paper.li',
-      ],
+      domains: ['paper.li'],
     },
     'MoiKrug.ru': {
-      domains: [
-        'moikrug.ru',
-      ],
+      domains: ['moikrug.ru'],
     },
   },
-}
+};

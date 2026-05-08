@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -22,7 +22,8 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Released under the <a href="https://github.com/Hrdtr/litetics/blob/main/LICENSE">MIT License</a>.',
+      message:
+        'Released under the <a href="https://github.com/Hrdtr/litetics/blob/main/LICENSE">MIT License</a>.',
       copyright: 'Copyright © 2024 <a href="https://github.com/Hrdtr">Herdi Tr.</a>',
     },
 
@@ -31,4 +32,4 @@ export default defineConfig({
       { icon: 'npm', link: 'https://www.npmjs.com/package/litetics' },
     ],
   },
-})
+});

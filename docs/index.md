@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "Litetics"
-  text: "Flexible, embeddable"
+  name: 'Litetics'
+  text: 'Flexible, embeddable'
   tagline: Runtime agnostic Javascript analytics event tracking library.
   actions:
     - theme: brand
@@ -16,12 +16,12 @@ hero:
 
 features:
   - title: Flexible
-    details: 
+    details:
     icon: 🦾
   - title: Embeddable
-    details: 
+    details:
     icon: 🛡️
   - title: Runtime Agnostic
-    details: 
+    details:
     icon: 🧩
 ---

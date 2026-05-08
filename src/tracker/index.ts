@@ -1,11 +1,10 @@
-/* eslint-disable unicorn/prefer-global-this */
-import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler'
-import { isValidUrl } from '../utils/is-valid-url'
+import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler';
+import { isValidUrl } from '../utils/is-valid-url';
 
 const AnalyticsEvent = {
   UNLOAD: 'unload',
   LOAD: 'load',
-} as const
+} as const;
 
 /**
  * Represents the options object for creating a new tracker.
@@ -18,162 +17,115 @@ export interface CreateTrackerOptions {
     /**
      * The URL to send track events to.
      */
-    track: string
+    track: string;
     /**
      * The URL to send ping events to.
      */
-    ping: string
-  }
+    ping: string;
+  };
 
   /**
    * The mode of tracking to use. Either 'history' or 'hash'.
    * @default 'history
    */
-  mode?: 'history' | 'hash'
+  mode?: 'history' | 'hash';
 
   /**
    * The maximum duration of a session before the user is considered inactive.
    * @default 5 * 60 * 1000
    */
-  sessionTimeoutDuration?: number
+  sessionTimeoutDuration?: number;
 }
 
+const originalPushState = history.pushState.bind(history);
+const originalReplaceState = history.replaceState.bind(history);
+
 export const createTracker = ({
-  apiEndpoint: {
-    ping: pingEndpoint,
-    track: trackEndpoint,
-  },
+  apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
   mode = 'history',
+  sessionTimeoutDuration,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
-    throw new Error('`apiEndpoint.track` must be a valid URL')
+    throw new Error('`apiEndpoint.track` must be a valid URL');
   }
   if (!isValidUrl(pingEndpoint)) {
-    throw new Error('`apiEndpoint.ping` must be a valid URL')
+    throw new Error('`apiEndpoint.ping` must be a valid URL');
   }
 
-  /**
-   * Generate a unique ID for linking multiple beacon events together for the same page
-   * view. This is necessary for us to determine how long someone has spent on a page.
-   *
-   * @remarks We intentionally use Math.random() instead of the Web Crypto API
-   * because uniqueness against collisions is not a requirement and is worth
-   * the tradeoff for bundle size and performance.
-   */
-  const generateID = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
+  const generateID = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
-  /**
-   * Ping the server with the cache endpoint and read the last modified header to determine
-   * if the user is unique or not.
-   *
-   * If the response is not cached, then the user is unique. If it is cached, then the
-   * browser will send an If-Modified-Since header indicating the user is not unique.
-   *
-   * @param {string} url URL to ping.
-   * @returns {Promise<boolean>} Is the cache unique or not.
-   */
-  const ping = (url: string): Promise<boolean> => new Promise((resolve) => {
-    // We use XHR here because fetch GET request requires a CORS
-    // header to be set on the server, which adds additional requests and
-    // latency to ping the server.
-    const xhr = new XMLHttpRequest()
-    xhr.addEventListener('load', () => {
-      // @ts-expect-error - Double equals reduces bundle size.
-      resolve(xhr.responseText == 0)
-    })
-    xhr.open('GET', url)
-    xhr.setRequestHeader('Content-Type', 'text/plain')
-    xhr.send()
-  })
+  const ping = (url: string): Promise<boolean> =>
+    new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener('load', () => {
+        // @ts-expect-error - Double equals reduces bundle size.
+        resolve(xhr.responseText == 0);
+      });
+      xhr.open('GET', url);
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+      xhr.send();
+    });
 
-  /**
-   * Whether the user is unique or not.
-   * This is updated when the server checks the ping cache on page load.
-   */
-  let isUnique: boolean = true
+  let isUnique: boolean = true;
 
   const register = () => {
-    /**
-     * Unique ID linking multiple beacon events together for the same page view.
-     */
-    let id: string = generateID()
+    const ac = new AbortController();
+    const { signal } = ac;
 
-    /**
-     * Variable to store the start time of the session.
-     */
-    let startTime = Date.now()
+    let id: string = generateID();
+    let startTime = Date.now();
+    let isUnloadCalled: boolean = false;
 
-    /**
-     * Ensure only the unload beacon is called once.
-     */
-    let isUnloadCalled: boolean = false
+    let sessionTimer: ReturnType<typeof setTimeout> | null = null;
 
-    /**
-     * Copy of the original pushState and replaceState functions, used for overriding
-     * the History API to track navigation changes.
-     */
-    const historyPushState = history.pushState
-    const historyReplaceState = history.replaceState
+    const resetSessionTimer = () => {
+      if (sessionTimer) clearTimeout(sessionTimer);
+      sessionTimer = setTimeout(() => {
+        sendUnloadBeacon();
+        cleanup();
+        sendLoadBeacon();
+      }, sessionTimeoutDuration);
+    };
 
-    /**
-     * Cleanup temporary variables and reset the unique ID.
-     */
-    const cleanup = () => {
-      // Main ping cache won't be called again, so we can assume the user is not unique.
-      // However, isFirstVisit will be called on each page load, so we don't need to reset it.
-      isUnique = false
-      id = generateID()
-      startTime = Date.now()
-      isUnloadCalled = false
-    }
-
-    /**
-     * Wraps a history method with additional tracking events.
-     * @param {!Function} original - The original history method to wrap.
-     * @returns {function(this:History, *, string, (string | URL)=): void} The wrapped history method.
-     */
-    const wrapHistoryFunc = (
-      original: typeof historyPushState | typeof historyReplaceState,
-      /**
-       * @this {History}
-       * @param {*} _state - The state object.
-       * @param {string} _unused - The title (unused).
-       * @param {(string | URL)=} url - The URL to navigate to.
-       * @returns {void}
-       */
-    ): typeof historyPushState | typeof historyReplaceState => {
-      return function (state, unused, url, ...rest) {
-        if (url && location.pathname !== new URL(url, location.href).pathname) {
-          sendUnloadBeacon()
-          // If the event is a history change, then we need to reset the id and timers
-          // because the page is not actually reloading the script.
-          cleanup()
-          // @ts-expect-error
-          Reflect.apply(original, this, [state, unused, url, ...rest])
-          sendLoadBeacon()
-        }
-        else {
-          // @ts-expect-error
-          Reflect.apply(original, this, [state, unused, url, ...rest])
-        }
+    const clearSessionTimer = () => {
+      if (sessionTimer) {
+        clearTimeout(sessionTimer);
+        sessionTimer = null;
       }
-    }
+    };
 
-    /**
-     * Send a load beacon event to the server when the page is loaded.
-     * @returns {Promise<void>}
-     */
+    const cleanup = () => {
+      isUnique = false;
+      id = generateID();
+      startTime = Date.now();
+      isUnloadCalled = false;
+    };
+
+    const wrapHistoryFunc = (original: typeof originalPushState) => {
+      return function (
+        this: History,
+        state: unknown,
+        unused: string,
+        url?: string | URL | null,
+        ...rest: unknown[]
+      ) {
+        if (url && location.pathname !== new URL(url, location.href).pathname) {
+          sendUnloadBeacon();
+          cleanup();
+          Reflect.apply(original, this, [state, unused, url, ...rest]);
+          sendLoadBeacon();
+        } else {
+          Reflect.apply(original, this, [state, unused, url, ...rest]);
+        }
+      };
+    };
+
     const sendLoadBeacon = async (): Promise<void> => {
-      // Returns true if it is the user's first visit to page, false if not.
-      // The u query parameter is a cache busting parameter which is the page host and path
-      // without protocol or query parameters.
-      const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname))
+      const isFirstVisit = await ping(
+        pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname),
+      );
       await fetch(trackEndpoint, {
         method: 'POST',
-        /**
-         * Payload to send to the server.
-         * @type {EventHandlerLoadRequestBody}
-         */
         body: JSON.stringify({
           e: AnalyticsEvent.LOAD,
           b: id,
@@ -182,109 +134,99 @@ export const createTracker = ({
           q: isFirstVisit,
           a: 'pageview',
           r: document.referrer,
-          /**
-           * Get timezone for country detection.
-           * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
-           */
           t: Intl.DateTimeFormat().resolvedOptions().timeZone,
         } satisfies EventHandlerLoadRequestBody),
-        // Will make the response opaque, but we don't need it.
         mode: 'no-cors',
-      })
-    }
+      });
+    };
 
-    /**
-     * Send an unload beacon event to the server when the page is unloaded.
-     * @returns {void}
-     */
     const sendUnloadBeacon = (): void => {
       if (!isUnloadCalled) {
-        // We use sendBeacon here because it is more reliable than fetch on page unloads.
-        // The Fetch API keepalive flag has a few caveats and doesn't work very well on
-        // Firefox on top of that. Previous experiments also seemed to indicate that
-        // the fetch API doesn't work well on page unloads.
-        // See: https://github.com/whatwg/fetch/issues/679
-        //
-        // Some ad-blockers block this API directly, but since this is the unload event,
-        // it's an optional event to send.
         navigator.sendBeacon(
           trackEndpoint,
-          /**
-           * Payload to send to the server.
-           * @type {EventHandlerUnloadRequestBody}
-           */
           JSON.stringify({
             e: AnalyticsEvent.UNLOAD,
             b: id,
             m: Date.now() - startTime,
           } satisfies EventHandlerUnloadRequestBody),
-        )
+        );
       }
 
-      // Ensure unload is only called once.
-      isUnloadCalled = true
-    }
+      isUnloadCalled = true;
+    };
 
-    // Prefer pagehide if available because it's more reliable than unload.
-    // We also prefer pagehide because it doesn't break bf-cache.
     if ('onpagehide' in self) {
-      addEventListener('pagehide', sendUnloadBeacon, { capture: true })
-    }
-    else {
-      // Otherwise, use unload and beforeunload. Using both is significantly more
-      // reliable than just one due to browser differences. However, this will break
-      // bf-cache, but it's better than nothing.
-      addEventListener('beforeunload', sendUnloadBeacon, { capture: true })
-      addEventListener('unload', sendUnloadBeacon, { capture: true })
+      addEventListener('pagehide', sendUnloadBeacon, { signal, capture: true });
+    } else {
+      addEventListener('beforeunload', sendUnloadBeacon, { signal, capture: true });
+      addEventListener('unload', sendUnloadBeacon, { signal, capture: true });
     }
 
-    // Visibility change events allow us to track whether a user is tabbed out
-    addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        // Page is hidden, send unload beacon immediately
-        sendUnloadBeacon();
+    addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden) {
+          clearSessionTimer();
+          sendUnloadBeacon();
+        }
+      },
+      { signal, capture: true },
+    );
+
+    if (sessionTimeoutDuration) {
+      for (const type of ['mousedown', 'keydown', 'touchstart'] as const) {
+        addEventListener(type, resetSessionTimer, { signal, passive: true });
       }
-    }, { capture: true })
+    }
 
     ping(pingEndpoint).then((response: boolean) => {
-      // The response is a boolean indicating if the user is unique or not.
-      isUnique = response
+      isUnique = response;
+      sendLoadBeacon();
 
-      // Send the first beacon event to the server.
-      sendLoadBeacon()
+      if (sessionTimeoutDuration) {
+        resetSessionTimer();
+      }
 
-      // Check if hash mode is enabled. If it is, then we need to send a beacon event
-      // when the hash changes. If disabled, it is safe to override the History API.
       if (mode === 'hash') {
-        // Hash mode is enabled. Add hashchange event listener.
-        addEventListener('hashchange', sendLoadBeacon, { capture: true })
+        addEventListener('hashchange', sendLoadBeacon, { signal, capture: true });
+      } else {
+        history.pushState = wrapHistoryFunc(originalPushState);
+        history.replaceState = wrapHistoryFunc(originalReplaceState);
+        addEventListener(
+          'popstate',
+          () => {
+            clearSessionTimer();
+            sendUnloadBeacon();
+            cleanup();
+            sendLoadBeacon();
+          },
+          { signal, capture: true },
+        );
       }
-      else {
-        // Add pushState event listeners to track navigation changes with
-        // router libraries that use the History API.
-        history.pushState = wrapHistoryFunc(historyPushState)
+    });
 
-        // replaceState is used by some router libraries to replace the current
-        // history state instead of pushing a new one.
-        history.replaceState = wrapHistoryFunc(historyReplaceState)
-
-        // popstate is fired when the back or forward button is pressed.
-        addEventListener('popstate', () => {
-          sendUnloadBeacon() // Send unload for previous page
-          cleanup() // Reset state for new page
-          sendLoadBeacon() // Send load for new page
-        }, { capture: true })
+    return () => {
+      clearSessionTimer();
+      ac.abort();
+      if (history.pushState !== originalPushState) {
+        history.pushState = originalPushState;
       }
-    })
-  }
+      if (history.replaceState !== originalReplaceState) {
+        history.replaceState = originalReplaceState;
+      }
+    };
+  };
 
   /**
    * Map of custom event tracking (track method usage) keys to beacon IDs.
    */
-  const trackWithDurationMap = new Map<string, {
-    id: string
-    startTime: number
-  }>()
+  const trackWithDurationMap = new Map<
+    string,
+    {
+      id: string;
+      startTime: number;
+    }
+  >();
 
   /**
    * Tracks an event with the given key and data.
@@ -298,19 +240,25 @@ export const createTracker = ({
   const track = async (
     key: string,
     data: { type: string } & {
-      [key: string]: string | number | boolean | null | undefined
+      [key: string]: string | number | boolean | null | undefined;
     },
     options?: {
-      withDuration?: boolean
+      withDuration?: boolean;
     },
   ): Promise<void> => {
-    const isFirstVisit = await ping(pingEndpoint + '?u=' + encodeURIComponent(location.host + location.pathname) + '&k=' + encodeURIComponent(key))
-    const id = generateID()
+    const isFirstVisit = await ping(
+      pingEndpoint +
+        '?u=' +
+        encodeURIComponent(location.host + location.pathname) +
+        '&k=' +
+        encodeURIComponent(key),
+    );
+    const id = generateID();
     if (options?.withDuration) {
-      trackWithDurationMap.set(key, { id, startTime: Date.now() })
+      trackWithDurationMap.set(key, { id, startTime: Date.now() });
     }
 
-    const { type, ...rest } = data
+    const { type, ...rest } = data;
     // We use fetch here because it is more reliable than XHR.
     await fetch(trackEndpoint, {
       method: 'POST',
@@ -335,8 +283,8 @@ export const createTracker = ({
       } satisfies EventHandlerLoadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
-    })
-  }
+    });
+  };
 
   /**
    * Tracks the end of a given key and sends an unload event to the server.
@@ -345,10 +293,10 @@ export const createTracker = ({
    * @return {Promise<void>} A promise that resolves when the unload event is sent.
    */
   const trackEndOf = async (key: string): Promise<void> => {
-    const { id, startTime } = trackWithDurationMap.get(key) ?? {}
+    const { id, startTime } = trackWithDurationMap.get(key) ?? {};
     if (!id || !startTime) {
       // If the key is not being tracked, do nothing.
-      return
+      return;
     }
 
     await fetch(trackEndpoint, {
@@ -364,13 +312,12 @@ export const createTracker = ({
       } satisfies EventHandlerUnloadRequestBody),
       // Will make the response opaque, but we don't need it.
       mode: 'no-cors',
-    })
-      .then(() => trackWithDurationMap.delete(key))
-  }
+    }).then(() => trackWithDurationMap.delete(key));
+  };
 
   return {
     register,
     track,
     trackEndOf,
-  }
-}
+  };
+};
