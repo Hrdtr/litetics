@@ -170,9 +170,9 @@ export type EventHandlerOptions<
   update: (data: EventHandlerUnloadResult) => MaybePromise<void>;
 
   /**
-   * Optional logger for debugging. Defaults to `console`.
+   * When true, logs debug information to console. Defaults to `false`.
    */
-  logger?: Pick<Console, 'debug' | 'info' | 'warn' | 'error'>;
+  debug?: boolean;
 
   /**
    * An ordered list of middleware functions. Each middleware can inspect,
@@ -240,8 +240,8 @@ export class EventHandler<
   }
 
   private log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
-    const logger = this.options.logger ?? console;
-    logger[level](`[litetics:event] ${message}`);
+    if (!this.options.debug) return;
+    console[level](`[litetics:event] ${message}`);
   }
 
   private parseUrl(pageUrl: string): { host: string; path: string; queryString: string | null } {

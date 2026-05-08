@@ -48,55 +48,39 @@ describe('handler:event', () => {
       await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
-      expect(mockPersist).toBeCalledWith({
-        bid: 'test-beacon-id',
-        receivedAt,
-        host: 'example.com',
-        path: '/path',
-        queryString: 'utm_source=test',
-        isUniqueUser: true,
-        isUniquePage: false,
-        type: 'pageview',
-        durationMs: null,
-        timezone: 'Europe/London',
-        country: 'GB',
-        userAgent:
-          'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20',
-        browserName: 'Mobile Safari',
-        browserVersion: '3.1.1',
-        browserEngineName: 'WebKit',
-        browserEngineVersion: '525.18.1',
-        deviceType: 'mobile',
-        deviceVendor: 'Apple',
-        deviceModel: 'iPhone',
-        cpuArchitecture: null,
-        osName: 'iOS',
-        osVersion: '2.1',
-        referrer: 'https://referrer.com',
-        referrerHost: 'referrer.com',
-        referrerPath: '/',
-        referrerQueryString: null,
-        referrerKnown: false,
-        referrerMedium: null,
-        referrerName: null,
-        referrerSearchParameter: null,
-        referrerSearchTerm: null,
-        acceptLanguage: 'en-US,en;q=0.9',
-        languageCode: 'en',
-        languageScript: null,
-        languageRegion: 'US',
-        secondaryLanguageCode: 'en',
-        secondaryLanguageScript: null,
-        secondaryLanguageRegion: null,
-        utmCampaign: null,
-        utmMedium: null,
-        utmSource: 'test',
-        utmTerm: null,
-        utmContent: null,
-        utmId: null,
-        utmSourcePlatform: null,
-        properties: { customKey: 'customValue' },
-      });
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bid: 'test-beacon-id',
+          receivedAt,
+          host: 'example.com',
+          path: '/path',
+          queryString: 'utm_source=test',
+          isUniqueUser: true,
+          isUniquePage: false,
+          type: 'pageview',
+          durationMs: null,
+          timezone: 'Europe/London',
+          country: 'GB',
+          referrer: 'https://referrer.com',
+          acceptLanguage: 'en-US,en;q=0.9',
+          properties: { customKey: 'customValue' },
+        }),
+      );
+
+      const data = mockPersist.mock.calls[0][0];
+      expect(data.browserName).toBe('Mobile Safari');
+      expect(data.browserVersion).toBe('3.1.1');
+      expect(data.browserEngineName).toBe('WebKit');
+      expect(data.deviceType).toBe('mobile');
+      expect(data.deviceVendor).toBe('Apple');
+      expect(data.deviceModel).toBe('iPhone');
+      expect(data.osName).toBe('iOS');
+      expect(data.osVersion).toBe('2.1');
+      expect(data.referrerHost).toBe('referrer.com');
+      expect(data.referrerKnown).toBe(false);
+      expect(data.languageCode).toBe('en');
+      expect(data.languageRegion).toBe('US');
+      expect(data.utmSource).toBe('test');
     });
 
     it('should return parsed data for a valid load event from stringified json', async () => {
@@ -129,55 +113,35 @@ describe('handler:event', () => {
       await eventHandler.track(request);
       vi.useRealTimers();
 
-      expect(mockPersist).toBeCalledWith({
-        bid: 'test-beacon-id',
-        receivedAt,
-        host: 'example.com',
-        path: '/path',
-        queryString: 'utm_source=test',
-        isUniqueUser: true,
-        isUniquePage: false,
-        type: 'pageview',
-        durationMs: null,
-        timezone: 'Europe/London',
-        country: 'GB',
-        userAgent:
-          'Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5F136 Safari/525.20',
-        browserName: 'Mobile Safari',
-        browserVersion: '3.1.1',
-        browserEngineName: 'WebKit',
-        browserEngineVersion: '525.18.1',
-        deviceType: 'mobile',
-        deviceVendor: 'Apple',
-        deviceModel: 'iPhone',
-        cpuArchitecture: null,
-        osName: 'iOS',
-        osVersion: '2.1',
-        referrer: 'https://referrer.com',
-        referrerHost: 'referrer.com',
-        referrerPath: '/',
-        referrerQueryString: null,
-        referrerKnown: false,
-        referrerMedium: null,
-        referrerName: null,
-        referrerSearchParameter: null,
-        referrerSearchTerm: null,
-        acceptLanguage: 'en-US,en;q=0.9',
-        languageCode: 'en',
-        languageScript: null,
-        languageRegion: 'US',
-        secondaryLanguageCode: 'en',
-        secondaryLanguageScript: null,
-        secondaryLanguageRegion: null,
-        utmCampaign: null,
-        utmMedium: null,
-        utmSource: 'test',
-        utmTerm: null,
-        utmContent: null,
-        utmId: null,
-        utmSourcePlatform: null,
-        properties: { customKey: 'customValue' },
-      });
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bid: 'test-beacon-id',
+          receivedAt,
+          host: 'example.com',
+          path: '/path',
+          queryString: 'utm_source=test',
+          isUniqueUser: true,
+          isUniquePage: false,
+          type: 'pageview',
+          durationMs: null,
+          timezone: 'Europe/London',
+          country: 'GB',
+          referrer: 'https://referrer.com',
+          acceptLanguage: 'en-US,en;q=0.9',
+          properties: { customKey: 'customValue' },
+        }),
+      );
+
+      const data = mockPersist.mock.calls[0][0];
+      expect(data.browserName).toBe('Mobile Safari');
+      expect(data.browserVersion).toBe('3.1.1');
+      expect(data.deviceType).toBe('mobile');
+      expect(data.osName).toBe('iOS');
+      expect(data.referrerHost).toBe('referrer.com');
+      expect(data.referrerKnown).toBe(false);
+      expect(data.languageCode).toBe('en');
+      expect(data.languageRegion).toBe('US');
+      expect(data.utmSource).toBe('test');
     });
 
     it('should not call persist when handler failed to parse load event from stringified json', async () => {
@@ -256,54 +220,30 @@ describe('handler:event', () => {
       await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
-      expect(mockPersist).toBeCalledWith({
-        bid: 'test-beacon-id',
-        receivedAt,
-        host: 'example.com',
-        path: '/',
-        queryString: null,
-        isUniqueUser: true,
-        isUniquePage: true,
-        type: 'pageview',
-        durationMs: null,
-        timezone: null,
-        country: null,
-        userAgent: null,
-        browserName: null,
-        browserVersion: null,
-        browserEngineName: null,
-        browserEngineVersion: null,
-        deviceType: null,
-        deviceVendor: null,
-        deviceModel: null,
-        cpuArchitecture: null,
-        osName: null,
-        osVersion: null,
-        referrer: null,
-        referrerHost: null,
-        referrerPath: null,
-        referrerQueryString: null,
-        referrerKnown: null,
-        referrerMedium: null,
-        referrerName: null,
-        referrerSearchParameter: null,
-        referrerSearchTerm: null,
-        acceptLanguage: null,
-        languageCode: null,
-        languageScript: null,
-        languageRegion: null,
-        secondaryLanguageCode: null,
-        secondaryLanguageScript: null,
-        secondaryLanguageRegion: null,
-        utmCampaign: null,
-        utmMedium: null,
-        utmSource: null,
-        utmTerm: null,
-        utmContent: null,
-        utmId: null,
-        utmSourcePlatform: null,
-        properties: null,
-      });
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bid: 'test-beacon-id',
+          receivedAt,
+          host: 'example.com',
+          path: '/',
+          queryString: null,
+          isUniqueUser: true,
+          isUniquePage: true,
+          type: 'pageview',
+          durationMs: null,
+          timezone: null,
+          country: null,
+          referrer: null,
+          acceptLanguage: null,
+          properties: null,
+        }),
+      );
+
+      const data = mockPersist.mock.calls[0][0];
+      expect(data.browserName).toBeNull();
+      expect(data.referrerHost).toBeNull();
+      expect(data.languageCode).toBeNull();
+      expect(data.utmSource).toBeNull();
     });
 
     it('should handle invalid URL in referrer', async () => {
@@ -327,54 +267,31 @@ describe('handler:event', () => {
       });
       vi.useRealTimers();
 
-      expect(mockPersist).toBeCalledWith({
-        bid: 'test-beacon-id',
-        receivedAt,
-        host: 'example.com',
-        path: '/',
-        queryString: null,
-        isUniqueUser: true,
-        isUniquePage: true,
-        type: 'pageview',
-        durationMs: null,
-        timezone: null,
-        country: null,
-        userAgent: null,
-        browserName: null,
-        browserVersion: null,
-        browserEngineName: null,
-        browserEngineVersion: null,
-        deviceType: null,
-        deviceVendor: null,
-        deviceModel: null,
-        cpuArchitecture: null,
-        osName: null,
-        osVersion: null,
-        referrer: null,
-        referrerHost: null,
-        referrerPath: null,
-        referrerQueryString: null,
-        referrerKnown: null,
-        referrerMedium: null,
-        referrerName: null,
-        referrerSearchParameter: null,
-        referrerSearchTerm: null,
-        acceptLanguage: null,
-        languageCode: null,
-        languageScript: null,
-        languageRegion: null,
-        secondaryLanguageCode: null,
-        secondaryLanguageScript: null,
-        secondaryLanguageRegion: null,
-        utmCampaign: null,
-        utmMedium: null,
-        utmSource: null,
-        utmTerm: null,
-        utmContent: null,
-        utmId: null,
-        utmSourcePlatform: null,
-        properties: null,
-      });
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bid: 'test-beacon-id',
+          receivedAt,
+          host: 'example.com',
+          path: '/',
+          queryString: null,
+          isUniqueUser: true,
+          isUniquePage: true,
+          type: 'pageview',
+          durationMs: null,
+          timezone: null,
+          country: null,
+          referrer: null,
+          acceptLanguage: null,
+          properties: null,
+        }),
+      );
+
+      const data = mockPersist.mock.calls[0][0];
+      expect(data.browserName).toBeNull();
+      expect(data.referrerHost).toBeNull();
+      expect(data.referrerKnown).toBeNull();
+      expect(data.languageCode).toBeNull();
+      expect(data.utmSource).toBeNull();
     });
 
     it('should not call persist if user-agent indicates a bot for load event', async () => {

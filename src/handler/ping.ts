@@ -46,9 +46,9 @@ export type PingHandlerPayload = {
 
 export type PingHandlerConstructorOptions = {
   /**
-   * Optional logger for debugging. Defaults to `console`.
+   * When true, logs debug information to console. Defaults to `false`.
    */
-  logger?: Pick<Console, 'debug' | 'info' | 'warn' | 'error'>;
+  debug?: boolean;
 };
 
 export class PingHandler {
@@ -59,8 +59,8 @@ export class PingHandler {
   }
 
   private log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
-    const logger = this.options.logger ?? console;
-    logger[level](`[litetics:ping] ${message}`);
+    if (!this.options.debug) return;
+    console[level](`[litetics:ping] ${message}`);
   }
 
   async process(request: Request): Promise<PingHandlerResult>;
