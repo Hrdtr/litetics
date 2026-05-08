@@ -77,6 +77,18 @@ describe('handler:ping', () => {
     expect(result.error).toEqual('Bad Request');
   });
 
+  it('should process via PingHandlerPayload with requestHeaders', async () => {
+    const todayDate = new Date().toUTCString();
+    const result: PingHandlerResult = await pingHandler.process({
+      requestHeaders: { 'if-modified-since': todayDate },
+    });
+
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('1');
+    expect(result.headers).toHaveProperty('Last-Modified');
+    expect(result.headers).toHaveProperty('Cache-Control');
+  });
+
   it('should return error "Bad Request" and status 400 if if-modified-since header is a non-standard date format', async () => {
     const nonStandardDate = 'not-a-real-date'; // Non-standard format
     const getRequestHeader = vi.fn().mockReturnValue(nonStandardDate);

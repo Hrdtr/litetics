@@ -1,7 +1,4 @@
 import type { MaybePromise } from '../types';
-import { consola } from 'consola';
-
-const log = consola.withTag('litetics:ping');
 
 /**
  * Represents the result of a ping request.
@@ -47,16 +44,25 @@ export type PingHandlerPayload = {
   requestHeaders: Record<string, string | null | undefined>;
 };
 
-export class PingHandler {
+export type PingHandlerConstructorOptions = {
   /**
-   * Process a ping request.
-   * @param request The request object.
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
-   * @param options The options to configure the `track` method.
-   * @see PingHandlerTrackOptions
-   * @param payload The payload to track.
-   * @see PingHandlerTrackPayload
+   * Optional logger for debugging. Defaults to `console`.
    */
+  logger?: Pick<Console, 'debug' | 'info' | 'warn' | 'error'>;
+};
+
+export class PingHandler {
+  private options: PingHandlerConstructorOptions;
+
+  constructor(options?: PingHandlerConstructorOptions) {
+    this.options = options ?? {};
+  }
+
+  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
+    const logger = this.options.logger ?? console;
+    logger[level](`[litetics:ping] ${message}`);
+  }
+
   async process(request: Request): Promise<PingHandlerResult>;
   async process(options: PingHandlerOptions): Promise<PingHandlerResult>;
   async process(payload: PingHandlerPayload): Promise<PingHandlerResult>;
@@ -70,16 +76,13 @@ export class PingHandler {
           ? (name: string) => arg.requestHeaders[name]
           : arg.getRequestHeader;
 
-    // Retrieve the 'if-modified-since' header from the request
     const ifModifiedSince = await getRequestHeader('if-modified-since');
-    // Get the current day with time set to 00:00:00.000
     const currentDay = new Date().setHours(0, 0, 0, 0);
 
     if (!ifModifiedSince) {
       return {
         status: 200,
         headers: {
-          // Get the current day with time set to 00:00:00.000
           'Last-Modified': new Date(currentDay).toUTCString(),
           'Cache-Control': 'no-cache',
         },
@@ -91,9 +94,8 @@ export class PingHandler {
     const lastModifiedDate = new Date(ifModifiedSince);
     const lastModifiedTime = lastModifiedDate.getTime();
 
-    // If the date is invalid
     if (Number.isNaN(lastModifiedTime) || lastModifiedDate.toUTCString() === 'Invalid Date') {
-      log.error('Failed to parse if-modified-since header');
+      this.log('error', 'Failed to parse if-modified-since header');
       return {
         status: 400,
         headers: {},
@@ -101,9 +103,8 @@ export class PingHandler {
         error: 'Bad Request',
       };
     }
-    // If the date is in the future
     if (lastModifiedTime > Date.now()) {
-      log.error('if-modified-since header is a future date');
+      this.log('error', 'if-modified-since header is a future date');
       return {
         status: 400,
         headers: {},
@@ -112,12 +113,10 @@ export class PingHandler {
       };
     }
 
-    // If the date is earlier than the current day, we want to reset the cache and mark as a unique visitor.
     if (lastModifiedTime < currentDay) {
       return {
         status: 200,
         headers: {
-          // Set 'Last-Modified' header to the start of the current day
           'Last-Modified': new Date(currentDay).toUTCString(),
           'Cache-Control': 'no-cache',
         },
@@ -126,10 +125,9 @@ export class PingHandler {
       };
     }
 
-    // If the date is today, align reset to next midnight so the unique
-    // visitor window always matches calendar-day boundaries.
+    // Align reset to next midnight so the unique visitor window always
+    // matches calendar-day boundaries.
     const nextResetTime = currentDay + 24 * 60 * 60 * 1000;
-    // Return a response indicating the visitor is not new for the day
     return {
       status: 200,
       headers: {
@@ -142,8 +140,8 @@ export class PingHandler {
   }
 }
 
-export function createPingHandler(): PingHandler {
-  return new PingHandler();
+export function createPingHandler(options?: PingHandlerConstructorOptions): PingHandler {
+  return new PingHandler(options);
 }
 
 export function createPingResponse(data: PingHandlerResult): Response {

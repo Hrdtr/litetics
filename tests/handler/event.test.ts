@@ -361,6 +361,47 @@ describe('handler:event', () => {
       });
     });
 
+    it('should not call persist if user-agent indicates a bot for load event', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: new Headers({
+          'user-agent': 'Googlebot/2.1 (+http://www.google.com/bot.html)',
+        }),
+      });
+
+      await eventHandler.track(request);
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should not call persist when body.u is empty', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'id',
+        u: '',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await eventHandler.track({ getRequestBody, getRequestHeader });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
     it('should handle async persist', async () => {
       const asyncPersist = vi.fn().mockResolvedValue(undefined);
       const asyncUpdate = vi.fn().mockResolvedValue(undefined);

@@ -41,6 +41,16 @@ export interface CreateTrackerOptions {
    * @default 5 * 60 * 1000
    */
   sessionTimeoutDuration?: number;
+
+  /**
+   * The fetch mode to use for track requests.
+   * - `'no-cors'` (default): Response is opaque, errors invisible.
+   * - `'cors'`: Allow cross-origin requests with readable response.
+   * - `'same-origin'`: Only send for same-origin requests.
+   * - `undefined`: No mode set, browser default (same-origin with readable response).
+   * @default 'no-cors'
+   */
+  fetchMode?: 'no-cors' | 'cors' | 'same-origin';
 }
 
 /**
@@ -56,6 +66,7 @@ export const createTracker = ({
   apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
   mode = 'history',
   sessionTimeoutDuration,
+  fetchMode = 'no-cors',
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL');
@@ -156,7 +167,7 @@ export const createTracker = ({
           r: document.referrer,
           t: Intl.DateTimeFormat().resolvedOptions().timeZone,
         } satisfies EventHandlerLoadRequestBody),
-        mode: 'no-cors',
+        ...(fetchMode ? { mode: fetchMode } : {}),
       });
     };
 
@@ -279,13 +290,8 @@ export const createTracker = ({
     }
 
     const { type, ...rest } = data;
-    // We use fetch here because it is more reliable than XHR.
     await fetch(trackEndpoint, {
       method: 'POST',
-      /**
-       * Payload to send to the server.
-       * @type {EventHandlerLoadRequestBody}
-       */
       body: JSON.stringify({
         e: AnalyticsEvent.LOAD,
         b: id,
@@ -294,15 +300,10 @@ export const createTracker = ({
         q: isFirstVisit,
         a: type,
         r: document.referrer,
-        /**
-         * Get timezone for country detection.
-         * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#return_value
-         */
         t: Intl.DateTimeFormat().resolvedOptions().timeZone,
         d: rest,
       } satisfies EventHandlerLoadRequestBody),
-      // Will make the response opaque, but we don't need it.
-      mode: 'no-cors',
+      ...(fetchMode ? { mode: fetchMode } : {}),
     });
   };
 
@@ -321,17 +322,12 @@ export const createTracker = ({
 
     await fetch(trackEndpoint, {
       method: 'POST',
-      /**
-       * Payload to send to the server.
-       * @type {EventHandlerUnloadRequestBody}
-       */
       body: JSON.stringify({
         e: AnalyticsEvent.UNLOAD,
         b: id,
         m: Date.now() - startTime,
       } satisfies EventHandlerUnloadRequestBody),
-      // Will make the response opaque, but we don't need it.
-      mode: 'no-cors',
+      ...(fetchMode ? { mode: fetchMode } : {}),
     }).then(() => trackWithDurationMap.delete(key));
   };
 

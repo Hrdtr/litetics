@@ -105,6 +105,44 @@ describe('register', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     destroy();
   });
+
+  it('should not patch history API in hash mode', () => {
+    const originalPushState = history.pushState;
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+      mode: 'hash',
+    }).register();
+    expect(history.pushState).toBe(originalPushState);
+    destroy();
+  });
+
+  it('should mark subsequent pageview as returning after SPA navigation', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    server.use(
+      http.post('http://example.com', async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        bodies.push(body);
+        return HttpResponse.text('');
+      }),
+    );
+
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy);
+    await settle();
+
+    // First load event should have p=true (isUnique)
+    expect(bodies.filter((b) => b.e === 'load')[0].p).toBe(true);
+
+    // Simulate SPA navigation via popstate — cleanup() sets isUnique=false
+    window.dispatchEvent(new Event('popstate'));
+    await settle();
+
+    const loadEvents = bodies.filter((b) => b.e === 'load');
+    // The last load event after popstate should have p=false
+    expect(loadEvents[loadEvents.length - 1].p).toBe(false);
+  });
 });
 
 describe('track', () => {
@@ -135,6 +173,19 @@ describe('trackEndOf', () => {
     });
     await tracker.trackEndOf('non-existent-key');
     expect(fetchSpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should be idempotent for same key', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const tracker = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    });
+    await tracker.track('test-key', { type: 'test' }, { withDuration: true });
+    await tracker.trackEndOf('test-key');
+    await tracker.trackEndOf('test-key');
+    // fetch calls: 1 track POST, 1 trackEndOf POST, second trackEndOf is no-op
+    // (ping uses XHR, not fetch, so it's not counted)
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });
 

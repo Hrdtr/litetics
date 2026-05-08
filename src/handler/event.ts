@@ -1,5 +1,4 @@
 import type { EventData, MaybePromise } from '../types';
-import { consola } from 'consola';
 import { isbot } from 'isbot';
 import { getCountryCodeByTimezone } from '../utils/get-country-code-by-timezone';
 import { isValidUrl } from '../utils/is-valid-url';
@@ -8,7 +7,38 @@ import { parseReferrer } from '../utils/parse-referrer';
 import { parseUserAgent } from '../utils/parse-user-agent';
 import { parseUTMParams } from '../utils/parse-utm-params';
 
-const log = consola.withTag('litetics:event');
+const defaultUA = {
+  browserName: null as null,
+  browserVersion: null as null,
+  browserEngineName: null as null,
+  browserEngineVersion: null as null,
+  deviceType: null as null,
+  deviceVendor: null as null,
+  deviceModel: null as null,
+  cpuArchitecture: null as null,
+  osName: null as null,
+  osVersion: null as null,
+};
+
+const defaultRef = {
+  referrerHost: null as null,
+  referrerPath: null as null,
+  referrerQueryString: null as null,
+  referrerKnown: null as null,
+  referrerMedium: null as null,
+  referrerName: null as null,
+  referrerSearchParameter: null as null,
+  referrerSearchTerm: null as null,
+};
+
+const defaultLang = {
+  languageCode: null as null,
+  languageScript: null as null,
+  languageRegion: null as null,
+  secondaryLanguageCode: null as null,
+  secondaryLanguageScript: null as null,
+  secondaryLanguageRegion: null as null,
+};
 
 /**
  * An object representing a payload of event to track.
@@ -117,6 +147,11 @@ export type EventHandlerOptions = {
    * @returns Void or promise of void.
    */
   update: (data: EventHandlerUnloadResult) => MaybePromise<void>;
+
+  /**
+   * Optional logger for debugging. Defaults to `console`.
+   */
+  logger?: Pick<Console, 'debug' | 'info' | 'warn' | 'error'>;
 };
 
 /**
@@ -157,23 +192,24 @@ export type EventHandlerTrackPayload = {
 export class EventHandler {
   private options: EventHandlerOptions;
 
-  /**
-   * @param options The options to configure the `EventHandler`.
-   * @see EventHandlerOptions
-   */
   constructor(options: EventHandlerOptions) {
     this.options = options;
   }
 
-  /**
-   * Tracks a hit event.
-   * @param request The request object.
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
-   * @param options The options to configure the `track` method.
-   * @see EventHandlerTrackOptions
-   * @param payload The payload to track.
-   * @see EventHandlerTrackPayload
-   */
+  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
+    const logger = this.options.logger ?? console;
+    logger[level](`[litetics:event] ${message}`);
+  }
+
+  private parseUrl(pageUrl: string): { host: string; path: string; queryString: string | null } {
+    const url = new URL(pageUrl);
+    return {
+      host: url.hostname,
+      path: url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, ''),
+      queryString: url.searchParams.toString() || null,
+    };
+  }
+
   async track(request: Request): Promise<void>;
   async track(options: EventHandlerTrackOptions): Promise<void>;
   async track(payload: EventHandlerTrackPayload): Promise<void>;
@@ -195,38 +231,31 @@ export class EventHandler {
     const acceptLanguage = (await getRequestHeader('accept-language')) || null;
     const userAgent = (await getRequestHeader('user-agent')) || null;
 
-    // Check if the user agent is a bot
     if (userAgent && isbot(userAgent)) {
-      log.debug('User agent is a bot');
+      this.log('debug', 'User agent is a bot');
       return;
     }
 
-    // Parse the request body
     let body = await getRequestBody();
     if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
       } catch {
-        // Log an error message if the body cannot be parsed as JSON
-        log.error('Failed to parse body as JSON');
+        this.log('error', 'Failed to parse body as JSON');
         return;
       }
     }
 
-    // Get the event type from the request body
     const eventType = body.e;
 
     switch (eventType) {
       case 'load': {
-        // Handle the load event
         if (!body.u) return;
         if (!isValidUrl(body.u)) return;
         if (body.r && !isValidUrl(body.r)) {
-          // Omit the referrer if the referrer URL is invalid
           body.r = undefined;
         }
 
-        // Destructure the properties from the request body
         const {
           b: bid,
           u: pageUrl,
@@ -239,53 +268,47 @@ export class EventHandler {
         } = body;
 
         const receivedAt = new Date();
+        const country = timezone ? getCountryCodeByTimezone(timezone) : null;
 
-        // Parse the page URL
-        const url = new URL(pageUrl);
-        const host = url.hostname;
-        const path = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '');
-        const queryString = url.searchParams.toString() || null;
-
-        // Parse the user agent
-        const ua = userAgent && userAgent.length > 0 ? parseUserAgent(userAgent) : null;
-        const browserName = ua?.browser.name || null;
-        const browserVersion = ua?.browser.version || null;
-        const browserEngineName = ua?.browserEngine.name || null;
-        const browserEngineVersion = ua?.browserEngine.version || null;
-        const deviceType = ua?.device.type || null;
-        const deviceVendor = ua?.device.vendor || null;
-        const deviceModel = ua?.device.model || null;
-        const cpuArchitecture = ua?.cpu.architecture || null;
-        const osName = ua?.os.name || null;
-        const osVersion = ua?.os.version || null;
-
-        // Parse the referrer URL
+        const { host, path, queryString } = this.parseUrl(pageUrl);
         const {
-          host: referrerHost = null,
-          path: referrerPath = null,
-          queryString: referrerQueryString = null,
-          known: referrerKnown = null,
-          medium: referrerMedium = null,
-          name: referrerName = null,
-          searchParameter: referrerSearchParameter = null,
-          searchTerm: referrerSearchTerm = null,
-        } = referrer ? parseReferrer(referrer, pageUrl) : {};
+          campaign: utmCampaign,
+          medium: utmMedium,
+          source: utmSource,
+        } = parseUTMParams(new URL(pageUrl));
 
-        // Get the country code based on the timezone
-        const country = timezone && timezone.length > 0 ? getCountryCodeByTimezone(timezone) : null;
+        const {
+          browserName,
+          browserVersion,
+          browserEngineName,
+          browserEngineVersion,
+          deviceType,
+          deviceVendor,
+          deviceModel,
+          cpuArchitecture,
+          osName,
+          osVersion,
+        } = userAgent ? parseUserAgent(userAgent) : defaultUA;
 
-        // Parse the accept language header
-        const languages =
-          acceptLanguage && acceptLanguage.length > 0 ? parseAcceptLanguage(acceptLanguage) : [];
-        const languageCode = languages[0]?.code || null;
-        const languageScript = languages[0]?.script || null;
-        const languageRegion = languages[0]?.region || null;
-        const secondaryLanguageCode = languages[1]?.code || null;
-        const secondaryLanguageScript = languages[1]?.script || null;
-        const secondaryLanguageRegion = languages[1]?.region || null;
+        const {
+          referrerHost,
+          referrerPath,
+          referrerQueryString,
+          referrerKnown,
+          referrerMedium,
+          referrerName,
+          referrerSearchParameter,
+          referrerSearchTerm,
+        } = referrer ? parseReferrer(referrer, pageUrl) : defaultRef;
 
-        // Parse the UTM parameters from the URL
-        const { campaign: utmCampaign, medium: utmMedium, source: utmSource } = parseUTMParams(url);
+        const {
+          languageCode,
+          languageScript,
+          languageRegion,
+          secondaryLanguageCode,
+          secondaryLanguageScript,
+          secondaryLanguageRegion,
+        } = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : defaultLang;
 
         await this.options.persist({
           bid,
@@ -296,7 +319,6 @@ export class EventHandler {
           isUniqueUser,
           isUniquePage,
           type,
-          // optional fields
           durationMs: null,
           timezone,
           country,
@@ -337,7 +359,6 @@ export class EventHandler {
       }
 
       case 'unload': {
-        // Handle the unload event
         const { b: bid, m: durationMs } = body;
 
         await this.options.update({
@@ -349,8 +370,7 @@ export class EventHandler {
       }
 
       default: {
-        // Log a debug message if the event type is unknown
-        log.debug('Unknown event received: ' + eventType);
+        this.log('debug', `Unknown event received: ${eventType}`);
       }
     }
   }
