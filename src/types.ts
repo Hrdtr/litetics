@@ -166,11 +166,27 @@ export interface EventData {
    */
   utmSource: string | null;
   /**
+   * The term of the UTM parameter.
+   */
+  utmTerm: string | null;
+  /**
+   * The content of the UTM parameter.
+   */
+  utmContent: string | null;
+  /**
+   * The ID of the UTM parameter.
+   */
+  utmId: string | null;
+  /**
+   * The source platform of the UTM parameter.
+   */
+  utmSourcePlatform: string | null;
+  /**
    * Custom event data.
    */
-  properties: {
-    [key: string]: string | number | boolean | null | undefined;
-  } | null;
+  properties: Record<string, Primitive> | null;
 }
 
 export type MaybePromise<T> = T | Promise<T>;
+
+export type Primitive = string | number | boolean | null | undefined;

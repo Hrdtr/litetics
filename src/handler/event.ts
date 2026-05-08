@@ -1,4 +1,4 @@
-import type { EventData, MaybePromise } from '../types';
+import type { EventData, MaybePromise, Primitive } from '../types';
 import type { ParsedAcceptLanguage } from '../utils/parse-accept-language';
 import type { ParsedReferrer } from '../utils/parse-referrer';
 import type { ParsedUserAgent } from '../utils/parse-user-agent';
@@ -150,13 +150,17 @@ export interface EventHandlerParsers {
 /**
  * Options to configure the `EventHandler`.
  */
-export type EventHandlerOptions = {
+export type EventHandlerOptions<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+> = {
   /**
    * Persists the `EventHandlerLoadResult` data.
    * @param data The `EventHandlerLoadResult` data.
    * @returns Void or promise of void.
    */
-  persist: (data: EventHandlerLoadResult) => MaybePromise<void>;
+  persist: (
+    data: EventHandlerLoadResult & { properties: TProperties | null },
+  ) => MaybePromise<void>;
 
   /**
    * Updates the persisted data with the `EventHandlerUnloadResult` data.
@@ -226,10 +230,12 @@ export type EventHandlerTrackPayload = {
   requestHeaders: Record<string, string | null | undefined>;
 };
 
-export class EventHandler {
-  private options: EventHandlerOptions;
+export class EventHandler<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+> {
+  private options: EventHandlerOptions<TProperties>;
 
-  constructor(options: EventHandlerOptions) {
+  constructor(options: EventHandlerOptions<TProperties>) {
     this.options = options;
   }
 
@@ -331,6 +337,10 @@ export class EventHandler {
           campaign: utmCampaign,
           medium: utmMedium,
           source: utmSource,
+          term: utmTerm,
+          content: utmContent,
+          id: utmId,
+          sourcePlatform: utmSourcePlatform,
         } = (this.options.parsers?.utm ?? parseUTMParams)(new URL(pageUrl));
 
         const {
@@ -412,11 +422,17 @@ export class EventHandler {
           utmCampaign,
           utmMedium,
           utmSource,
+          utmTerm,
+          utmContent,
+          utmId,
+          utmSourcePlatform,
           properties,
         };
 
         if (!(await runMiddleware(data))) return;
-        await this.options.persist(data);
+        await this.options.persist(
+          data as EventHandlerLoadResult & { properties: TProperties | null },
+        );
         break;
       }
 
@@ -436,6 +452,8 @@ export class EventHandler {
   }
 }
 
-export function createEventHandler(options: EventHandlerOptions): EventHandler {
+export function createEventHandler<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+>(options: EventHandlerOptions<TProperties>): EventHandler<TProperties> {
   return new EventHandler(options);
 }

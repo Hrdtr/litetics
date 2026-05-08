@@ -12,6 +12,10 @@ describe('utils:parseUTMParams', () => {
     expect(result.source).toBe('google');
     expect(result.medium).toBe('cpc');
     expect(result.campaign).toBe('summer_sale');
+    expect(result.term).toBeNull();
+    expect(result.content).toBeNull();
+    expect(result.id).toBeNull();
+    expect(result.sourcePlatform).toBeNull();
   });
 
   it('should return null for UTM parameters that are not present', () => {
@@ -19,17 +23,17 @@ describe('utils:parseUTMParams', () => {
     const result = parseUTMParams(url);
 
     expect(result.source).toBe('facebook');
-    expect(result.medium).toBe(null);
-    expect(result.campaign).toBe(null);
+    expect(result.medium).toBeNull();
+    expect(result.campaign).toBeNull();
   });
 
   it('should handle a URL with no UTM parameters', () => {
     const url = new URL('https://example.com');
     const result = parseUTMParams(url);
 
-    expect(result.source).toBe(null);
-    expect(result.medium).toBe(null);
-    expect(result.campaign).toBe(null);
+    expect(result.source).toBeNull();
+    expect(result.medium).toBeNull();
+    expect(result.campaign).toBeNull();
   });
 
   it('should handle a URL with UTM parameters in a different order', () => {
@@ -52,5 +56,17 @@ describe('utils:parseUTMParams', () => {
     expect(result.source).toBe('linkedin');
     expect(result.medium).toBe('paid');
     expect(result.campaign).toBe('product_launch');
+  });
+
+  it('should parse extended UTM parameters', () => {
+    const url = new URL(
+      'https://example.com?utm_term=running+shoes&utm_content=hero&utm_id=camp_123&utm_source_platform=google',
+    );
+    const result = parseUTMParams(url);
+
+    expect(result.term).toBe('running shoes');
+    expect(result.content).toBe('hero');
+    expect(result.id).toBe('camp_123');
+    expect(result.sourcePlatform).toBe('google');
   });
 });

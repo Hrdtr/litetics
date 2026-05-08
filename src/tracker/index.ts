@@ -5,7 +5,7 @@ import { createBrowserAdapter } from './adapter';
 export type { RuntimeAdapter, BrowserAdapterOptions } from './adapter';
 export { createBrowserAdapter } from './adapter';
 
-const AnalyticsEvent = {
+export const AnalyticsEvent = {
   UNLOAD: 'unload',
   LOAD: 'load',
 } as const;

@@ -91,6 +91,10 @@ describe('handler:event', () => {
         utmCampaign: null,
         utmMedium: null,
         utmSource: 'test',
+        utmTerm: null,
+        utmContent: null,
+        utmId: null,
+        utmSourcePlatform: null,
         properties: { customKey: 'customValue' },
       });
     });
@@ -168,6 +172,10 @@ describe('handler:event', () => {
         utmCampaign: null,
         utmMedium: null,
         utmSource: 'test',
+        utmTerm: null,
+        utmContent: null,
+        utmId: null,
+        utmSourcePlatform: null,
         properties: { customKey: 'customValue' },
       });
     });
@@ -290,6 +298,10 @@ describe('handler:event', () => {
         utmCampaign: null,
         utmMedium: null,
         utmSource: null,
+        utmTerm: null,
+        utmContent: null,
+        utmId: null,
+        utmSourcePlatform: null,
         properties: null,
       });
     });
@@ -357,6 +369,10 @@ describe('handler:event', () => {
         utmCampaign: null,
         utmMedium: null,
         utmSource: null,
+        utmTerm: null,
+        utmContent: null,
+        utmId: null,
+        utmSourcePlatform: null,
         properties: null,
       });
     });
