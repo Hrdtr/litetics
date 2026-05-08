@@ -93,15 +93,17 @@ export const parseReferrer = (referrerURL: string, currentURL?: string): ParsedR
 
   // Special handling for search referrers to extract search parameters and terms.
   if (foundReferrer.medium === 'search' && foundReferrer.parameters) {
-    const pqs = Object.fromEntries(url.searchParams); // Convert URLSearchParams to a plain object.
-    for (const param in pqs) {
-      const val = pqs[param];
-      // Check if the parameter is in the list of known search parameters.
-      if (foundReferrer.parameters.includes(param.toLowerCase())) {
-        referrer.searchParameter = param;
-        referrer.searchTerm = val; // Assign the search term.
+    const params = foundReferrer.parameters;
+    // Use `forEach` instead of `Object.fromEntries` to preserve first
+    // occurrence when duplicate keys exist.
+    url.searchParams.forEach((val, param) => {
+      if (params.includes(param.toLowerCase())) {
+        if (!referrer.searchParameter) {
+          referrer.searchParameter = param;
+          referrer.searchTerm = val;
+        }
       }
-    }
+    });
   }
 
   return referrer;

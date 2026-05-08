@@ -126,8 +126,9 @@ export class PingHandler {
       };
     }
 
-    // If the date is today
-    const nextResetTime = new Date(lastModifiedTime + 24 * 60 * 60 * 1000).getTime();
+    // If the date is today, align reset to next midnight so the unique
+    // visitor window always matches calendar-day boundaries.
+    const nextResetTime = currentDay + 24 * 60 * 60 * 1000;
     // Return a response indicating the visitor is not new for the day
     return {
       status: 200,

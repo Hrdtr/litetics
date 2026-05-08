@@ -46,13 +46,11 @@ export function parseAcceptLanguage(acceptLanguage: string): ParsedAcceptLanguag
           }
         }
 
-        // Ensure code is valid
-        if (
-          !/^[A-Za-z]{2,3}$/.test(code) &&
-          (code !== '*' ||
-            (region && !/^[A-Za-z]{2}$/.test(region)) ||
-            (script && !/^[A-Za-z]{4}$/.test(script)))
-        ) {
+        // Ensure code, region, and script are valid
+        const isValidCode = /^[A-Za-z]{2,3}$/.test(code) || code === '*';
+        const isValidRegion = !region || /^[A-Za-z]{2}$/.test(region);
+        const isValidScript = !script || /^[A-Za-z]{4}$/.test(script);
+        if (!isValidCode || !isValidRegion || !isValidScript) {
           return null;
         }
 

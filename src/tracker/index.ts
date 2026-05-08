@@ -80,7 +80,6 @@ export const createTracker = ({
         resolve(xhr.responseText == 0);
       });
       xhr.open('GET', url);
-      xhr.setRequestHeader('Content-Type', 'text/plain');
       xhr.send();
     });
 
