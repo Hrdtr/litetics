@@ -3,7 +3,6 @@ import type { ParsedAcceptLanguage } from '../utils/parse-accept-language';
 import type { ParsedReferrer } from '../utils/parse-referrer';
 import type { ParsedUserAgent } from '../utils/parse-user-agent';
 import type { ParsedUTMParams } from '../utils/parse-utm-params';
-import type { Middleware, MiddlewareContext } from './middleware';
 import { isbot } from 'isbot';
 import { getCountryCodeByTimezone } from '../utils/get-country-code-by-timezone';
 import { isValidUrl } from '../utils/is-valid-url';
@@ -11,7 +10,6 @@ import { parseAcceptLanguage } from '../utils/parse-accept-language';
 import { parseReferrer } from '../utils/parse-referrer';
 import { parseUserAgent } from '../utils/parse-user-agent';
 import { parseUTMParams } from '../utils/parse-utm-params';
-import { applyMiddleware } from './middleware';
 
 const defaultUA = {
   browserName: null as null,
@@ -175,12 +173,6 @@ export type EventHandlerOptions<
   debug?: boolean;
 
   /**
-   * An ordered list of middleware functions. Each middleware can inspect,
-   * transform, or abort events before they are persisted.
-   */
-  middlewares?: Middleware[];
-
-  /**
    * Overridable parser functions. When not provided the built-in parsers
    * are used. Supply custom parsers to enrich, replace, or skip parsing
    * for specific fields.
@@ -279,7 +271,7 @@ export class EventHandler<
       return;
     }
 
-    let body = await getRequestBody();
+    let body: EventHandlerLoadRequestBody | EventHandlerUnloadRequestBody = await getRequestBody();
     if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
@@ -290,25 +282,6 @@ export class EventHandler<
     }
 
     const eventType = body.e;
-    const headers: Record<string, string | null | undefined> = {
-      'accept-language': acceptLanguage,
-      'user-agent': userAgent,
-    };
-
-    const runMiddleware = async (data: Partial<EventData>): Promise<boolean> => {
-      if (!this.options.middlewares?.length) return true;
-      const ctx: MiddlewareContext = {
-        event: body,
-        headers,
-        data,
-        aborted: false,
-        abort() {
-          this.aborted = true;
-        },
-      };
-      await applyMiddleware(this.options.middlewares, ctx);
-      return !ctx.aborted;
-    };
 
     switch (eventType) {
       case 'load': {
@@ -429,7 +402,6 @@ export class EventHandler<
           properties,
         };
 
-        if (!(await runMiddleware(data))) return;
         await this.options.persist(
           data as EventHandlerLoadResult & { properties: TProperties | null },
         );
@@ -438,10 +410,7 @@ export class EventHandler<
 
       case 'unload': {
         const { b: bid, m: durationMs } = body;
-        const data: Pick<EventData, 'bid'> & { durationMs: number } = { bid, durationMs };
-
-        if (!(await runMiddleware(data))) return;
-        await this.options.update(data);
+        await this.options.update({ bid, durationMs });
         break;
       }
 

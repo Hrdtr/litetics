@@ -335,68 +335,6 @@ describe('handler:event', () => {
       expect(mockPersist).toBeCalledTimes(0);
     });
 
-    it('should run middleware and allow modification of data', async () => {
-      const middleware = vi.fn((ctx) => {
-        ctx.data.additional = { enriched: true };
-      });
-      const handler = createEventHandler({
-        persist: mockPersist,
-        update: mockUpdate,
-        middlewares: [middleware],
-      });
-
-      const body: EventHandlerLoadRequestBody = {
-        e: 'load',
-        b: 'id',
-        u: 'https://example.com',
-        p: true,
-        q: true,
-        a: 'pageview',
-      };
-
-      const receivedAt = new Date(1998, 11, 19);
-      vi.useFakeTimers();
-      vi.setSystemTime(receivedAt);
-      await handler.track({
-        getRequestBody: vi.fn().mockResolvedValue(body),
-        getRequestHeader: vi.fn(() => undefined),
-      });
-      vi.useRealTimers();
-
-      expect(middleware).toHaveBeenCalledTimes(1);
-      expect(mockPersist).toHaveBeenCalledWith(
-        expect.objectContaining({ additional: { enriched: true } }),
-      );
-    });
-
-    it('should abort when middleware aborts', async () => {
-      const middleware = vi.fn((ctx) => {
-        ctx.abort();
-      });
-      const handler = createEventHandler({
-        persist: mockPersist,
-        update: mockUpdate,
-        middlewares: [middleware],
-      });
-
-      const body: EventHandlerLoadRequestBody = {
-        e: 'load',
-        b: 'id',
-        u: 'https://example.com',
-        p: true,
-        q: true,
-        a: 'pageview',
-      };
-
-      await handler.track({
-        getRequestBody: vi.fn().mockResolvedValue(body),
-        getRequestHeader: vi.fn(() => undefined),
-      });
-
-      expect(middleware).toHaveBeenCalledTimes(1);
-      expect(mockPersist).toBeCalledTimes(0);
-    });
-
     it('should handle async persist', async () => {
       const asyncPersist = vi.fn().mockResolvedValue(undefined);
       const asyncUpdate = vi.fn().mockResolvedValue(undefined);
@@ -429,29 +367,6 @@ describe('handler:event', () => {
   describe('unload event', () => {
     beforeEach(() => {
       mockUpdate.mockClear();
-    });
-
-    it('should run middleware for unload event', async () => {
-      const middleware = vi.fn();
-      const handler = createEventHandler({
-        persist: mockPersist,
-        update: mockUpdate,
-        middlewares: [middleware],
-      });
-
-      const body: EventHandlerUnloadRequestBody = {
-        e: 'unload',
-        b: 'id',
-        m: 1000,
-      };
-
-      await handler.track({
-        getRequestBody: vi.fn().mockResolvedValue(body),
-        getRequestHeader: vi.fn(() => undefined),
-      });
-
-      expect(middleware).toHaveBeenCalledTimes(1);
-      expect(mockUpdate).toHaveBeenCalledWith({ bid: 'id', durationMs: 1000 });
     });
 
     it('should return parsed data for a valid unload event', async () => {
