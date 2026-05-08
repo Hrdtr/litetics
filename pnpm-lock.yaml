@@ -39,9 +39,6 @@ importers:
       commitlint:
         specifier: ^20.5.3
         version: 20.5.3(@types/node@25.6.0)(conventional-commits-parser@6.4.0)(typescript@5.9.3)
-      consola:
-        specifier: ^3.2.3
-        version: 3.4.2
       husky:
         specifier: ^9.1.7
         version: 9.1.7

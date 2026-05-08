@@ -123,17 +123,6 @@ describe('register', () => {
     destroy();
   });
 
-  it('should not patch history API in hash mode', () => {
-    const originalPushState = history.pushState;
-    const adapter = createBrowserAdapter({ mode: 'hash' });
-    const destroy = createTracker({
-      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
-      adapter,
-    }).register();
-    expect(history.pushState).not.toBe(originalPushState);
-    destroy();
-  });
-
   it('should mark subsequent pageview as returning after SPA navigation', async () => {
     const bodies: Record<string, unknown>[] = [];
     server.use(

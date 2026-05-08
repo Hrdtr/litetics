@@ -98,35 +98,40 @@ export interface BrowserAdapterOptions {
  * Wraps `history.pushState` / `history.replaceState` so that SPA
  * navigation via the History API is captured through `onNavigate`.
  *
+ * The wrapping only happens once — subsequent calls return a new
+ * adapter instance that shares the same wrapped history functions.
+ *
  * @param options - Optional mode configuration.
  * @returns A fully configured browser adapter.
  */
+let historyWrapped = false;
+let globalOnNavigate: ((url: string) => void) | null = null;
+let globalIsInternalNav = false;
+
 export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAdapter => {
-  let currentOnNavigate: ((url: string) => void) | null = null;
-  let isInternalNav = false;
+  if (!historyWrapped) {
+    const originalPushState = history.pushState.bind(history);
+    const originalReplaceState = history.replaceState.bind(history);
 
-  const originalPushState = history.pushState.bind(history);
-  const originalReplaceState = history.replaceState.bind(history);
-
-  // Wrap history methods so the adapter can detect SPA navigations
-  // triggered by the application calling pushState/replaceState.
-  const wrapHistory = (original: typeof originalPushState) => {
-    return function (
-      this: History,
-      state: unknown,
-      unused: string,
-      url?: string | URL | null,
-      ...rest: unknown[]
-    ) {
-      Reflect.apply(original, this, [state, unused, url, ...rest]);
-      if (!isInternalNav && currentOnNavigate) {
-        currentOnNavigate(location.href);
-      }
+    const wrapHistory = (original: typeof originalPushState) => {
+      return function (
+        this: History,
+        state: unknown,
+        unused: string,
+        url?: string | URL | null,
+        ...rest: unknown[]
+      ) {
+        Reflect.apply(original, this, [state, unused, url, ...rest]);
+        if (!globalIsInternalNav && globalOnNavigate) {
+          globalOnNavigate(location.href);
+        }
+      };
     };
-  };
 
-  history.pushState = wrapHistory(originalPushState);
-  history.replaceState = wrapHistory(originalReplaceState);
+    history.pushState = wrapHistory(originalPushState);
+    history.replaceState = wrapHistory(originalReplaceState);
+    historyWrapped = true;
+  }
 
   return {
     transport: {
@@ -181,19 +186,19 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
       },
 
       onNavigate: (fn) => {
-        currentOnNavigate = fn;
+        globalOnNavigate = fn;
         const onPopState = () => fn(location.href);
         addEventListener('popstate', onPopState);
         if (options?.mode === 'hash') {
           addEventListener('hashchange', onPopState);
           return () => {
-            currentOnNavigate = null;
+            globalOnNavigate = null;
             removeEventListener('popstate', onPopState);
             removeEventListener('hashchange', onPopState);
           };
         }
         return () => {
-          currentOnNavigate = null;
+          globalOnNavigate = null;
           removeEventListener('popstate', onPopState);
         };
       },
@@ -201,13 +206,13 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
 
     navigate: (url) => {
       if (options?.mode === 'hash') {
-        isInternalNav = true;
+        globalIsInternalNav = true;
         location.hash = url;
-        isInternalNav = false;
+        globalIsInternalNav = false;
       } else {
-        isInternalNav = true;
+        globalIsInternalNav = true;
         history.pushState(null, '', url);
-        isInternalNav = false;
+        globalIsInternalNav = false;
       }
     },
   };
