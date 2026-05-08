@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Litetics Playground</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        padding: 2rem;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .card h2 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      button:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: #4f46e5;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #4338ca;
+      }
+      .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+      }
+      .btn-secondary:hover {
+        background: #d1d5db;
+      }
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+      .log {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.75rem;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .log-entry {
+        padding: 0.25rem 0;
+        border-bottom: 1px solid #333;
+        line-height: 1.5;
+      }
+      .log-entry:last-child {
+        border-bottom: none;
+      }
+      .log-time {
+        color: #6a9955;
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.125rem 0.375rem;
+        border-radius: 3px;
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        vertical-align: middle;
+      }
+      .badge-load {
+        background: #1d4ed8;
+        color: #dbeafe;
+      }
+      .badge-unload {
+        background: #d97706;
+        color: #fef3c7;
+      }
+      .badge-custom {
+        background: #16a34a;
+        color: #dcfce7;
+      }
+      .badge-info {
+        background: #6b7280;
+        color: #f3f4f6;
+      }
+      .log-body {
+        color: #9cdcfe;
+      }
+      .log-meta {
+        color: #888;
+      }
+      .error {
+        color: #f48771;
+      }
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .status-dot.online {
+        background: #22c55e;
+      }
+      .status-dot.offline {
+        background: #ef4444;
+      }
+      .flex {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .event-count {
+        font-size: 0.875rem;
+        color: #666;
+      }
+      .server-events-wrap {
+        max-height: 600px;
+        overflow-y: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+      }
+      .event-block {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.7rem;
+        overflow: hidden;
+      }
+      .event-block:last-child {
+        margin-bottom: 0;
+      }
+      .event-header {
+        padding: 0.375rem 0.5rem;
+        background: #2a2a2a;
+        border-bottom: 1px solid #333;
+        font-weight: 600;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .event-body {
+        padding: 0.25rem 0;
+      }
+      .event-row {
+        display: flex;
+        border-bottom: 1px solid #2a2a2a;
+      }
+      .event-row:last-child {
+        border-bottom: none;
+      }
+      .event-key {
+        width: 140px;
+        flex-shrink: 0;
+        padding: 0.2rem 0.5rem;
+        color: #9cdcfe;
+        white-space: nowrap;
+      }
+      .event-val {
+        flex: 1;
+        padding: 0.2rem 0.5rem;
+        word-break: break-all;
+      }
+      .event-val.null {
+        color: #888;
+        font-style: italic;
+      }
+      .event-val.string {
+        color: #ce9178;
+      }
+      .event-val.number {
+        color: #b5cea8;
+      }
+      .event-val.boolean {
+        color: #569cd6;
+      }
+      .event-val.object {
+        color: #dcdcaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Litetics Playground</h1>
+
+      <div class="card">
+        <h2>
+          <span class="status-dot online" id="status-dot"></span>
+          <span id="status-text">Ready</span>
+        </h2>
+        <p class="event-count">Server: <span id="server-url"></span></p>
+      </div>
+
+      <div class="card">
+        <h2>Actions</h2>
+        <button class="btn-primary" onclick="sendPageview()">Send Pageview</button>
+        <button class="btn-secondary" onclick="sendUnload()">Send Unload</button>
+        <button class="btn-secondary" onclick="sendCustom()">Send Custom Event</button>
+        <button class="btn-danger" onclick="clearLog()">Clear Log</button>
+        <p
+          class="event-count"
+          style="
+            margin-top: 0.5rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+          "
+          id="session-info"
+        >
+          no active session — send a pageview first
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>
+          Event Log
+          <span class="event-count" id="event-count">0 events</span>
+        </h2>
+        <div class="log" id="log"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          Server Events
+          <span class="event-count" id="server-event-count">0 events</span>
+          <button
+            class="btn-secondary"
+            style="margin-left: auto; font-size: 0.75rem; padding: 0.25rem 0.5rem; margin-bottom: 0"
+            onclick="refreshServerEvents()"
+          >
+            Refresh
+          </button>
+        </h2>
+        <div class="server-events-wrap" id="server-events-body"></div>
+      </div>
+    </div>
+
+    <script>
+      const BASE = '';
+      let seq = 0;
+      let currentBid = null;
+      let pageviewTime = null;
+
+      const logEl = document.getElementById('log');
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+
+      function addEntry(parts) {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = parts.join(' ');
+        logEl.appendChild(entry);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function log(kind, msg, meta) {
+        const time = new Date().toLocaleTimeString();
+        const badges = {
+          load: 'badge-load',
+          unload: 'badge-unload',
+          custom: 'badge-custom',
+          info: 'badge-info',
+        };
+        const badge = `<span class="badge ${badges[kind] || 'badge-info'}">${kind}</span>`;
+        const metaStr = meta ? ` <span class="log-meta">${JSON.stringify(meta)}</span>` : '';
+        addEntry([
+          `<span class="log-time">[${time}]</span>`,
+          badge,
+          `<span class="log-body">${msg}</span>${metaStr}`,
+        ]);
+      }
+
+      function error(msg) {
+        addEntry([
+          `<span class="log-time">[${new Date().toLocaleTimeString()}]</span>`,
+          `<span class="error">${msg}</span>`,
+        ]);
+      }
+
+      function setStatus(online) {
+        statusDot.className = 'status-dot ' + (online ? 'online' : 'offline');
+        statusText.textContent = online ? 'Connected' : 'Disconnected';
+      }
+
+      function generateBid() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      }
+
+      function updateSessionDisplay() {
+        const el = document.getElementById('session-info');
+        if (currentBid) {
+          const elapsed = Date.now() - pageviewTime;
+          el.textContent = 'bid=' + currentBid.slice(0, 12) + '  elapsed=' + elapsed + 'ms';
+        } else {
+          el.textContent = 'no active session — send a pageview first';
+        }
+      }
+
+      async function sendPageview() {
+        const bid = generateBid();
+        currentBid = bid;
+        pageviewTime = Date.now();
+        try {
+          const pingRes = await fetch(
+            BASE + '/ping?u=' + encodeURIComponent(location.host + location.pathname),
+          );
+          const isFirst = await pingRes.text();
+          const isUnique = isFirst === '0';
+
+          await fetch(BASE + '/event', {
+            method: 'POST',
+            body: JSON.stringify({
+              e: 'load',
+              b: bid,
+              u: location.href,
+              p: isUnique,
+              q: isUnique,
+              a: 'pageview',
+              r: document.referrer || undefined,
+              t: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }),
+            headers: {
+              'content-type': 'application/json',
+              'user-agent': navigator.userAgent,
+              'accept-language': navigator.language,
+            },
+          });
+          log('load', 'Pageview sent', { bid, path: location.pathname, isFirst: isUnique });
+          updateSessionDisplay();
+          refreshCount();
+          setStatus(true);
+        } catch (err) {
+          error('Pageview failed: ' + err.message);
+          setStatus(false);
+        }
+      }
+
+      async function sendUnload() {
+        const bid = currentBid;
+        if (!bid) {
+          error('No active session — send a pageview first');
+          return;
+        }
+        const durationMs = Date.now() - pageviewTime;
+        currentBid = null;
+        pageviewTime = null;
+        try {
+          await fetch(BASE + '/event', {
+            method: 'POST',
+            body: JSON.stringify({ e: 'unload', b: bid, m: durationMs }),
+            headers: { 'content-type': 'application/json' },
+          });
+          log('unload', 'Unload sent', { bid, durationMs });
+          updateSessionDisplay();
+          refreshCount();
+          setStatus(true);
+        } catch (err) {
+          error('Unload failed: ' + err.message);
+          setStatus(false);
+        }
+      }
+
+      async function sendCustom() {
+        const bid = generateBid();
+        try {
+          const pingRes = await fetch(
+            BASE +
+              '/ping?u=' +
+              encodeURIComponent(location.host + location.pathname) +
+              '&k=' +
+              encodeURIComponent('test_event'),
+          );
+          await pingRes.text();
+
+          await fetch(BASE + '/event', {
+            method: 'POST',
+            body: JSON.stringify({
+              e: 'load',
+              b: bid,
+              u: location.href,
+              p: false,
+              q: false,
+              a: 'test_event',
+              d: {
+                value: Math.random(),
+                action: 'click',
+                label: 'playground-button',
+                count: ++seq,
+              },
+            }),
+            headers: { 'content-type': 'application/json', 'user-agent': navigator.userAgent },
+          });
+          log('custom', 'Custom event sent', { bid, type: 'test_event', seq });
+          refreshCount();
+          setStatus(true);
+        } catch (err) {
+          error('Custom event failed: ' + err.message);
+          setStatus(false);
+        }
+      }
+
+      async function refreshCount() {
+        await refreshServerEvents();
+      }
+
+      async function refreshServerEvents() {
+        try {
+          const res = await fetch(BASE + '/events');
+          const events = await res.json();
+          document.getElementById('event-count').textContent =
+            events.length + ' event' + (events.length !== 1 ? 's' : '');
+          document.getElementById('server-event-count').textContent =
+            events.length + ' event' + (events.length !== 1 ? 's' : '');
+          const container = document.getElementById('server-events-body');
+          container.innerHTML = events
+            .map((ev) => {
+              const bid = ev.bid ?? '';
+              const type = ev.type ?? '';
+              const rows = Object.entries(ev)
+                .map(([k, v]) => {
+                  let valClass = 'object';
+                  let display =
+                    v === null ? 'null' : v === undefined ? 'undefined' : JSON.stringify(v);
+                  if (v === null || v === undefined) valClass = 'null';
+                  else if (typeof v === 'string') valClass = 'string';
+                  else if (typeof v === 'number') valClass = 'number';
+                  else if (typeof v === 'boolean') valClass = 'boolean';
+                  if (k === 'properties' && v && typeof v === 'object') {
+                    display = JSON.stringify(v);
+                  }
+                  return `<div class="event-row"><span class="event-key">${k}</span><span class="event-val ${valClass}">${display}</span></div>`;
+                })
+                .join('');
+              const badgeClass =
+                !type || type === 'pageview'
+                  ? 'badge-load'
+                  : type === 'test_event'
+                    ? 'badge-custom'
+                    : 'badge-info';
+              return `<div class="event-block"><div class="event-header">${bid.slice(0, 12)} <span class="badge ${badgeClass}">${type || 'unload'}</span></div><div class="event-body">${rows}</div></div>`;
+            })
+            .join('');
+        } catch {}
+      }
+
+      function clearLog() {
+        logEl.innerHTML = '';
+      }
+
+      document.getElementById('server-url').textContent = location.origin;
+      log('info', 'Playground loaded — server at ' + location.origin);
+      refreshCount();
+      setInterval(updateSessionDisplay, 1000);
+    </script>
+  </body>
+</html>

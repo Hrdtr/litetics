@@ -444,4 +444,210 @@ describe('handler:event', () => {
       });
     });
   });
+
+  describe('case-insensitive headers', () => {
+    it('should detect bot with upper-case User-Agent header via payload', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'case-bot',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      await eventHandler.track({
+        requestBody: body,
+        requestHeaders: { 'USER-AGENT': 'Googlebot/2.1' },
+      });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should detect bot with upper-case User-Agent header via Request object', async () => {
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify({
+          e: 'load',
+          b: 'req-bot',
+          u: 'https://example.com',
+          p: true,
+          q: true,
+          a: 'pageview',
+        }),
+        headers: { 'USER-AGENT': 'Googlebot/2.1' },
+      });
+
+      await eventHandler.track(request);
+
+      const botCall = mockPersist.mock.calls.find(
+        (args) => (args[0] as Record<string, unknown>).bid === 'req-bot',
+      );
+      expect(botCall).toBeUndefined();
+    });
+
+    it('should detect bot with upper-case User-Agent header via getter options', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'opt-bot',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const getRequestHeader = vi.fn((name: string) => {
+        if (name.toLowerCase() === 'user-agent') return 'Googlebot/2.1';
+        return undefined;
+      });
+
+      await eventHandler.track({
+        getRequestBody: vi.fn().mockResolvedValue(body),
+        getRequestHeader,
+      });
+
+      const botCall = mockPersist.mock.calls.find(
+        (args) => (args[0] as Record<string, unknown>).bid === 'opt-bot',
+      );
+      expect(botCall).toBeUndefined();
+    });
+
+    it('should read accept-language with mixed-case key via payload', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'case-lang',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      await eventHandler.track({
+        requestBody: body,
+        requestHeaders: { 'Accept-Language': 'de-DE,de;q=0.9' },
+      });
+
+      vi.useRealTimers();
+
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bid: 'case-lang',
+          languageCode: 'de',
+          languageRegion: 'DE',
+        }),
+      );
+    });
+
+    it('should read accept-language with upper-case key via Request object', async () => {
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify({
+          e: 'load',
+          b: 'req-lang',
+          u: 'https://example.com',
+          p: true,
+          q: true,
+          a: 'pageview',
+        }),
+        headers: { 'ACCEPT-LANGUAGE': 'ja-JP,ja;q=0.9' },
+      });
+
+      await eventHandler.track(request);
+      vi.useRealTimers();
+
+      const call = mockPersist.mock.calls.find(
+        (args) => (args[0] as Record<string, unknown>).bid === 'req-lang',
+      );
+      expect(call).toBeDefined();
+      const data = call![0] as Record<string, unknown>;
+      expect(data.languageCode).toBe('ja');
+      expect(data.languageRegion).toBe('JP');
+    });
+
+    it('should read accept-language with mixed-case key via getter options', async () => {
+      const body: EventHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'opt-lang',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      await eventHandler.track({
+        getRequestBody: vi.fn().mockResolvedValue(body),
+        getRequestHeader: vi.fn((name: string) => {
+          if (name.toLowerCase() === 'accept-language') return 'ko-KR,ko;q=0.8';
+          return undefined;
+        }),
+      });
+
+      vi.useRealTimers();
+
+      const call = mockPersist.mock.calls.find(
+        (args) => (args[0] as Record<string, unknown>).bid === 'opt-lang',
+      );
+      expect(call).toBeDefined();
+      const data = call![0] as Record<string, unknown>;
+      expect(data.languageCode).toBe('ko');
+      expect(data.languageRegion).toBe('KR');
+    });
+  });
+
+  describe('debug mode', () => {
+    it('should log bot detection when debug is enabled', async () => {
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const handler = createEventHandler({
+        persist: mockPersist,
+        update: mockUpdate,
+        debug: true,
+      });
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify({
+          e: 'load',
+          b: 'debug-bot',
+          u: 'https://example.com',
+          p: true,
+          q: true,
+          a: 'pageview',
+        }),
+        headers: { 'user-agent': 'Googlebot/2.1' },
+      });
+
+      await handler.track(request);
+
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('request parsing', () => {
+    it('should handle non-JSON text body via Request object', async () => {
+      const persistCount = mockPersist.mock.calls.length;
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: 'plain text body, not json',
+      });
+
+      await eventHandler.track(request);
+
+      // Body can't be parsed as JSON, so persist should not be called again
+      expect(mockPersist.mock.calls.length).toBe(persistCount);
+    });
+  });
 });

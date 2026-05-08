@@ -58,4 +58,29 @@ describe('utils:parseReferrer', () => {
     expect(result.referrerMedium).toBe('unknown');
     expect(result.referrerName).toBe('Google');
   });
+
+  it('should skip unknown search parameters', () => {
+    const result = parseReferrer(
+      'https://google.com/search?q=valid&unknown_param=skip',
+      'https://other.com',
+    );
+    expect(result.referrerKnown).toBe(true);
+    expect(result.referrerMedium).toBe('search');
+    // 'q' is known, 'unknown_param' is not — should be skipped
+    expect(result.referrerSearchParameter).toBe('q');
+    expect(result.referrerSearchTerm).toBe('valid');
+  });
+
+  it('should keep first search parameter when multiple match', () => {
+    // Yandex has 'text' as search parameter
+    const result = parseReferrer(
+      'https://yandex.ru/search?text=first&text=second',
+      'https://other.com',
+    );
+    expect(result.referrerKnown).toBe(true);
+    expect(result.referrerMedium).toBe('search');
+    // Should keep the first occurrence
+    expect(result.referrerSearchParameter).toBe('text');
+    expect(result.referrerSearchTerm).toBe('first');
+  });
 });

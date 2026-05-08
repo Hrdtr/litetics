@@ -251,7 +251,14 @@ export class EventHandler<
   async track(arg: Request | EventHandlerTrackOptions | EventHandlerTrackPayload): Promise<void> {
     const getRequestBody =
       arg instanceof Request
-        ? () => arg.json().catch(() => arg.text())
+        ? () =>
+            arg.text().then((t: string) => {
+              try {
+                return JSON.parse(t);
+              } catch {
+                return t;
+              }
+            })
         : 'requestBody' in arg
           ? () => arg.requestBody
           : arg.getRequestBody;
@@ -260,7 +267,11 @@ export class EventHandler<
       arg instanceof Request
         ? (name: string) => arg.headers.get(name)
         : 'requestHeaders' in arg
-          ? (name: string) => arg.requestHeaders[name]
+          ? (name: string) => {
+              const h = arg.requestHeaders;
+              const key = Object.keys(h).find((k) => k.toLowerCase() === name.toLowerCase());
+              return key ? h[key] : undefined;
+            }
           : arg.getRequestHeader;
 
     const acceptLanguage = (await getRequestHeader('accept-language')) || null;

@@ -62,9 +62,9 @@ export interface CreateTrackerOptions {
  */
 export const createTracker = ({
   apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
+  adapter: providedAdapter,
   sessionTimeoutDuration,
   fetchMode = 'no-cors',
-  adapter: providedAdapter,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL');
@@ -144,7 +144,7 @@ export const createTracker = ({
           r: env.referrer,
           t: env.timezone,
         } satisfies EventHandlerLoadRequestBody),
-        ...(fetchMode ? { mode: fetchMode } : {}),
+        mode: fetchMode,
       });
     };
 
@@ -163,7 +163,7 @@ export const createTracker = ({
             method: 'POST',
             body,
             keepalive: true,
-            ...(fetchMode ? { mode: fetchMode } : {}),
+            mode: fetchMode,
           });
         }
       }
@@ -269,7 +269,7 @@ export const createTracker = ({
         t: env.timezone,
         d: rest,
       } satisfies EventHandlerLoadRequestBody),
-      ...(fetchMode ? { mode: fetchMode } : {}),
+      mode: fetchMode,
     });
   };
 
@@ -293,7 +293,7 @@ export const createTracker = ({
           b: id,
           m: Date.now() - startTime,
         } satisfies EventHandlerUnloadRequestBody),
-        ...(fetchMode ? { mode: fetchMode } : {}),
+        mode: fetchMode,
       })
       .then(() => trackWithDurationMap.delete(key));
   };

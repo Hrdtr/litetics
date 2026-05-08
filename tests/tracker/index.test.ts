@@ -106,6 +106,24 @@ describe('register', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(6); // +2 other registered trackers (still listen to popstate)
   });
 
+  it('should not trigger unload on visibility change to visible', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const sendBeaconMock = vi.fn();
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy);
+    await settle();
+    fetchSpy.mockClear();
+    sendBeaconMock.mockClear();
+
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    window.dispatchEvent(new Event('visibilitychange'));
+    await settle();
+    expect(sendBeaconMock).toHaveBeenCalledTimes(0);
+  });
+
   it('should send load event on hashchange in hash mode', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     const adapter = createBrowserAdapter({ mode: 'hash' });

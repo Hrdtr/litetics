@@ -137,4 +137,63 @@ describe('handler:ping', () => {
       await expect(response.text()).resolves.toBe('1');
     });
   });
+
+  it('should read If-Modified-Since header case-insensitively via payload', async () => {
+    const todayDate = new Date().toUTCString();
+    const result: PingHandlerResult = await pingHandler.process({
+      requestHeaders: { 'If-Modified-Since': todayDate },
+    });
+
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('1');
+    expect(result.headers).toHaveProperty('Last-Modified');
+    expect(result.headers).toHaveProperty('Cache-Control');
+  });
+
+  it('should read If-Modified-Since case-insensitively via Request object', async () => {
+    const todayDate = new Date().toUTCString();
+    const headers = new Headers();
+    headers.append('IF-MODIFIED-SINCE', todayDate);
+
+    const result: PingHandlerResult = await pingHandler.process(
+      new Request('https://example.com', { headers }),
+    );
+
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('1');
+  });
+
+  it('should read If-Modified-Since case-insensitively via getter options', async () => {
+    const todayDate = new Date().toUTCString();
+    const getRequestHeader = vi.fn((name: string) => {
+      if (name.toLowerCase() === 'if-modified-since') return todayDate;
+      return undefined;
+    });
+
+    const result: PingHandlerResult = await pingHandler.process({ getRequestHeader });
+
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('1');
+  });
+
+  it('should log errors when debug is enabled', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const handler = createPingHandler({ debug: true });
+
+    await handler.process({
+      getRequestHeader: vi.fn().mockReturnValue('invalid-date'),
+    });
+
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it('should return undefined for missing header via payload', async () => {
+    const result: PingHandlerResult = await pingHandler.process({
+      requestHeaders: {},
+    });
+
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('0');
+  });
 });

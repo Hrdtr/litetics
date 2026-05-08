@@ -73,7 +73,11 @@ export class PingHandler {
       arg instanceof Request
         ? (name: string) => arg.headers.get(name)
         : 'requestHeaders' in arg
-          ? (name: string) => arg.requestHeaders[name]
+          ? (name: string) => {
+              const h = arg.requestHeaders;
+              const key = Object.keys(h).find((k) => k.toLowerCase() === name.toLowerCase());
+              return key ? h[key] : undefined;
+            }
           : arg.getRequestHeader;
 
     const ifModifiedSince = await getRequestHeader('if-modified-since');
