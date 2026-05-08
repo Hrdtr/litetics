@@ -48,8 +48,6 @@ export type PingHandlerPayload = {
 };
 
 export class PingHandler {
-  constructor() {}
-
   /**
    * Process a ping request.
    * @param request The request object.
@@ -148,7 +146,7 @@ export function createPingHandler(): PingHandler {
 }
 
 export function createPingResponse(data: PingHandlerResult): Response {
-  return new Response(data.error || data.body, {
+  return new Response(data.error ?? data.body, {
     status: data.status,
     headers: data.headers,
   });

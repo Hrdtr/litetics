@@ -131,9 +131,8 @@ interface LookupReferrerResult {
  * @return {LookupReferrerResult | null} An object containing the name, medium, and parameters of the found referrer, or null if not found.
  */
 function lookupReferrer(hostname: string, exact: boolean): LookupReferrerResult | null {
-  for (const medium in referrers) {
-    for (const name in referrers[medium]) {
-      const referrer = referrers[medium][name];
+  for (const [mediumName, referrersByMedium] of Object.entries(referrers)) {
+    for (const [referrerName, referrer] of Object.entries(referrersByMedium)) {
       // Check if the hostname matches any of the domains in the referrer
       if (
         referrer.domains.some((domain) => (exact ? hostname === domain : hostname.endsWith(domain)))
@@ -141,8 +140,8 @@ function lookupReferrer(hostname: string, exact: boolean): LookupReferrerResult 
         // If there are parameters for the referrer, return an object containing the name, medium, and parameters
         const { parameters } = referrer;
         return {
-          name,
-          medium,
+          name: referrerName,
+          medium: mediumName,
           parameters,
         };
       }

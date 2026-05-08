@@ -269,7 +269,7 @@ export class EventHandler {
           name: referrerName = null,
           searchParameter: referrerSearchParameter = null,
           searchTerm: referrerSearchTerm = null,
-        } = referrer && isValidUrl(referrer) ? parseReferrer(referrer, pageUrl) : {};
+        } = referrer ? parseReferrer(referrer, pageUrl) : {};
 
         // Get the country code based on the timezone
         const country = timezone && timezone.length > 0 ? getCountryCodeByTimezone(timezone) : null;

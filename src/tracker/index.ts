@@ -64,7 +64,13 @@ export const createTracker = ({
     throw new Error('`apiEndpoint.ping` must be a valid URL');
   }
 
-  const generateID = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+  const generateID = () => {
+    // ID format: timestamp(36) + random(36). Timestamp provides
+    // millisecond precision ordering; the random suffix reduces
+    // collision probability within the same millisecond to
+    // 1/36^8 (~1/2.8e12) per session.
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
+  };
 
   const ping = (url: string): Promise<boolean> =>
     new Promise((resolve) => {
