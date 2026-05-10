@@ -47,7 +47,7 @@ The ping response controls two fields in the load event:
 
 Page-level ping adds `&k=<eventKey>` for custom events:
 
-```
+```text
 GET /ping?u=example.com%2Fblog%2Fpost-1&k=signup_button
 ```
 

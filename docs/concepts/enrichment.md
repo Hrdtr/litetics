@@ -122,8 +122,7 @@ Maps the IANA time zone sent by the client (e.g. `"America/New_York"`) to a two-
 
 The client time zone is obtained via `Intl.DateTimeFormat().resolvedOptions().timeZone` in the browser adapter.
 
-> Country is derived from the browser’s time zone rather than the user’s IP address. Since the time zone is already exposed by the browser, this approach provides a better balance between user privacy and analytics needs. The detected country is approximate because some time zones span multiple countries, but it is generally accurate enough for regional reporting.
-
+> Country is derived from the browser’s time zone rather than the user’s IP address. Since the time zone is already exposed by the browser, this approach provides a better balance between user privacy and analytics needs. The detected country is approximate because some time zones span multiple countries, but it is generally accurate enough for regional reporting.<br>
 > You can still override the detected country with your own geo-IP logic. The `persist` callback receives the complete `EventData` object, so if you perform IP geolocation from the incoming request, you can replace `data.country` before storing it:
 >
 > ```ts

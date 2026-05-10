@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const route = useRoute();
 const { $tracker, $setTrackerMode } = useNuxtApp();
 
 const hashMode = ref(false);
