@@ -1,3 +1,7 @@
+---
+description: How Litetics models pageviews and custom events as a load/unload pair with ping, load, and unload beacons.
+---
+
 # Event Lifecycle
 
 Litetics models pageviews and custom events as a **load/unload** pair. A load event marks the start of an interaction; an unload event records how long it lasted.

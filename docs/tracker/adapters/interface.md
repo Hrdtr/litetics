@@ -1,3 +1,7 @@
+---
+description: The RuntimeAdapter interface — define send, context, and lifecycle hooks to run the tracker in any environment.
+---
+
 # Runtime Adapter Interface
 
 The `RuntimeAdapter` interface decouples the tracker from any specific platform. Implement it to run the tracker in Node.js, Deno, React Native, tests, or any other environment.

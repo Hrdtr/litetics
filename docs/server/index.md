@@ -1,3 +1,7 @@
+---
+description: Overview of the Litetics server package — receiving beacons, enriching events, and determining visitor uniqueness.
+---
+
 # Server
 
 The `litetics` package handles all server-side analytics work: receiving beacons, enriching them with metadata, and determining visitor uniqueness.

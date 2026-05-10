@@ -1,3 +1,7 @@
+---
+description: API reference for the tracker instance methods — register, track, and trackEndOf.
+---
+
 # Tracker Instance
 
 The tracker instance provides three methods: `register`, `track`, and `trackEndOf`.

@@ -1,3 +1,7 @@
+---
+description: Overview and architecture of Litetics, a runtime-agnostic analytics event tracking library for JavaScript.
+---
+
 # Introduction
 
 Litetics is an analytics event tracking library for JavaScript. It captures pageviews, enriches events with metadata, and delivers them to your own persistence layer — no third-party services involved.

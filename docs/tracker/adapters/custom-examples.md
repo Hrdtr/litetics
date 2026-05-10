@@ -1,3 +1,7 @@
+---
+description: Examples of custom RuntimeAdapter implementations for Nuxt, React, Vue, React Native, Node.js, Deno, Bun, and Vitest.
+---
+
 # Custom Adapter Examples
 
 The `RuntimeAdapter` interface allows you to customize the tracker to work in any environment. Here are some examples of how to use it in different environments.

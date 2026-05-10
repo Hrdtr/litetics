@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import llmstxt, { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms';
 
 export default defineConfig({
   title: 'Litetics',
@@ -89,5 +90,13 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/Hrdtr/litetics' },
       { icon: 'npm', link: 'https://www.npmjs.com/package/litetics' },
     ],
+  },
+  vite: {
+    plugins: [llmstxt({ domain: 'https://litetics.hrdtr.dev' })],
+  },
+  markdown: {
+    config(md) {
+      md.use(copyOrDownloadAsMarkdownButtons);
+    },
   },
 });

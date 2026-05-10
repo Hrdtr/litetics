@@ -1,3 +1,7 @@
+---
+description: How the tracker automatically detects user inactivity and resets the session with configurable timeouts.
+---
+
 # Session Management
 
 The tracker can automatically detect user inactivity and reset the session.

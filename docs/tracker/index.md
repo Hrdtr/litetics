@@ -1,3 +1,7 @@
+---
+description: Overview of the Litetics tracker — client-side beacon generation, pings, page lifecycle management, and exports.
+---
+
 # Tracker
 
 The tracker runs on the client, generating beacon IDs, sending pings and beacons, and managing the page lifecycle. Import from `litetics/tracker`.

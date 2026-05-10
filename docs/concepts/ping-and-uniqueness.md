@@ -1,3 +1,7 @@
+---
+description: How the ping endpoint distinguishes new visitors from returning visitors using If-Modified-Since headers.
+---
+
 # Ping & Visitor Uniqueness
 
 The ping endpoint distinguishes new visitors from returning visitors within a calendar day. It uses the `If-Modified-Since` HTTP header as a lightweight state mechanism.

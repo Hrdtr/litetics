@@ -1,3 +1,7 @@
+---
+description: Reference documentation for the EventData interface — the fully enriched analytics event produced by Litetics.
+---
+
 # Event Data
 
 The `EventData` interface represents a fully enriched analytics event. It is produced by the `Litetics` and passed to your `persist` callback.

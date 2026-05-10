@@ -1,3 +1,7 @@
+---
+description: How Litetics enriches load events server-side with parsed HTTP headers, request body, and page URL data.
+---
+
 # Event Enrichment
 
 Every load event is enriched server-side with data parsed from HTTP headers, the request body, and the page URL. No client-side configuration is needed beyond providing the URL and time zone.

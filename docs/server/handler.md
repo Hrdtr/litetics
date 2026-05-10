@@ -1,3 +1,7 @@
+---
+description: Full API reference for the Litetics handler — handleEventRequest, handlePingRequest, options, and enrichment.
+---
+
 # Handler
 
 The `Litetics` processes event beacons and ping requests. A single instance handles both concerns.

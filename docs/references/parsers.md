@@ -1,3 +1,7 @@
+---
+description: Reference documentation for Litetics parser utilities — user-agent, referrer, language, UTM, and time zone parsers.
+---
+
 # Parser Utilities
 
 The parser functions used by `Litetics` are internal but exposed for reference and custom use. Each can be overridden via `EventRequestHandlerOptions.parsers`.

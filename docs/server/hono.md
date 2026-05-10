@@ -1,3 +1,7 @@
+---
+description: How to integrate Litetics with the Hono framework for server-side analytics event handling.
+---
+
 # Hono Integration
 
 Hono is the simplest framework to integrate because its `Context` exposes the standard `Request` object directly via `c.req.raw`.

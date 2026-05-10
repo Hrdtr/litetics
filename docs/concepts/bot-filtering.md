@@ -1,3 +1,7 @@
+---
+description: How Litetics silently drops events from bots and crawlers using isbot and custom detection.
+---
+
 # Bot Filtering
 
 The server handler silently drops events from bots and crawlers. This prevents polluting your analytics data with automated traffic.

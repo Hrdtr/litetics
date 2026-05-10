@@ -1,3 +1,7 @@
+---
+description: Reference for createBrowserAdapter — the default RuntimeAdapter using native browser APIs with history and hash modes.
+---
+
 # Browser Adapter
 
 The `createBrowserAdapter` function creates a `RuntimeAdapter` that uses native browser APIs. This is the default adapter when none is provided to `createTracker`.

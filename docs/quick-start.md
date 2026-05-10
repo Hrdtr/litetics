@@ -1,3 +1,7 @@
+---
+description: Get Litetics running in your project with a server handler and a browser tracker.
+---
+
 # Quick Start
 
 Get Litetics running in your project with a server handler and a browser tracker.

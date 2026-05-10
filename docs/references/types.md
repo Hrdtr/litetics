@@ -1,3 +1,7 @@
+---
+description: Complete TypeScript type reference for all exports from litetics and litetics/tracker.
+---
+
 # TypeScript Types
 
 All types exported from `litetics` and `litetics/tracker`.

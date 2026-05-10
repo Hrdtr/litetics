@@ -1,3 +1,7 @@
+---
+description: How the tracker automatically detects and tracks single-page application navigation with history and hash mode support.
+---
+
 # SPA Navigation
 
 The tracker automatically detects and tracks single-page application (SPA) navigation. When the route changes without a full page reload, the tracker sends an unload beacon for the previous route and a load beacon for the new one.
