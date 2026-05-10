@@ -6,9 +6,9 @@
 
 ### 🚀 Enhancements
 
-- ⚠️  Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
-- ⚠️  Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
-- ⚠️  Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
+- ⚠️ Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
+- ⚠️ Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
+- ⚠️ Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
 - Playground & integration test ([09a9152](https://github.com/Hrdtr/litetics/commit/09a9152))
 - Redesign public API and adapter interface ([1e8fc1d](https://github.com/Hrdtr/litetics/commit/1e8fc1d))
 - **docs:** Add vitepress-plugin-llms and page descriptions ([cad1712](https://github.com/Hrdtr/litetics/commit/cad1712))
@@ -31,7 +31,7 @@
 
 ### 💅 Refactors
 
-- ⚠️  Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
+- ⚠️ Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
 
 ### 📖 Documentation
 
@@ -49,10 +49,10 @@
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
-- ⚠️  Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
-- ⚠️  Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
-- ⚠️  Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
+- ⚠️ Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
+- ⚠️ Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
+- ⚠️ Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
+- ⚠️ Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
 
 ### ❤️ Contributors
 

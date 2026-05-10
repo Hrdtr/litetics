@@ -33,7 +33,7 @@ A tracker in the browser communicates with a handler on the server over two HTTP
 ```text
   Browser                          Server
  ┌───────────┐                    ┌─────────────────────────┐
- │           │─── GET  /ping ───▶ │ Litetics         │
+ │           │─── GET  /ping ───▶ │ Litetics                │
  │  Tracker  │                    │   .handlePingRequest()  │
  │           │─── POST /event ──▶ │   .handleEventRequest() │
  └───────────┘                    │         ▼               │
