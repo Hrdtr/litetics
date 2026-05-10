@@ -9,7 +9,7 @@ describe('utils:getCountryCodeByTimeZone', () => {
     expect(countryCode).toBe('US');
   });
 
-  it('should return the country code for a time zone with multiple countries', () => {
+  it('should return the country code for another valid time zone', () => {
     // The country-time-zones data has no time zone shared across multiple countries,
     // so this follows the same lookup path as any valid time zone.
     const timeZone = 'Europe/London';
