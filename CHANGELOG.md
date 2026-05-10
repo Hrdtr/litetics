@@ -1,5 +1,63 @@
 # Changelog
 
+## v1.0.0
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.15...v1.0.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
+- ⚠️  Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
+- ⚠️  Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
+- Playground & integration test ([09a9152](https://github.com/Hrdtr/litetics/commit/09a9152))
+- Redesign public API and adapter interface ([1e8fc1d](https://github.com/Hrdtr/litetics/commit/1e8fc1d))
+- **docs:** Add vitepress-plugin-llms and page descriptions ([cad1712](https://github.com/Hrdtr/litetics/commit/cad1712))
+
+### 🩹 Fixes
+
+- Missing session timeout implementation ([6c35614](https://github.com/Hrdtr/litetics/commit/6c35614))
+- Potential crash on missing body.u ([b1456b1](https://github.com/Hrdtr/litetics/commit/b1456b1))
+- **test:** Unreliable tracker tests due, add more cases ([5ef85b2](https://github.com/Hrdtr/litetics/commit/5ef85b2))
+- Tracker relies on global `location` without guard ([0dbb4e8](https://github.com/Hrdtr/litetics/commit/0dbb4e8))
+- Code style & patterns ([ce7046f](https://github.com/Hrdtr/litetics/commit/ce7046f))
+- Inefficient country code lookup ([dfcb6b3](https://github.com/Hrdtr/litetics/commit/dfcb6b3))
+- Resolve issues in tracking and utilities ([ad19264](https://github.com/Hrdtr/litetics/commit/ad19264))
+- CreateBrowserAdapter re-wraps history on every call ([72d14bc](https://github.com/Hrdtr/litetics/commit/72d14bc))
+- CreateBrowserAdapter mutates global history permanently ([8b74443](https://github.com/Hrdtr/litetics/commit/8b74443))
+- Drop unreleased middleware feature ([0074de1](https://github.com/Hrdtr/litetics/commit/0074de1))
+- **tracker:** Unload using a one-time guard ([7677035](https://github.com/Hrdtr/litetics/commit/7677035))
+- Add input validation and fix listener cleanup ([a4ff577](https://github.com/Hrdtr/litetics/commit/a4ff577))
+- Consolidate unload payload validation and logging ([67f4c86](https://github.com/Hrdtr/litetics/commit/67f4c86))
+
+### 💅 Refactors
+
+- ⚠️  Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
+
+### 📖 Documentation
+
+- Mark plain code blocks as text ([8bf1ec6](https://github.com/Hrdtr/litetics/commit/8bf1ec6))
+
+### 🏡 Chore
+
+- Bittle event data assertions, configurable debug log ([c609f31](https://github.com/Hrdtr/litetics/commit/c609f31))
+- Fix docs formatting and remove unused import ([af32b27](https://github.com/Hrdtr/litetics/commit/af32b27))
+
+### ✅ Tests
+
+- Correct test description for time zone test ([a315de4](https://github.com/Hrdtr/litetics/commit/a315de4))
+- Add mock and global state cleanup ([545dc52](https://github.com/Hrdtr/litetics/commit/545dc52))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Single export entrypoint ([f23fd17](https://github.com/Hrdtr/litetics/commit/f23fd17))
+- ⚠️  Tracker runtime adapter, handler middleware, swappable parsers ([128c570](https://github.com/Hrdtr/litetics/commit/128c570))
+- ⚠️  Additional utm params & add properties generic on event data ([e381d7f](https://github.com/Hrdtr/litetics/commit/e381d7f))
+- ⚠️  Flatten parse types and add fetchMode ([6371a70](https://github.com/Hrdtr/litetics/commit/6371a70))
+
+### ❤️ Contributors
+
+- Herdi Tr. <iam@icm.hrdtr.dev>
+
 ## v1.0.0-rc.15
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.14...v1.0.0-rc.15)
