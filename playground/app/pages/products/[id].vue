@@ -2,7 +2,7 @@
 const route = useRoute();
 const { $tracker } = useNuxtApp();
 
-const id = route.params.id as string;
+const id = computed(() => String(route.params.id ?? ''));
 
 const details: Record<string, { name: string; price: string; desc: string }> = {
   alpha: {
@@ -32,14 +32,16 @@ const details: Record<string, { name: string; price: string; desc: string }> = {
   },
 };
 
-const product = computed(() => details[id] ?? { name: id, price: '—', desc: 'Unknown product.' });
+const product = computed(
+  () => details[id.value] ?? { name: id.value, price: '—', desc: 'Unknown product.' },
+);
 
 const viewedFeatures = ref<string[]>([]);
 let featureTimerKey = '';
 
 async function trackFeature(feature: string) {
   viewedFeatures.value.push(feature);
-  $tracker.value.track('feature_view', { type: 'feature_view', feature, productId: id });
+  $tracker.value.track('feature_view', { type: 'feature_view', feature, productId: id.value });
 }
 
 let cartCount = 0;
@@ -48,7 +50,7 @@ async function addToCart() {
   cartCount += 1;
   $tracker.value.track('add_to_cart', {
     type: 'add_to_cart',
-    productId: id,
+    productId: id.value,
     productName: product.value.name,
     price: product.value.price,
     quantity: 1,
@@ -57,10 +59,10 @@ async function addToCart() {
 }
 
 async function startPurchase() {
-  featureTimerKey = `purchase_${id}`;
+  featureTimerKey = `purchase_${id.value}`;
   await $tracker.value.track(
     featureTimerKey,
-    { type: 'purchase_start', productId: id },
+    { type: 'purchase_start', productId: id.value },
     { withDuration: true },
   );
   alert('Purchase flow started! (Timer is running — completing after 3 seconds)');

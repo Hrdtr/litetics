@@ -107,11 +107,11 @@ function resolveHashRoute() {
 onMounted(() => {
   resolveHashRoute();
   addEventListener('hashchange', resolveHashRoute);
-  return () => removeEventListener('hashchange', resolveHashRoute);
 });
 
 onBeforeUnmount(() => {
   if (timerInterval) clearInterval(timerInterval);
+  removeEventListener('hashchange', resolveHashRoute);
 });
 
 const currentLocationHref = computed(() => (import.meta.server ? '' : location.href));

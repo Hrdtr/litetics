@@ -309,22 +309,44 @@ export class EventRequestHandler<
 
     switch (eventType) {
       case 'load': {
-        if (!body.u) return;
-        if (!isValidUrl(body.u)) return;
-        if (body.r && !isValidUrl(body.r)) {
-          body.r = undefined;
-        }
-
         const {
           b: bid,
           u: pageUrl,
           p: isUniqueUser,
           q: isUniquePage,
           a: type,
-          r: referrer = null,
-          t: timeZone = null,
-          d: properties = null,
+          r: rawReferrer,
+          t: rawTimeZone,
+          d: rawProperties,
         } = body;
+
+        if (typeof pageUrl !== 'string' || !pageUrl) return;
+        if (!isValidUrl(pageUrl)) return;
+        if (typeof bid !== 'string' || !bid) return;
+        if (typeof isUniqueUser !== 'boolean') return;
+        if (typeof isUniquePage !== 'boolean') return;
+        if (typeof type !== 'string' || !type) return;
+
+        const referrer: string | null =
+          rawReferrer !== undefined && rawReferrer !== null
+            ? typeof rawReferrer === 'string' && isValidUrl(rawReferrer)
+              ? rawReferrer
+              : null
+            : null;
+
+        const timeZone: string | null =
+          rawTimeZone !== undefined && rawTimeZone !== null
+            ? typeof rawTimeZone === 'string'
+              ? rawTimeZone
+              : null
+            : null;
+
+        const properties: Record<string, Primitive> | null =
+          rawProperties !== undefined && rawProperties !== null
+            ? typeof rawProperties === 'object' && !Array.isArray(rawProperties)
+              ? (rawProperties as Record<string, Primitive>)
+              : null
+            : null;
 
         const receivedAt = new Date();
         const country = timeZone ? getCountryCodeByTimeZone(timeZone) : null;
@@ -434,8 +456,15 @@ export class EventRequestHandler<
       }
 
       case 'unload': {
-        const { b: bid, m: durationMs } = body;
-        await this.options.update({ bid, durationMs });
+        const { b: bid, m: rawDurationMs } = body;
+        if (typeof bid !== 'string' || !bid) return;
+        if (
+          typeof rawDurationMs !== 'number' ||
+          !Number.isFinite(rawDurationMs) ||
+          rawDurationMs < 0
+        )
+          return;
+        await this.options.update({ bid, durationMs: rawDurationMs });
         break;
       }
 

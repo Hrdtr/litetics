@@ -346,6 +346,127 @@ describe('Litetics (events)', () => {
       expect(mockPersist).toBeCalledTimes(0);
     });
 
+    it('should not call persist when b (bid) is missing from load event', async () => {
+      const body = {
+        e: 'load',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should not call persist when p is not a boolean in load event', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: 'yes',
+        q: true,
+        a: 'pageview',
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should not call persist when q is not a boolean in load event', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: 1,
+        a: 'pageview',
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should not call persist when a (type) is not a string in load event', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 123,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockPersist).toBeCalledTimes(0);
+    });
+
+    it('should handle array properties in load event (sanitized to null)', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+        d: ['a', 'b'],
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+      vi.useRealTimers();
+
+      expect(mockPersist).toHaveBeenCalledWith(expect.objectContaining({ properties: null }));
+    });
+
+    it('should handle non-string timeZone in load event (sanitized to null)', async () => {
+      const body = {
+        e: 'load',
+        b: 'test-beacon-id',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+        t: 12345,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      const receivedAt = new Date(1998, 11, 19);
+      vi.useFakeTimers();
+      vi.setSystemTime(receivedAt);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+      vi.useRealTimers();
+
+      expect(mockPersist).toHaveBeenCalledWith(
+        expect.objectContaining({ timeZone: null, country: null }),
+      );
+    });
+
     it('should handle async persist', async () => {
       const asyncPersist = vi.fn().mockResolvedValue(undefined);
       const asyncUpdate = vi.fn().mockResolvedValue(undefined);
@@ -460,6 +581,50 @@ describe('Litetics (events)', () => {
         bid: 'test-beacon-id',
         durationMs: 5678,
       });
+    });
+
+    it('should not call update when b (bid) is missing from unload event', async () => {
+      const body = {
+        e: 'unload',
+        m: 1234,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockUpdate).toBeCalledTimes(0);
+    });
+
+    it('should not call update when durationMs is negative', async () => {
+      const body = {
+        e: 'unload',
+        b: 'test-beacon-id',
+        m: -1,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockUpdate).toBeCalledTimes(0);
+    });
+
+    it('should not call update when durationMs is NaN', async () => {
+      const body = {
+        e: 'unload',
+        b: 'test-beacon-id',
+        m: NaN,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await handleEventRequest({ getRequestBody, getRequestHeader });
+
+      expect(mockUpdate).toBeCalledTimes(0);
     });
   });
 
