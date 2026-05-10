@@ -456,15 +456,18 @@ export class EventRequestHandler<
       }
 
       case 'unload': {
-        const { b: bid, m: rawDurationMs } = body;
-        if (typeof bid !== 'string' || !bid) return;
+        const { b: bid, m: durationMs } = body;
         if (
-          typeof rawDurationMs !== 'number' ||
-          !Number.isFinite(rawDurationMs) ||
-          rawDurationMs < 0
-        )
+          typeof bid !== 'string' ||
+          bid.length === 0 ||
+          typeof durationMs !== 'number' ||
+          !Number.isFinite(durationMs) ||
+          durationMs < 0
+        ) {
+          this.log('error', 'Invalid unload payload');
           return;
-        await this.options.update({ bid, durationMs: rawDurationMs });
+        }
+        await this.options.update({ bid, durationMs: durationMs });
         break;
       }
 
