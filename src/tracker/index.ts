@@ -1,8 +1,12 @@
-import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../handler';
+import type {
+  EventRequestHandlerLoadRequestBody,
+  EventRequestHandlerUnloadRequestBody,
+} from '../handler';
 import type { RuntimeAdapter } from './adapter';
 import { isValidUrl } from '../utils/is-valid-url';
 import { createBrowserAdapter } from './adapter';
 export type { RuntimeAdapter, BrowserAdapterOptions } from './adapter';
+export type { SendOptions, EnvironmentContext } from './adapter';
 export { createBrowserAdapter } from './adapter';
 
 export const AnalyticsEvent = {
@@ -84,14 +88,7 @@ export const createTracker = ({
   };
 
   const ping = (url: string): Promise<boolean> =>
-    new Promise((resolve) => {
-      const xhr = adapter.transport.xmlHttpRequest?.() ?? new XMLHttpRequest();
-      xhr.addEventListener('load', () => {
-        resolve(xhr.responseText === '0');
-      });
-      xhr.open('GET', url);
-      xhr.send();
-    });
+    adapter.send(url, { method: 'GET' }).then((text) => text === '0');
 
   let isUnique: boolean = true;
 
@@ -125,25 +122,26 @@ export const createTracker = ({
       id = generateID();
       startTime = Date.now();
       isUnloadCalled = false;
+      trackWithDurationMap.clear();
     };
 
     const sendLoadBeacon = async (): Promise<void> => {
-      const env = adapter.environment;
+      const ctx = adapter.context();
       const isFirstVisit = await ping(
-        pingEndpoint + '?u=' + encodeURIComponent(env.location.host + env.location.pathname),
+        pingEndpoint + '?u=' + encodeURIComponent(ctx.location.host + ctx.location.pathname),
       );
-      await adapter.transport.fetch(trackEndpoint, {
+      await adapter.send(trackEndpoint, {
         method: 'POST',
         body: JSON.stringify({
           e: AnalyticsEvent.LOAD,
           b: id,
-          u: env.location.href,
+          u: ctx.location.href,
           p: isUnique,
           q: isFirstVisit,
           a: 'pageview',
-          r: env.referrer,
-          t: env.timezone,
-        } satisfies EventHandlerLoadRequestBody),
+          r: ctx.referrer,
+          t: ctx.timeZone,
+        } satisfies EventRequestHandlerLoadRequestBody),
         mode: fetchMode,
       });
     };
@@ -154,18 +152,9 @@ export const createTracker = ({
           e: AnalyticsEvent.UNLOAD,
           b: id,
           m: Date.now() - startTime,
-        } satisfies EventHandlerUnloadRequestBody);
+        } satisfies EventRequestHandlerUnloadRequestBody);
 
-        if (adapter.transport.sendBeacon) {
-          adapter.transport.sendBeacon(trackEndpoint, body);
-        } else {
-          adapter.transport.fetch(trackEndpoint, {
-            method: 'POST',
-            body,
-            keepalive: true,
-            mode: fetchMode,
-          });
-        }
+        adapter.send(trackEndpoint, { method: 'POST', body, keepalive: true, mode: fetchMode });
       }
 
       isUnloadCalled = true;
@@ -179,6 +168,12 @@ export const createTracker = ({
         if (hidden) {
           clearSessionTimer();
           sendUnloadBeacon();
+        } else {
+          cleanup();
+          sendLoadBeacon();
+          if (sessionTimeoutDuration) {
+            resetSessionTimer();
+          }
         }
       }),
     );
@@ -187,6 +182,15 @@ export const createTracker = ({
       unsubs.push(adapter.hooks.onInteract(() => resetSessionTimer()));
     }
 
+    unsubs.push(
+      adapter.hooks.onNavigate(() => {
+        clearSessionTimer();
+        sendUnloadBeacon();
+        cleanup();
+        sendLoadBeacon();
+      }),
+    );
+
     ping(pingEndpoint).then((response: boolean) => {
       isUnique = response;
       sendLoadBeacon();
@@ -194,15 +198,6 @@ export const createTracker = ({
       if (sessionTimeoutDuration) {
         resetSessionTimer();
       }
-
-      unsubs.push(
-        adapter.hooks.onNavigate(() => {
-          clearSessionTimer();
-          sendUnloadBeacon();
-          cleanup();
-          sendLoadBeacon();
-        }),
-      );
     });
 
     return () => {
@@ -242,11 +237,11 @@ export const createTracker = ({
       withDuration?: boolean;
     },
   ): Promise<void> => {
-    const env = adapter.environment;
+    const ctx = adapter.context();
     const isFirstVisit = await ping(
       pingEndpoint +
         '?u=' +
-        encodeURIComponent(env.location.host + env.location.pathname) +
+        encodeURIComponent(ctx.location.host + ctx.location.pathname) +
         '&k=' +
         encodeURIComponent(key),
     );
@@ -256,19 +251,19 @@ export const createTracker = ({
     }
 
     const { type, ...rest } = data;
-    await adapter.transport.fetch(trackEndpoint, {
+    await adapter.send(trackEndpoint, {
       method: 'POST',
       body: JSON.stringify({
         e: AnalyticsEvent.LOAD,
         b: id,
-        u: env.location.href,
-        p: isUnique,
+        u: ctx.location.href,
+        p: isFirstVisit,
         q: isFirstVisit,
         a: type,
-        r: env.referrer,
-        t: env.timezone,
+        r: ctx.referrer,
+        t: ctx.timeZone,
         d: rest,
-      } satisfies EventHandlerLoadRequestBody),
+      } satisfies EventRequestHandlerLoadRequestBody),
       mode: fetchMode,
     });
   };
@@ -285,17 +280,18 @@ export const createTracker = ({
       return;
     }
 
-    await adapter.transport
-      .fetch(trackEndpoint, {
-        method: 'POST',
-        body: JSON.stringify({
-          e: AnalyticsEvent.UNLOAD,
-          b: id,
-          m: Date.now() - startTime,
-        } satisfies EventHandlerUnloadRequestBody),
-        mode: fetchMode,
-      })
-      .then(() => trackWithDurationMap.delete(key));
+    // Remove synchronously to prevent race conditions
+    trackWithDurationMap.delete(key);
+
+    await adapter.send(trackEndpoint, {
+      method: 'POST',
+      body: JSON.stringify({
+        e: AnalyticsEvent.UNLOAD,
+        b: id,
+        m: Date.now() - startTime,
+      } satisfies EventRequestHandlerUnloadRequestBody),
+      mode: fetchMode,
+    });
   };
 
   return {

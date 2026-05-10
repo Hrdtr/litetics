@@ -4,7 +4,7 @@ import type { ParsedReferrer } from '../utils/parse-referrer';
 import type { ParsedUserAgent } from '../utils/parse-user-agent';
 import type { ParsedUTMParams } from '../utils/parse-utm-params';
 import { isbot } from 'isbot';
-import { getCountryCodeByTimezone } from '../utils/get-country-code-by-timezone';
+import { getCountryCodeByTimeZone } from '../utils/get-country-code-by-time-zone';
 import { isValidUrl } from '../utils/is-valid-url';
 import { parseAcceptLanguage } from '../utils/parse-accept-language';
 import { parseReferrer } from '../utils/parse-referrer';
@@ -48,7 +48,7 @@ const defaultLang = {
  * An object representing a payload of event to track.
  * This object is sent to the server in a `POST` request.
  */
-export interface EventHandlerLoadRequestBody {
+export interface EventRequestHandlerLoadRequestBody {
   /**
    * The name of the event. Always 'load'
    */
@@ -85,7 +85,7 @@ export interface EventHandlerLoadRequestBody {
   r?: string;
 
   /**
-   * The timezone of the user. Optional.
+   * The time zone of the user. Optional.
    */
   t?: string;
 
@@ -105,7 +105,7 @@ export interface EventHandlerLoadRequestBody {
  * An object representing follow-up data used to track the duration of an event.
  * This object is sent to the server in a `POST` request.
  */
-export interface EventHandlerUnloadRequestBody {
+export interface EventRequestHandlerUnloadRequestBody {
   /**
    * The event name. Always 'unload'
    */
@@ -125,12 +125,12 @@ export interface EventHandlerUnloadRequestBody {
 /**
  * The load event result.
  */
-export type EventHandlerLoadResult = EventData;
+export type EventRequestHandlerLoadResult = EventData;
 
 /**
  * The unload event result.
  */
-export type EventHandlerUnloadResult = Pick<EventData, 'bid'> & {
+export type EventRequestHandlerUnloadResult = Pick<EventData, 'bid'> & {
   durationMs: NonNullable<EventData['durationMs']>;
 };
 
@@ -138,7 +138,7 @@ export type EventHandlerUnloadResult = Pick<EventData, 'bid'> & {
  * Overridable parser functions. Each parser falls back to the built-in
  * implementation when not provided.
  */
-export interface EventHandlerParsers {
+export interface EventRequestHandlerParsers {
   userAgent?: (ua: string) => ParsedUserAgent;
   referrer?: (referrerUrl: string, currentUrl: string) => ParsedReferrer;
   acceptLanguage?: (header: string) => ParsedAcceptLanguage;
@@ -146,26 +146,26 @@ export interface EventHandlerParsers {
 }
 
 /**
- * Options to configure the `EventHandler`.
+ * Options to configure the `EventRequestHandler`.
  */
-export type EventHandlerOptions<
+export type EventRequestHandlerOptions<
   TProperties extends Record<string, Primitive> = Record<string, Primitive>,
 > = {
   /**
-   * Persists the `EventHandlerLoadResult` data.
-   * @param data The `EventHandlerLoadResult` data.
+   * Persists the `EventRequestHandlerLoadResult` data.
+   * @param data The `EventRequestHandlerLoadResult` data.
    * @returns Void or promise of void.
    */
   persist: (
-    data: EventHandlerLoadResult & { properties: TProperties | null },
+    data: EventRequestHandlerLoadResult & { properties: TProperties | null },
   ) => MaybePromise<void>;
 
   /**
-   * Updates the persisted data with the `EventHandlerUnloadResult` data.
-   * @param data The `EventHandlerUnloadResult` data.
+   * Updates the persisted data with the `EventRequestHandlerUnloadResult` data.
+   * @param data The `EventRequestHandlerUnloadResult` data.
    * @returns Void or promise of void.
    */
-  update: (data: EventHandlerUnloadResult) => MaybePromise<void>;
+  update: (data: EventRequestHandlerUnloadResult) => MaybePromise<void>;
 
   /**
    * When true, logs debug information to console. Defaults to `false`.
@@ -177,7 +177,7 @@ export type EventHandlerOptions<
    * are used. Supply custom parsers to enrich, replace, or skip parsing
    * for specific fields.
    */
-  parsers?: EventHandlerParsers;
+  parsers?: EventRequestHandlerParsers;
 
   /**
    * Determines whether a user-agent should be treated as a bot.
@@ -188,16 +188,16 @@ export type EventHandlerOptions<
 };
 
 /**
- * Options to configure the `EventHandler` `track` method.
+ * Options to configure the `EventRequestHandler` `track` method.
  */
-export type EventHandlerTrackOptions = {
+export type EventRequestHandlerTrackOptions = {
   /**
    * A function that returns the request body.
    * @returns The request body.
    */
   getRequestBody: () =>
-    | MaybePromise<EventHandlerLoadRequestBody>
-    | MaybePromise<EventHandlerUnloadRequestBody>;
+    | MaybePromise<EventRequestHandlerLoadRequestBody>
+    | MaybePromise<EventRequestHandlerUnloadRequestBody>;
 
   /**
    * A function that returns the request header.
@@ -210,11 +210,11 @@ export type EventHandlerTrackOptions = {
 /**
  * The payload passed to the `track` method.
  */
-export type EventHandlerTrackPayload = {
+export type EventRequestHandlerTrackPayload = {
   /**
    * The request body.
    */
-  requestBody: EventHandlerLoadRequestBody | EventHandlerUnloadRequestBody;
+  requestBody: EventRequestHandlerLoadRequestBody | EventRequestHandlerUnloadRequestBody;
 
   /**
    * The request headers.
@@ -222,12 +222,12 @@ export type EventHandlerTrackPayload = {
   requestHeaders: Record<string, string | null | undefined>;
 };
 
-export class EventHandler<
+export class EventRequestHandler<
   TProperties extends Record<string, Primitive> = Record<string, Primitive>,
 > {
-  private options: EventHandlerOptions<TProperties>;
+  private options: EventRequestHandlerOptions<TProperties>;
 
-  constructor(options: EventHandlerOptions<TProperties>) {
+  constructor(options: EventRequestHandlerOptions<TProperties>) {
     this.options = options;
   }
 
@@ -236,19 +236,27 @@ export class EventHandler<
     console[level](`[litetics:event] ${message}`);
   }
 
-  private parseUrl(pageUrl: string): { host: string; path: string; queryString: string | null } {
+  private parseUrl(pageUrl: string): {
+    host: string;
+    path: string;
+    queryString: string | null;
+    hash: string | null;
+  } {
     const url = new URL(pageUrl);
     return {
       host: url.hostname,
       path: url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, ''),
       queryString: url.searchParams.toString() || null,
+      hash: url.hash || null,
     };
   }
 
   async track(request: Request): Promise<void>;
-  async track(options: EventHandlerTrackOptions): Promise<void>;
-  async track(payload: EventHandlerTrackPayload): Promise<void>;
-  async track(arg: Request | EventHandlerTrackOptions | EventHandlerTrackPayload): Promise<void> {
+  async track(options: EventRequestHandlerTrackOptions): Promise<void>;
+  async track(payload: EventRequestHandlerTrackPayload): Promise<void>;
+  async track(
+    arg: Request | EventRequestHandlerTrackOptions | EventRequestHandlerTrackPayload,
+  ): Promise<void> {
     const getRequestBody =
       arg instanceof Request
         ? () =>
@@ -278,11 +286,12 @@ export class EventHandler<
     const userAgent = (await getRequestHeader('user-agent')) || null;
 
     if (userAgent && (this.options.shouldIgnoreUserAgent ?? isbot)(userAgent)) {
-      this.log('debug', 'User agent is a bot');
+      this.log('debug', `User agent ignored: ${userAgent}`);
       return;
     }
 
-    let body: EventHandlerLoadRequestBody | EventHandlerUnloadRequestBody = await getRequestBody();
+    let body: EventRequestHandlerLoadRequestBody | EventRequestHandlerUnloadRequestBody =
+      await getRequestBody();
     if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
@@ -292,6 +301,10 @@ export class EventHandler<
       }
     }
 
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      this.log('error', 'Invalid JSON body structure');
+      return;
+    }
     const eventType = body.e;
 
     switch (eventType) {
@@ -309,14 +322,14 @@ export class EventHandler<
           q: isUniquePage,
           a: type,
           r: referrer = null,
-          t: timezone = null,
+          t: timeZone = null,
           d: properties = null,
         } = body;
 
         const receivedAt = new Date();
-        const country = timezone ? getCountryCodeByTimezone(timezone) : null;
+        const country = timeZone ? getCountryCodeByTimeZone(timeZone) : null;
 
-        const { host, path, queryString } = this.parseUrl(pageUrl);
+        const { host, path, queryString, hash } = this.parseUrl(pageUrl);
         const {
           campaign: utmCampaign,
           medium: utmMedium,
@@ -370,11 +383,12 @@ export class EventHandler<
           host,
           path,
           queryString,
+          hash,
           isUniqueUser,
           isUniquePage,
           type,
           durationMs: null,
-          timezone,
+          timeZone,
           country,
           userAgent,
           browserName,
@@ -414,7 +428,7 @@ export class EventHandler<
         };
 
         await this.options.persist(
-          data as EventHandlerLoadResult & { properties: TProperties | null },
+          data as EventRequestHandlerLoadResult & { properties: TProperties | null },
         );
         break;
       }
@@ -430,10 +444,4 @@ export class EventHandler<
       }
     }
   }
-}
-
-export function createEventHandler<
-  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
->(options: EventHandlerOptions<TProperties>): EventHandler<TProperties> {
-  return new EventHandler(options);
 }

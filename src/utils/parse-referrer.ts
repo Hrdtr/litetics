@@ -70,7 +70,9 @@ function lookupReferrer(hostname: string, exact: boolean): LookupReferrerResult 
   for (const [mediumName, referrersByMedium] of Object.entries(referrers)) {
     for (const [referrerName, referrer] of Object.entries(referrersByMedium)) {
       if (
-        referrer.domains.some((domain) => (exact ? hostname === domain : hostname.endsWith(domain)))
+        referrer.domains.some((domain) =>
+          exact ? hostname === domain : hostname === domain || hostname.endsWith('.' + domain),
+        )
       ) {
         const { parameters } = referrer;
         return {

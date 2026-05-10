@@ -3,7 +3,7 @@ import type { MaybePromise } from '../types';
 /**
  * Represents the result of a ping request.
  */
-export type PingHandlerResult = {
+export type PingRequestHandlerResult = {
   /**
    * The HTTP status code of the response.
    */
@@ -23,9 +23,9 @@ export type PingHandlerResult = {
 };
 
 /**
- * Options to configure the `PingHandler` `ping` method.
+ * Options to configure the `PingRequestHandler` `ping` method.
  */
-export type PingHandlerOptions = {
+export type PingRequestHandlerOptions = {
   /**
    * A function that returns the request header.
    * @param name The name of the header.
@@ -37,24 +37,24 @@ export type PingHandlerOptions = {
 /**
  * The payload passed to the `ping` method.
  */
-export type PingHandlerPayload = {
+export type PingRequestHandlerPayload = {
   /**
    * The request headers.
    */
   requestHeaders: Record<string, string | null | undefined>;
 };
 
-export type PingHandlerConstructorOptions = {
+export type PingRequestHandlerConstructorOptions = {
   /**
    * When true, logs debug information to console. Defaults to `false`.
    */
   debug?: boolean;
 };
 
-export class PingHandler {
-  private options: PingHandlerConstructorOptions;
+export class PingRequestHandler {
+  private options: PingRequestHandlerConstructorOptions;
 
-  constructor(options?: PingHandlerConstructorOptions) {
+  constructor(options?: PingRequestHandlerConstructorOptions) {
     this.options = options ?? {};
   }
 
@@ -63,12 +63,12 @@ export class PingHandler {
     console[level](`[litetics:ping] ${message}`);
   }
 
-  async process(request: Request): Promise<PingHandlerResult>;
-  async process(options: PingHandlerOptions): Promise<PingHandlerResult>;
-  async process(payload: PingHandlerPayload): Promise<PingHandlerResult>;
+  async process(request: Request): Promise<PingRequestHandlerResult>;
+  async process(options: PingRequestHandlerOptions): Promise<PingRequestHandlerResult>;
+  async process(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>;
   async process(
-    arg: Request | PingHandlerOptions | PingHandlerPayload,
-  ): Promise<PingHandlerResult> {
+    arg: Request | PingRequestHandlerOptions | PingRequestHandlerPayload,
+  ): Promise<PingRequestHandlerResult> {
     const getRequestHeader =
       arg instanceof Request
         ? (name: string) => arg.headers.get(name)
@@ -81,7 +81,7 @@ export class PingHandler {
           : arg.getRequestHeader;
 
     const ifModifiedSince = await getRequestHeader('if-modified-since');
-    const currentDay = new Date().setHours(0, 0, 0, 0);
+    const currentDay = new Date().setUTCHours(0, 0, 0, 0);
 
     if (!ifModifiedSince) {
       return {
@@ -144,11 +144,7 @@ export class PingHandler {
   }
 }
 
-export function createPingHandler(options?: PingHandlerConstructorOptions): PingHandler {
-  return new PingHandler(options);
-}
-
-export function createPingResponse(data: PingHandlerResult): Response {
+export function createPingResponse(data: PingRequestHandlerResult): Response {
   return new Response(data.error ?? data.body, {
     status: data.status,
     headers: data.headers,

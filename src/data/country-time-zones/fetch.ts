@@ -26,14 +26,14 @@ const fetchData = async () => {
     );
 
   await writeFile(
-    './src/data/country-timezones/index.ts',
-    `export interface CountryTimezonesData {
+    './src/data/country-time-zones/index.ts',
+    `export interface CountryTimeZonesData {
   [country: string]: string[]
 }
 
-export const countryTimezones: CountryTimezonesData = ${JSON.stringify(data, null, 2)}
+export const countryTimeZones: CountryTimeZonesData = ${JSON.stringify(data, null, 2)}
 `,
   );
-  execSync('pnpm oxlint --fix ./src/data/country-timezones/index.ts', { stdio: 'inherit' });
+  execSync('pnpm oxlint --fix ./src/data/country-time-zones/index.ts', { stdio: 'inherit' });
 };
 fetchData();

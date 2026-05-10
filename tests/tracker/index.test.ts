@@ -178,6 +178,18 @@ describe('track', () => {
     }).track('test-event', { type: 'test' });
     expect(fetchSpy).toHaveBeenCalledTimes(1); // track event
   });
+
+  it('should track event after register completes', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const tracker = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    });
+    const destroy = tracker.register();
+    await new Promise<void>((r) => setTimeout(r, 0));
+    await tracker.track('post-register-event', { type: 'test' });
+    expect(fetchSpy).toHaveBeenCalledTimes(2); // register pageview load + track event
+    destroy();
+  });
 });
 
 describe('trackEndOf', () => {
@@ -244,6 +256,25 @@ describe('sessionTimeoutDuration', () => {
     window.dispatchEvent(new Event('mousedown')); // reset timer
     await vi.advanceTimersByTimeAsync(100);
     expect(fetchSpy).toHaveBeenCalledTimes(1); // only initial load, timer was reset
+    destroy();
+  });
+
+  it('should reset session timer on visibility change to visible', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch');
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+      sessionTimeoutDuration: 200,
+    }).register();
+    await vi.advanceTimersByTimeAsync(50);
+
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    window.dispatchEvent(new Event('visibilitychange'));
+    await vi.advanceTimersByTimeAsync(100);
+
+    // Timer was reset by visibility change to visible, so timeout hasn't fired yet
+    // fetch calls: 1 for initial pageview load (POST), 1 for visibility-reload pageview load (POST)
+    // pings use XHR and are not counted by fetchSpy
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
     destroy();
   });
 });

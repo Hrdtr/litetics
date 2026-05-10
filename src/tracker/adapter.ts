@@ -8,39 +8,19 @@
  */
 export interface RuntimeAdapter {
   /**
-   * HTTP transport primitives. All are optional with sensible fallbacks.
+   * Sends an HTTP request. The adapter implementation decides how to
+   * execute it (fetch, XHR, node http, etc.).
+   *
+   * - For `GET` requests the response body text is returned.
+   * - For `POST` requests the return value is void (fire-and-forget).
    */
-  transport: {
-    /**
-     * Standard `fetch` for sending event data.
-     */
-    fetch: typeof globalThis.fetch;
-    /**
-     * Fire-and-forget transport for unload beacons. Falls back to `fetch`
-     * with `keepalive: true` when not provided.
-     */
-    sendBeacon?: (url: string, data: BodyInit) => boolean;
-    /**
-     * Synchronous XMLHttpRequest for ping requests. Falls back to a
-     * dynamic `new XMLHttpRequest()` when not provided.
-     */
-    xmlHttpRequest?: () => XMLHttpRequest;
-  };
+  send: (url: string, options: SendOptions) => Promise<string | void>;
 
   /**
-   * Read-only environment information about the current page/session.
-   * Values are accessed lazily (getters) so they reflect the latest state.
+   * Returns a snapshot of the current environment context used to
+   * enrich tracked events.
    */
-  environment: {
-    /** The IANA time zone of the user, e.g. `"Europe/London"`. */
-    timezone: string;
-    /** The raw User-Agent string. */
-    userAgent: string;
-    /** The document referrer (the page that linked here). */
-    referrer: string;
-    /** The current page URL components. */
-    location: { host: string; hostname: string; pathname: string; href: string };
-  };
+  context: () => EnvironmentContext;
 
   /**
    * Lifecycle hooks let the tracker listen to page/session events
@@ -50,7 +30,7 @@ export interface RuntimeAdapter {
    */
   hooks: {
     /**
-     * Fires when the page is being unloaded (pagehide / beforeunload / unload).
+     * Fires when the current session should end (page unload, tab close).
      * The tracker uses this to send final beacons.
      */
     onUnload: (fn: () => void) => () => void;
@@ -60,23 +40,41 @@ export interface RuntimeAdapter {
      */
     onVisibilityChange: (fn: (hidden: boolean) => void) => () => void;
     /**
-     * Fires on any user interaction (mousedown, keydown, touchstart).
-     * The tracker uses this to reset the session timeout.
+     * Fires on any user interaction. The tracker uses this to reset the
+     * session timeout.
      */
     onInteract: (fn: () => void) => () => void;
     /**
      * Fires when navigation occurs (popstate, hashchange, or wrapped
-     * pushState/replaceState). The callback receives the new URL.
+     * pushState). The callback receives the new URL.
      */
     onNavigate: (fn: (url: string) => void) => () => void;
   };
+}
 
-  /**
-   * Updates the current URL. How the URL is reflected depends on the
-   * runtime: in a browser this calls `history.pushState` or sets
-   * `location.hash`; in other runtimes it may be a no-op.
-   */
-  navigate: (url: string) => void;
+/**
+ * Options passed to {@link RuntimeAdapter.send}.
+ */
+export interface SendOptions {
+  method: 'GET' | 'POST';
+  body?: string;
+  mode?: 'no-cors' | 'cors' | 'same-origin';
+  keepalive?: boolean;
+}
+
+/**
+ * The environment context returned by {@link RuntimeAdapter.context}. All
+ * values represent a point-in-time snapshot of the current environment.
+ */
+export interface EnvironmentContext {
+  /** The IANA time zone of the user, e.g. `"Europe/London"`. */
+  timeZone: string;
+  /** The raw User-Agent string. */
+  userAgent: string;
+  /** The document referrer (the page that linked here). */
+  referrer: string;
+  /** The current page URL components. */
+  location: { host: string; hostname: string; pathname: string; href: string };
 }
 
 /**
@@ -95,8 +93,8 @@ export interface BrowserAdapterOptions {
 /**
  * Creates a `RuntimeAdapter` for the browser environment.
  *
- * Wraps `history.pushState` / `history.replaceState` so that SPA
- * navigation via the History API is captured through `onNavigate`.
+ * Wraps `history.pushState` so that SPA navigation via the History API
+ * is captured through `onNavigate`.
  *
  * The wrapping only happens once — the original functions are saved
  * and all subsequent adapter instances share the same wrapper.
@@ -105,13 +103,11 @@ export interface BrowserAdapterOptions {
  * @returns A fully configured browser adapter.
  */
 let historyWrapped = false;
-let globalOnNavigate: ((url: string) => void) | null = null;
-let globalIsInternalNav = false;
+let globalOnNavigateListeners: Set<(url: string) => void> = new Set();
 
 export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAdapter => {
   if (!historyWrapped) {
     const originalPushState = history.pushState.bind(history);
-    const originalReplaceState = history.replaceState.bind(history);
 
     const wrapHistory = (original: typeof originalPushState) => {
       return function (
@@ -122,42 +118,55 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
         ...rest: unknown[]
       ) {
         Reflect.apply(original, this, [state, unused, url, ...rest]);
-        if (!globalIsInternalNav && globalOnNavigate) {
-          globalOnNavigate(location.href);
+        for (const listener of globalOnNavigateListeners) {
+          listener(location.href);
         }
       };
     };
 
     history.pushState = wrapHistory(originalPushState);
-    history.replaceState = wrapHistory(originalReplaceState);
     historyWrapped = true;
   }
 
   return {
-    transport: {
-      fetch: globalThis.fetch.bind(globalThis),
-      sendBeacon: navigator.sendBeacon?.bind(navigator),
+    send: (url, opts) => {
+      if (opts.method === 'GET') {
+        return new Promise((resolve) => {
+          const xhr = new XMLHttpRequest();
+          xhr.addEventListener('load', () => resolve(xhr.responseText));
+          xhr.addEventListener('error', () => resolve(''));
+          xhr.open('GET', url);
+          xhr.send();
+        });
+      }
+
+      if (opts.keepalive && navigator.sendBeacon) {
+        navigator.sendBeacon(url, opts.body ?? '');
+        return Promise.resolve();
+      }
+
+      return globalThis
+        .fetch(url, {
+          method: 'POST',
+          body: opts.body,
+          keepalive: opts.keepalive,
+          mode: opts.mode,
+        } as RequestInit)
+        .then(() => {})
+        .catch(() => {});
     },
 
-    environment: {
-      get timezone() {
-        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    context: () => ({
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      userAgent: navigator.userAgent,
+      referrer: document.referrer,
+      location: {
+        host: location.host,
+        hostname: location.hostname,
+        pathname: location.pathname,
+        href: location.href,
       },
-      get userAgent() {
-        return navigator.userAgent;
-      },
-      get referrer() {
-        return document.referrer;
-      },
-      get location() {
-        return {
-          host: location.host,
-          hostname: location.hostname,
-          pathname: location.pathname,
-          href: location.href,
-        };
-      },
-    },
+    }),
 
     hooks: {
       onUnload: (fn) => {
@@ -186,34 +195,22 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
       },
 
       onNavigate: (fn) => {
-        globalOnNavigate = fn;
-        const onPopState = () => fn(location.href);
-        addEventListener('popstate', onPopState);
         if (options?.mode === 'hash') {
-          addEventListener('hashchange', onPopState);
+          const onHashChange = () => fn(location.href);
+          addEventListener('hashchange', onHashChange);
           return () => {
-            globalOnNavigate = null;
-            removeEventListener('popstate', onPopState);
-            removeEventListener('hashchange', onPopState);
+            removeEventListener('hashchange', onHashChange);
           };
         }
+
+        globalOnNavigateListeners.add(fn);
+        const onPopState = () => fn(location.href);
+        addEventListener('popstate', onPopState);
         return () => {
-          globalOnNavigate = null;
+          globalOnNavigateListeners.delete(fn);
           removeEventListener('popstate', onPopState);
         };
       },
-    },
-
-    navigate: (url) => {
-      if (options?.mode === 'hash') {
-        globalIsInternalNav = true;
-        location.hash = url;
-        globalIsInternalNav = false;
-      } else {
-        globalIsInternalNav = true;
-        history.pushState(null, '', url);
-        globalIsInternalNav = false;
-      }
     },
   };
 };

@@ -1,8 +1,8 @@
-export interface CountryTimezonesData {
+export interface CountryTimeZonesData {
   [country: string]: string[];
 }
 
-export const countryTimezones: CountryTimezonesData = {
+export const countryTimeZones: CountryTimeZonesData = {
   AD: ['Europe/Andorra'],
   AE: ['Asia/Dubai'],
   AF: ['Asia/Kabul'],

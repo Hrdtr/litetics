@@ -20,6 +20,11 @@ export interface EventData {
    */
   queryString: string | null;
   /**
+   * The hash fragment of the page URL (including the leading `#`).
+   * `null` when the page URL has no fragment identifier.
+   */
+  hash: string | null;
+  /**
    * Flag indicating if the user is unique.
    */
   isUniqueUser: boolean;
@@ -38,9 +43,9 @@ export interface EventData {
    */
   durationMs: number | null;
   /**
-   * The timezone of the user.
+   * The time zone of the user.
    */
-  timezone: string | null;
+  timeZone: string | null;
   /**
    * The country of the user.
    */

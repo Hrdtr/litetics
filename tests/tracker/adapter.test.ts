@@ -5,32 +5,67 @@ import { createBrowserAdapter } from '../../src/tracker/adapter';
 describe('createBrowserAdapter', () => {
   it('should return an adapter with all required properties', () => {
     const adapter = createBrowserAdapter();
-    expect(adapter).toHaveProperty('transport');
-    expect(adapter).toHaveProperty('environment');
+    expect(adapter).toHaveProperty('send');
+    expect(adapter).toHaveProperty('context');
     expect(adapter).toHaveProperty('hooks');
-    expect(adapter).toHaveProperty('navigate');
-    expect(adapter.transport.fetch).toBeTypeOf('function');
+    expect(adapter.send).toBeTypeOf('function');
+    expect(adapter.context).toBeTypeOf('function');
   });
 
-  it('should provide environment getters', () => {
+  it('should provide environment context', () => {
     const adapter = createBrowserAdapter();
-    expect(adapter.environment.timezone).toBeTypeOf('string');
-    expect(adapter.environment.userAgent).toBeTypeOf('string');
-    expect(adapter.environment.referrer).toBeTypeOf('string');
-    const loc = adapter.environment.location;
-    expect(loc).toHaveProperty('host');
-    expect(loc).toHaveProperty('hostname');
-    expect(loc).toHaveProperty('pathname');
-    expect(loc).toHaveProperty('href');
+    const ctx = adapter.context();
+    expect(ctx.timeZone).toBeTypeOf('string');
+    expect(ctx.userAgent).toBeTypeOf('string');
+    expect(ctx.referrer).toBeTypeOf('string');
+    expect(ctx.location).toHaveProperty('host');
+    expect(ctx.location).toHaveProperty('hostname');
+    expect(ctx.location).toHaveProperty('pathname');
+    expect(ctx.location).toHaveProperty('href');
   });
 
-  it('should have optional transport methods', () => {
+  it('should provide send method', () => {
     const adapter = createBrowserAdapter();
-    // sendBeacon is optional — may be undefined in non-browser or test environments
-    expect(
-      adapter.transport.sendBeacon === undefined ||
-        typeof adapter.transport.sendBeacon === 'function',
-    ).toBe(true);
+    expect(adapter.send).toBeTypeOf('function');
+  });
+
+  it('send should resolve empty string on XHR error', async () => {
+    const OrigXHR = globalThis.XMLHttpRequest;
+    let triggerError: (() => void) | null = null;
+
+    class MockXHR {
+      responseText = '';
+      addEventListener(type: string, fn: EventListener) {
+        if (type === 'error') {
+          triggerError = fn as () => void;
+        }
+      }
+      open() {}
+      setRequestHeader() {}
+      send() {}
+    }
+
+    globalThis.XMLHttpRequest = MockXHR as unknown as typeof XMLHttpRequest;
+
+    const adapter = createBrowserAdapter();
+    const promise = adapter.send('http://x.com', { method: 'GET' }) as Promise<string>;
+
+    triggerError!();
+    expect(await promise).toBe('');
+
+    globalThis.XMLHttpRequest = OrigXHR;
+  });
+
+  it('send should use empty string body fallback for keepalive', () => {
+    const sendBeaconSpy = vi.fn();
+    Object.defineProperty(navigator, 'sendBeacon', {
+      writable: true,
+      configurable: true,
+      value: sendBeaconSpy,
+    });
+    const adapter = createBrowserAdapter();
+    adapter.send('http://x.com', { method: 'POST', keepalive: true, body: undefined });
+    expect(sendBeaconSpy).toHaveBeenCalledWith('http://x.com', '');
   });
 });
 
@@ -90,27 +125,26 @@ describe('hash mode', () => {
     expect(fn).toHaveBeenCalledTimes(1);
     unsub();
   });
-
-  it('navigate should set location.hash in hash mode', () => {
-    const adapter = createBrowserAdapter({ mode: 'hash' });
-    adapter.navigate('/test');
-    expect(location.hash).toBe('#/test');
-  });
 });
 
-describe('navigate', () => {
-  it('should push state in history mode', () => {
-    const adapter = createBrowserAdapter();
-    const original = history.length;
-    adapter.navigate('/test-nav');
-    expect(history.length).toBe(original + 1);
-  });
-
-  it('wrapped pushState should fire onNavigate', () => {
+describe('wrapped pushState', () => {
+  it('should fire onNavigate', () => {
     const adapter = createBrowserAdapter();
     const fn = vi.fn();
     adapter.hooks.onNavigate(fn);
     history.pushState(null, '', '/wrapped-test');
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('fetch fallback', () => {
+  it('should catch fetch rejection gracefully', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network error'));
+    const adapter = createBrowserAdapter();
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: undefined });
+
+    const result = adapter.send('http://x.com', { method: 'POST', body: '{}' });
+    await expect(result).resolves.toBeUndefined();
+    fetchSpy.mockRestore();
   });
 });

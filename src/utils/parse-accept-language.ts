@@ -49,7 +49,7 @@ export function parseAcceptLanguage(acceptLanguage: string): ParsedAcceptLanguag
     }
 
     const isValidCode = /^[A-Za-z]{2,3}$/.test(code) || code === '*';
-    const isValidRegion = !region || /^[A-Za-z]{2}$/.test(region);
+    const isValidRegion = !region || /^[A-Za-z]{2}$/.test(region) || /^\d{3}$/.test(region);
     const isValidScript = !script || /^[A-Za-z]{4}$/.test(script);
     if (!isValidCode || !isValidRegion || !isValidScript) {
       continue;

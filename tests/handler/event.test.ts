@@ -1,20 +1,23 @@
-import type { EventHandlerLoadRequestBody, EventHandlerUnloadRequestBody } from '../../src';
+import type {
+  EventRequestHandlerLoadRequestBody,
+  EventRequestHandlerUnloadRequestBody,
+} from '../../src';
 // @vitest-environment node
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { createEventHandler } from '../../src';
+import { createLitetics } from '../../src';
 
 const mockPersist = vi.fn();
 const mockUpdate = vi.fn();
-const eventHandler = createEventHandler({ persist: mockPersist, update: mockUpdate });
+const { handleEventRequest } = createLitetics({ persist: mockPersist, update: mockUpdate });
 
-describe('handler:event', () => {
+describe('Litetics (events)', () => {
   describe('load event', () => {
     beforeEach(() => {
       mockPersist.mockClear();
     });
 
     it('should return parsed data for a valid load event', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com/path?utm_source=test',
@@ -26,7 +29,9 @@ describe('handler:event', () => {
         d: { customKey: 'customValue' },
       };
 
-      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi
+        .fn<() => EventRequestHandlerLoadRequestBody>()
+        .mockResolvedValue(body);
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
@@ -45,7 +50,7 @@ describe('handler:event', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -59,7 +64,7 @@ describe('handler:event', () => {
           isUniquePage: false,
           type: 'pageview',
           durationMs: null,
-          timezone: 'Europe/London',
+          timeZone: 'Europe/London',
           country: 'GB',
           referrer: 'https://referrer.com',
           acceptLanguage: 'en-US,en;q=0.9',
@@ -110,7 +115,7 @@ describe('handler:event', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -124,7 +129,7 @@ describe('handler:event', () => {
           isUniquePage: false,
           type: 'pageview',
           durationMs: null,
-          timezone: 'Europe/London',
+          timeZone: 'Europe/London',
           country: 'GB',
           referrer: 'https://referrer.com',
           acceptLanguage: 'en-US,en;q=0.9',
@@ -158,8 +163,10 @@ describe('handler:event', () => {
       };
 
       const getRequestBody = vi
-        .fn<() => EventHandlerLoadRequestBody>()
-        .mockResolvedValue(JSON.stringify(body).slice(1) as unknown as EventHandlerLoadRequestBody);
+        .fn<() => EventRequestHandlerLoadRequestBody>()
+        .mockResolvedValue(
+          JSON.stringify(body).slice(1) as unknown as EventRequestHandlerLoadRequestBody,
+        );
       const getRequestHeader = vi.fn((name) => {
         switch (name) {
           case 'accept-language': {
@@ -174,12 +181,12 @@ describe('handler:event', () => {
         }
       });
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
       expect(mockPersist).toBeCalledTimes(0);
     });
 
     it('should not call persist when `u` body parameter is not valid url', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'example/path?utm_source=test',
@@ -196,12 +203,12 @@ describe('handler:event', () => {
         body: JSON.stringify(body),
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
       expect(mockPersist).toBeCalledTimes(0);
     });
 
     it('should handle missing referrer URL', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com',
@@ -210,14 +217,16 @@ describe('handler:event', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi
+        .fn<() => EventRequestHandlerLoadRequestBody>()
+        .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
       const receivedAt = new Date(1998, 11, 19);
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -231,7 +240,7 @@ describe('handler:event', () => {
           isUniquePage: true,
           type: 'pageview',
           durationMs: null,
-          timezone: null,
+          timeZone: null,
           country: null,
           referrer: null,
           acceptLanguage: null,
@@ -247,7 +256,7 @@ describe('handler:event', () => {
     });
 
     it('should handle invalid URL in referrer', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com',
@@ -261,7 +270,7 @@ describe('handler:event', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await handleEventRequest({
         requestBody: body,
         requestHeaders: {},
       });
@@ -278,7 +287,7 @@ describe('handler:event', () => {
           isUniquePage: true,
           type: 'pageview',
           durationMs: null,
-          timezone: null,
+          timeZone: null,
           country: null,
           referrer: null,
           acceptLanguage: null,
@@ -295,7 +304,7 @@ describe('handler:event', () => {
     });
 
     it('should not call persist if user-agent indicates a bot for load event', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com',
@@ -312,13 +321,13 @@ describe('handler:event', () => {
         }),
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
 
       expect(mockPersist).toBeCalledTimes(0);
     });
 
     it('should not call persist when body.u is empty', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'id',
         u: '',
@@ -327,10 +336,12 @@ describe('handler:event', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi
+        .fn<() => EventRequestHandlerLoadRequestBody>()
+        .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -338,9 +349,12 @@ describe('handler:event', () => {
     it('should handle async persist', async () => {
       const asyncPersist = vi.fn().mockResolvedValue(undefined);
       const asyncUpdate = vi.fn().mockResolvedValue(undefined);
-      const handler = createEventHandler({ persist: asyncPersist, update: asyncUpdate });
+      const { handleEventRequest: asyncHandleEventRequest } = createLitetics({
+        persist: asyncPersist,
+        update: asyncUpdate,
+      });
 
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com',
@@ -349,14 +363,16 @@ describe('handler:event', () => {
         a: 'pageview',
       };
 
-      const getRequestBody = vi.fn<() => EventHandlerLoadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi
+        .fn<() => EventRequestHandlerLoadRequestBody>()
+        .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
       const receivedAt = new Date(1998, 11, 19);
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handler.track({ getRequestBody, getRequestHeader });
+      await asyncHandleEventRequest({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(asyncPersist).toBeCalledTimes(1);
@@ -370,16 +386,18 @@ describe('handler:event', () => {
     });
 
     it('should return parsed data for a valid unload event', async () => {
-      const body: EventHandlerUnloadRequestBody = {
+      const body: EventRequestHandlerUnloadRequestBody = {
         e: 'unload',
         b: 'test-beacon-id',
         m: 1234,
       };
 
-      const getRequestBody = vi.fn<() => EventHandlerUnloadRequestBody>().mockResolvedValue(body);
+      const getRequestBody = vi
+        .fn<() => EventRequestHandlerUnloadRequestBody>()
+        .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -388,7 +406,7 @@ describe('handler:event', () => {
     });
 
     it('should not call persist if user-agent indicates a bot', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'test-beacon-id',
         u: 'https://example.com',
@@ -405,7 +423,7 @@ describe('handler:event', () => {
         }),
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -419,13 +437,13 @@ describe('handler:event', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await handleEventRequest({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
 
     it('should handle unload event via Request object', async () => {
-      const body: EventHandlerUnloadRequestBody = {
+      const body: EventRequestHandlerUnloadRequestBody = {
         e: 'unload',
         b: 'test-beacon-id',
         m: 5678,
@@ -436,7 +454,7 @@ describe('handler:event', () => {
         body: JSON.stringify(body),
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -447,7 +465,7 @@ describe('handler:event', () => {
 
   describe('case-insensitive headers', () => {
     it('should detect bot with upper-case User-Agent header via payload', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'case-bot',
         u: 'https://example.com',
@@ -456,7 +474,7 @@ describe('handler:event', () => {
         a: 'pageview',
       };
 
-      await eventHandler.track({
+      await handleEventRequest({
         requestBody: body,
         requestHeaders: { 'USER-AGENT': 'Googlebot/2.1' },
       });
@@ -478,7 +496,7 @@ describe('handler:event', () => {
         headers: { 'USER-AGENT': 'Googlebot/2.1' },
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
 
       const botCall = mockPersist.mock.calls.find(
         (args) => (args[0] as Record<string, unknown>).bid === 'req-bot',
@@ -487,7 +505,7 @@ describe('handler:event', () => {
     });
 
     it('should detect bot with upper-case User-Agent header via getter options', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'opt-bot',
         u: 'https://example.com',
@@ -501,7 +519,7 @@ describe('handler:event', () => {
         return undefined;
       });
 
-      await eventHandler.track({
+      await handleEventRequest({
         getRequestBody: vi.fn().mockResolvedValue(body),
         getRequestHeader,
       });
@@ -513,7 +531,7 @@ describe('handler:event', () => {
     });
 
     it('should read accept-language with mixed-case key via payload', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'case-lang',
         u: 'https://example.com',
@@ -526,7 +544,7 @@ describe('handler:event', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await handleEventRequest({
         requestBody: body,
         requestHeaders: { 'Accept-Language': 'de-DE,de;q=0.9' },
       });
@@ -560,7 +578,7 @@ describe('handler:event', () => {
         headers: { 'ACCEPT-LANGUAGE': 'ja-JP,ja;q=0.9' },
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
       vi.useRealTimers();
 
       const call = mockPersist.mock.calls.find(
@@ -573,7 +591,7 @@ describe('handler:event', () => {
     });
 
     it('should read accept-language with mixed-case key via getter options', async () => {
-      const body: EventHandlerLoadRequestBody = {
+      const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
         b: 'opt-lang',
         u: 'https://example.com',
@@ -586,7 +604,7 @@ describe('handler:event', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await handleEventRequest({
         getRequestBody: vi.fn().mockResolvedValue(body),
         getRequestHeader: vi.fn((name: string) => {
           if (name.toLowerCase() === 'accept-language') return 'ko-KR,ko;q=0.8';
@@ -609,7 +627,7 @@ describe('handler:event', () => {
   describe('debug mode', () => {
     it('should log bot detection when debug is enabled', async () => {
       const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-      const handler = createEventHandler({
+      const { handleEventRequest: debugHandleEventRequest } = createLitetics({
         persist: mockPersist,
         update: mockUpdate,
         debug: true,
@@ -628,7 +646,7 @@ describe('handler:event', () => {
         headers: { 'user-agent': 'Googlebot/2.1' },
       });
 
-      await handler.track(request);
+      await debugHandleEventRequest(request);
 
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
@@ -644,9 +662,20 @@ describe('handler:event', () => {
         body: 'plain text body, not json',
       });
 
-      await eventHandler.track(request);
+      await handleEventRequest(request);
 
-      // Body can't be parsed as JSON, so persist should not be called again
+      expect(mockPersist.mock.calls.length).toBe(persistCount);
+    });
+
+    it('should handle JSON array body via Request object', async () => {
+      const persistCount = mockPersist.mock.calls.length;
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify([1, 2, 3]),
+      });
+
+      await handleEventRequest(request);
+
       expect(mockPersist.mock.calls.length).toBe(persistCount);
     });
   });

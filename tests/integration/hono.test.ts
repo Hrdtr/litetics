@@ -2,25 +2,24 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import { createEventHandler, createPingHandler, createPingResponse } from '../../src';
+import { createLitetics, createPingResponse } from '../../src';
 
-describe('tracker → hono → handler', () => {
+describe('handler via getter options', () => {
   const persist = vi.fn();
   const update = vi.fn();
-  const eventHandler = createEventHandler({ persist, update });
-  const pingHandler = createPingHandler();
+  const { handleEventRequest, handlePingRequest } = createLitetics({ persist, update });
 
   const app = new Hono();
 
   app.get('/ping', async (c) => {
-    const result = await pingHandler.process({
+    const result = await handlePingRequest({
       requestHeaders: { 'If-Modified-Since': c.req.header('If-Modified-Since') },
     });
     return createPingResponse(result);
   });
 
   app.post('/event', async (c) => {
-    await eventHandler.track({
+    await handleEventRequest({
       requestBody: await c.req.json(),
       requestHeaders: {
         'User-Agent': c.req.header('User-Agent'),
@@ -58,7 +57,7 @@ describe('tracker → hono → handler', () => {
     expect(await res.text()).toBe('0');
   });
 
-  it('should process a load event via hono', async () => {
+  it('should process a load event', async () => {
     const res = await fetch(`${baseUrl}/event`, {
       method: 'POST',
       body: JSON.stringify({
@@ -125,19 +124,15 @@ describe('tracker → hono → handler', () => {
   });
 });
 
-describe('handler with raw Request', () => {
+describe('handler via raw Request', () => {
   const persist = vi.fn();
   const update = vi.fn();
-  const eventHandler = createEventHandler({ persist, update });
-  const pingHandler = createPingHandler();
+  const { handleEventRequest, handlePingRequest } = createLitetics({ persist, update });
 
   const app = new Hono();
 
-  // These routes pass the raw Web API Request object directly to the handler
-  // without using any hono helpers (c.req.header, c.req.json, etc.).
-  // The handler must extract everything from the Request itself.
-  app.get('/ping', (c) => pingHandler.process(c.req.raw).then(createPingResponse));
-  app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+  app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
+  app.post('/event', (c) => handleEventRequest(c.req.raw).then(() => c.body(null, 204)));
 
   let baseUrl: string;
   let closeServer: () => void;
@@ -167,7 +162,7 @@ describe('handler with raw Request', () => {
       method: 'POST',
       body: JSON.stringify({
         e: 'load',
-        b: 'raw2-bid',
+        b: 'raw-bid',
         u: 'https://example.com/raw-test',
         p: true,
         q: true,
@@ -183,7 +178,7 @@ describe('handler with raw Request', () => {
     expect(res.status).toBe(204);
 
     const call = persist.mock.calls.find(
-      (args) => (args[0] as Record<string, unknown>).bid === 'raw2-bid',
+      (args) => (args[0] as Record<string, unknown>).bid === 'raw-bid',
     );
     expect(call).toBeDefined();
     const data = call![0] as Record<string, unknown>;
@@ -191,7 +186,7 @@ describe('handler with raw Request', () => {
       host: 'example.com',
       path: '/raw-test',
       type: 'pageview',
-      timezone: 'Europe/London',
+      timeZone: 'Europe/London',
       country: 'GB',
     });
     expect(data.languageCode).toBe('fr');
@@ -261,7 +256,6 @@ describe('handler with raw Request', () => {
       },
     });
     expect(res.status).toBe(204);
-    // persist should not be called for unknown events
     expect(persist.mock.calls.length).toBe(persistCount);
   });
 
