@@ -170,13 +170,19 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
 
     hooks: {
       onUnload: (fn) => {
-        addEventListener('pagehide', fn);
-        addEventListener('beforeunload', fn);
-        addEventListener('unload', fn);
+        let fired = false;
+        const once = () => {
+          if (fired) return;
+          fired = true;
+          fn();
+        };
+        addEventListener('pagehide', once);
+        addEventListener('beforeunload', once);
+        addEventListener('unload', once);
         return () => {
-          removeEventListener('pagehide', fn);
-          removeEventListener('beforeunload', fn);
-          removeEventListener('unload', fn);
+          removeEventListener('pagehide', once);
+          removeEventListener('beforeunload', once);
+          removeEventListener('unload', once);
         };
       },
 

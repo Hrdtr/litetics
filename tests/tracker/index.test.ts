@@ -55,7 +55,11 @@ describe('register', () => {
 
   it('should fallback to fetch when sendBeacon is unavailable', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
+    const originalSendBeacon = navigator.sendBeacon;
     Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: undefined });
+    destroyFns.push(() => {
+      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
+    });
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
     }).register();
@@ -70,7 +74,11 @@ describe('register', () => {
   it('should send events correctly', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     const sendBeaconMock = vi.fn();
+    const originalSendBeacon = navigator.sendBeacon;
     Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    destroyFns.push(() => {
+      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
+    });
     const destroy1 = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
     }).register();
@@ -87,7 +95,13 @@ describe('register', () => {
     destroyFns.push(destroy2);
     await settle();
     expect(fetchSpy).toHaveBeenCalledTimes(2); // +1 register load
+    const originalHiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    destroyFns.push(() => {
+      if (originalHiddenDescriptor) {
+        Object.defineProperty(document, 'hidden', originalHiddenDescriptor);
+      }
+    });
     window.dispatchEvent(new Event('visibilitychange'));
     expect(sendBeaconMock).toHaveBeenCalledTimes(2); // unload event should be sent
 
@@ -109,7 +123,11 @@ describe('register', () => {
   it('should not trigger unload on visibility change to visible', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
     const sendBeaconMock = vi.fn();
+    const originalSendBeacon = navigator.sendBeacon;
     Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    destroyFns.push(() => {
+      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
+    });
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
     }).register();
@@ -118,7 +136,13 @@ describe('register', () => {
     fetchSpy.mockClear();
     sendBeaconMock.mockClear();
 
+    const originalHiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    destroyFns.push(() => {
+      if (originalHiddenDescriptor) {
+        Object.defineProperty(document, 'hidden', originalHiddenDescriptor);
+      }
+    });
     window.dispatchEvent(new Event('visibilitychange'));
     await settle();
     expect(sendBeaconMock).toHaveBeenCalledTimes(0);
@@ -126,6 +150,12 @@ describe('register', () => {
 
   it('should send load event on hashchange in hash mode', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
+    const sendBeaconMock = vi.fn();
+    const originalSendBeacon = navigator.sendBeacon;
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    destroyFns.push(() => {
+      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
+    });
     const adapter = createBrowserAdapter({ mode: 'hash' });
     const destroy = createTracker({
       apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
@@ -167,6 +197,29 @@ describe('register', () => {
     const loadEvents = bodies.filter((b) => b.e === 'load');
     // The last load event after popstate should have p=false
     expect(loadEvents[loadEvents.length - 1].p).toBe(false);
+  });
+
+  it('should fire unload callback only once across multiple unload events', async () => {
+    const sendBeaconMock = vi.fn();
+    const originalSendBeacon = navigator.sendBeacon;
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: sendBeaconMock });
+    destroyFns.push(() => {
+      Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
+    });
+
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+    }).register();
+    destroyFns.push(destroy);
+    await settle();
+    sendBeaconMock.mockClear();
+
+    // Dispatch multiple overlapping unload events — only the first should trigger sendBeacon
+    window.dispatchEvent(new Event('pagehide'));
+    window.dispatchEvent(new Event('beforeunload'));
+    window.dispatchEvent(new Event('unload'));
+
+    expect(sendBeaconMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -227,12 +280,17 @@ describe('trackEndOf', () => {
 });
 
 describe('sessionTimeoutDuration', () => {
+  let originalSendBeacon: typeof navigator.sendBeacon;
+
   beforeEach(() => {
     vi.useFakeTimers();
+    originalSendBeacon = navigator.sendBeacon;
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: vi.fn() });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: originalSendBeacon });
   });
 
   it('should end session and start a new one when timeout fires', async () => {
@@ -267,8 +325,12 @@ describe('sessionTimeoutDuration', () => {
     }).register();
     await vi.advanceTimersByTimeAsync(50);
 
+    const originalHiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
     window.dispatchEvent(new Event('visibilitychange'));
+    if (originalHiddenDescriptor) {
+      Object.defineProperty(document, 'hidden', originalHiddenDescriptor);
+    }
     await vi.advanceTimersByTimeAsync(100);
 
     // Timer was reset by visibility change to visible, so timeout hasn't fired yet
