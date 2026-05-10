@@ -1,6 +1,23 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createBrowserAdapter } from '../../src/tracker/adapter';
+
+const originalXHR = globalThis.XMLHttpRequest;
+const originalSendBeacon = navigator.sendBeacon;
+const originalDocumentDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  globalThis.XMLHttpRequest = originalXHR;
+  Object.defineProperty(navigator, 'sendBeacon', {
+    configurable: true,
+    writable: true,
+    value: originalSendBeacon,
+  });
+  if (originalDocumentDescriptor) {
+    Object.defineProperty(document, 'hidden', originalDocumentDescriptor);
+  }
+});
 
 describe('createBrowserAdapter', () => {
   it('should return an adapter with all required properties', () => {
@@ -30,7 +47,6 @@ describe('createBrowserAdapter', () => {
   });
 
   it('send should resolve empty string on XHR error', async () => {
-    const OrigXHR = globalThis.XMLHttpRequest;
     let triggerError: (() => void) | null = null;
 
     class MockXHR {
@@ -45,15 +61,17 @@ describe('createBrowserAdapter', () => {
       send() {}
     }
 
-    globalThis.XMLHttpRequest = MockXHR as unknown as typeof XMLHttpRequest;
+    try {
+      globalThis.XMLHttpRequest = MockXHR as unknown as typeof XMLHttpRequest;
 
-    const adapter = createBrowserAdapter();
-    const promise = adapter.send('http://x.com', { method: 'GET' }) as Promise<string>;
+      const adapter = createBrowserAdapter();
+      const promise = adapter.send('http://x.com', { method: 'GET' }) as Promise<string>;
 
-    triggerError!();
-    expect(await promise).toBe('');
-
-    globalThis.XMLHttpRequest = OrigXHR;
+      triggerError!();
+      expect(await promise).toBe('');
+    } finally {
+      globalThis.XMLHttpRequest = originalXHR;
+    }
   });
 
   it('send should use empty string body fallback for keepalive', () => {

@@ -10,6 +10,11 @@ const mockPersist = vi.fn();
 const mockUpdate = vi.fn();
 const { handleEventRequest } = createLitetics({ persist: mockPersist, update: mockUpdate });
 
+beforeEach(() => {
+  mockPersist.mockClear();
+  mockUpdate.mockClear();
+});
+
 describe('Litetics (events)', () => {
   describe('load event', () => {
     beforeEach(() => {
