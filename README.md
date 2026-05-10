@@ -1,4 +1,4 @@
-# Litetics (WIP)
+# Litetics
 
 <!-- automd:badges color=yellow -->
 
@@ -7,11 +7,16 @@
 
 <!-- /automd -->
 
-Embeddable javascript analytics event tracking library.
+Embeddable JavaScript analytics event tracking library. Server handlers for any JS runtime. Browser tracker with SPA support, session management, and automatic event enrichment.
 
-## Usage
+## Packages
 
-Install package:
+| Entry              | Purpose                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `litetics`         | Server-side event and ping handler. Parses user-agent, referrer, Accept-Language, UTM params. Bot filtering. |
+| `litetics/tracker` | Browser tracker. Pageview lifecycle, SPA navigation, custom events, session timeouts, unload beacons.        |
+
+## Install
 
 <!-- automd:pm-install -->
 
@@ -26,42 +31,143 @@ npm install litetics
 yarn add litetics
 
 # pnpm
-pnpm install litetics
+pnpm add litetics
 
 # bun
 bun install litetics
 
 # deno
-deno install litetics
+deno install npm:litetics
 ```
 
 <!-- /automd -->
 
-Mounting the event handlers to the api server:
+## Quick Start
+
+### Server (Hono)
 
 ```ts
-// TODO
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { createLitetics, createPingResponse } from 'litetics';
+
+const events = [];
+
+const { handleEventRequest, handlePingRequest } = createLitetics({
+  persist: (data) => {
+    events.push(data);
+  },
+  update: ({ bid, durationMs }) => {
+    const event = events.find((e) => e.bid === bid);
+    if (event) event.durationMs = durationMs;
+  },
+});
+
+const app = new Hono();
+
+app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
+app.post('/event', async (c) => {
+  await handleEventRequest(c.req.raw);
+  return c.body(null, 204);
+});
+
+serve({ fetch: app.fetch, port: 3000 });
 ```
 
-Register tracker in client:
+### Client (Browser)
 
-```js
-// TODO
+```ts
+import { createTracker } from 'litetics/tracker';
+
+const tracker = createTracker({
+  apiEndpoint: {
+    track: 'http://localhost:3000/event',
+    ping: 'http://localhost:3000/ping',
+  },
+});
+
+// Start tracking the current page
+const stop = tracker.register();
+
+// Track a custom event
+await tracker.track('signup_button', {
+  type: 'engagement',
+  label: 'hero-cta',
+});
+
+// Track with duration
+await tracker.track('video_play', { type: 'media' }, { withDuration: true });
+// ... later
+await tracker.trackEndOf('video_play');
 ```
+
+## API
+
+### `litetics` — Server Exports
+
+| Export                                           | Description                                                                                        |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `createLitetics(options)`                        | Creates a handler for pings, load, and unload events. Calls `persist` on load, `update` on unload. |
+| `createPingResponse(result)`                     | Converts a `PingRequestHandlerResult` into a `Response`.                                           |
+| `EventData` (type)                               | The full enriched event data object (50+ fields).                                                  |
+| `EventRequestHandlerOptions<TProperties>` (type) | Options for `createLitetics`.                                                                      |
+| `EventRequestHandlerParsers` (type)              | Overridable parser functions.                                                                      |
+| `EventRequestHandlerLoadRequestBody` (type)      | Shape of the load event POST body.                                                                 |
+| `EventRequestHandlerUnloadRequestBody` (type)    | Shape of the unload event POST body.                                                               |
+| `PingRequestHandlerResult` (type)                | Result of a ping request.                                                                          |
+| `EventRequestHandlerTrackOptions` (type)         | Getter-based track input.                                                                          |
+| `EventRequestHandlerTrackPayload` (type)         | Pre-resolved track input.                                                                          |
+
+### `litetics/tracker` — Client Exports
+
+| Export                           | Description                                                              |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| `createTracker(options)`         | Creates a tracker instance with `register()`, `track()`, `trackEndOf()`. |
+| `createBrowserAdapter(options?)` | Creates a `RuntimeAdapter` backed by browser APIs.                       |
+| `RuntimeAdapter` (type)          | Interface for custom runtime adapters.                                   |
+| `BrowserAdapterOptions` (type)   | Options for `createBrowserAdapter` (`mode: 'history' \| 'hash'`).        |
+| `CreateTrackerOptions` (type)    | Options for `createTracker`.                                             |
+| `AnalyticsEvent` (const)         | Event name constants: `{ LOAD: 'load', UNLOAD: 'unload' }`.              |
+
+### Tracker Instance
+
+```ts
+{
+  register: () => () => void;                                   // Start tracking, returns cleanup fn
+  track: (key: string, data: { type: string; [k: string]: Primitive }, options?: { withDuration?: boolean }) => Promise<void>;
+  trackEndOf: (key: string) => Promise<void>;                  // End a timed event
+}
+```
+
+## What Gets Parsed
+
+Every load event is automatically enriched with:
+
+| Category       | Source                   | Fields produced                                                                                                                                                     |
+| -------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Page**       | Body `u`                 | `host`, `path`, `queryString`, `hash`                                                                                                                               |
+| **User-Agent** | Header `User-Agent`      | `browserName`, `browserVersion`, `browserEngineName`, `browserEngineVersion`, `deviceType`, `deviceVendor`, `deviceModel`, `cpuArchitecture`, `osName`, `osVersion` |
+| **Referrer**   | Body `r`                 | `referrerHost`, `referrerPath`, `referrerQueryString`, `referrerKnown`, `referrerMedium`, `referrerName`, `referrerSearchParameter`, `referrerSearchTerm`           |
+| **Language**   | Header `Accept-Language` | `languageCode`, `languageScript`, `languageRegion`, `secondaryLanguageCode`, `secondaryLanguageScript`, `secondaryLanguageRegion`                                   |
+| **UTM**        | URL query params         | `utmCampaign`, `utmMedium`, `utmSource`, `utmTerm`, `utmContent`, `utmId`, `utmSourcePlatform`                                                                      |
+| **Location**   | Body `t`                 | `timeZone` → `country` (two-letter code)                                                                                                                            |
+| **Custom**     | Body `d`                 | `properties` (arbitrary key-value data)                                                                                                                             |
+
+## Documentation
+
+Full docs at [litetics.hrdtr.dev](https://litetics.hrdtr.dev) — architecture, complete API reference, integration guides, and playground.
 
 ## Development
 
-<details>
-
-<summary>local development</summary>
-
-- Clone this repository
-- Install latest LTS version of [Node.js](https://nodejs.org/en/)
-- Enable [Corepack](https://github.com/nodejs/corepack) using `corepack enable`
-- Install dependencies using `pnpm install`
-- Run interactive tests using `pnpm dev`
-
-</details>
+```sh
+pnpm install
+pnpm dev       # interactive tests (vitest dev)
+pnpm play      # playground server at localhost:3000
+pnpm test      # lint + typecheck + tests (123 tests, 100% coverage)
+pnpm lint      # oxlint
+pnpm typecheck # tsc --noEmit
+pnpm build     # unbuild
+```
 
 ## License
 

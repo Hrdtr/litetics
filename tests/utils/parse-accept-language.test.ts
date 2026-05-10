@@ -1,157 +1,83 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest'
-import { parseAcceptLanguage } from '../../src/utils/parse-accept-language'
+import { describe, it, expect } from 'vitest';
+import { parseAcceptLanguage } from '../../src/utils/parse-accept-language';
 
 describe('utils:parseAcceptLanguage', () => {
   it('should parse a single language tag without quality', () => {
-    const acceptLanguage = 'en-US'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'en',
-        script: null,
-        region: 'US',
-        quality: 1,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('en-US');
+    expect(result.languageCode).toBe('en');
+    expect(result.languageRegion).toBe('US');
+    expect(result.languageScript).toBeNull();
+    expect(result.secondaryLanguageCode).toBeNull();
+  });
 
   it('should parse multiple language tags without quality', () => {
-    const acceptLanguage = 'en-US,fr-CA'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'en',
-        script: null,
-        region: 'US',
-        quality: 1,
-      },
-      {
-        code: 'fr',
-        script: null,
-        region: 'CA',
-        quality: 1,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('en-US,fr-CA');
+    expect(result.languageCode).toBe('en');
+    expect(result.languageRegion).toBe('US');
+    expect(result.secondaryLanguageCode).toBe('fr');
+    expect(result.secondaryLanguageRegion).toBe('CA');
+  });
 
   it('should parse language tags with quality values', () => {
-    const acceptLanguage = 'en-US;q=0.8,fr-CA;q=0.9'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'fr',
-        script: null,
-        region: 'CA',
-        quality: 0.9,
-      },
-      {
-        code: 'en',
-        script: null,
-        region: 'US',
-        quality: 0.8,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('en-US;q=0.8,fr-CA;q=0.9');
+    // fr-CA has higher quality, so it's primary
+    expect(result.languageCode).toBe('fr');
+    expect(result.languageRegion).toBe('CA');
+    expect(result.secondaryLanguageCode).toBe('en');
+    expect(result.secondaryLanguageRegion).toBe('US');
+  });
 
   it('should parse language tags with script', () => {
-    const acceptLanguage = 'zh-Hant-CN'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'zh',
-        script: 'Hant',
-        region: 'CN',
-        quality: 1,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('zh-Hant-CN');
+    expect(result.languageCode).toBe('zh');
+    expect(result.languageScript).toBe('Hant');
+    expect(result.languageRegion).toBe('CN');
+  });
 
   it('should parse language tags with script without region', () => {
-    const acceptLanguage = 'zh-Hant'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'zh',
-        script: 'Hant',
-        region: null,
-        quality: 1,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('zh-Hant');
+    expect(result.languageCode).toBe('zh');
+    expect(result.languageScript).toBe('Hant');
+    expect(result.languageRegion).toBeNull();
+  });
 
   it('should handle invalid language tags gracefully', () => {
-    const acceptLanguage = 'invalid-language-tag'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([])
-  })
+    const result = parseAcceptLanguage('invalid-language-tag');
+    expect(result.languageCode).toBeNull();
+    expect(result.languageScript).toBeNull();
+    expect(result.languageRegion).toBeNull();
+  });
 
   it('should handle empty input gracefully', () => {
-    const acceptLanguage = ''
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([])
-  })
+    const result = parseAcceptLanguage('');
+    expect(result.languageCode).toBeNull();
+    expect(result.languageScript).toBeNull();
+    expect(result.languageRegion).toBeNull();
+    expect(result.secondaryLanguageCode).toBeNull();
+  });
 
   it('should handle mixed valid and invalid language tags', () => {
-    const acceptLanguage = 'en-US,invalid-language-tag,fr-CA;q=0.9'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'en',
-        region: 'US',
-        script: null,
-        quality: 1,
-      },
-      {
-        code: 'fr',
-        region: 'CA',
-        script: null,
-        quality: 0.9,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('en-US,invalid-language-tag,fr-CA;q=0.9');
+    expect(result.languageCode).toBe('en');
+    expect(result.languageRegion).toBe('US');
+    expect(result.secondaryLanguageCode).toBe('fr');
+    expect(result.secondaryLanguageRegion).toBe('CA');
+  });
 
   it('should parse wildcard language tags', () => {
-    const acceptLanguage = 'en-US,*;q=0.8'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'en',
-        script: null,
-        region: 'US',
-        quality: 1,
-      },
-      {
-        code: '*',
-        script: null,
-        region: null,
-        quality: 0.8,
-      },
-    ])
-  })
+    const result = parseAcceptLanguage('en-US,*;q=0.8');
+    expect(result.languageCode).toBe('en');
+    expect(result.languageRegion).toBe('US');
+    expect(result.secondaryLanguageCode).toBe('*');
+    expect(result.secondaryLanguageRegion).toBeNull();
+  });
 
   it('should sort languages by quality in descending order', () => {
-    const acceptLanguage = 'en-US;q=0.8,fr-CA;q=0.9,es-ES;q=0.7'
-    const result = parseAcceptLanguage(acceptLanguage)
-    expect(result).toEqual([
-      {
-        code: 'fr',
-        script: null,
-        region: 'CA',
-        quality: 0.9,
-      },
-      {
-        code: 'en',
-        script: null,
-        region: 'US',
-        quality: 0.8,
-      },
-      {
-        code: 'es',
-        script: null,
-        region: 'ES',
-        quality: 0.7,
-      },
-    ])
-  })
-})
+    const result = parseAcceptLanguage('en-US;q=0.8,fr-CA;q=0.9,es-ES;q=0.7');
+    expect(result.languageCode).toBe('fr');
+    expect(result.languageRegion).toBe('CA');
+    expect(result.secondaryLanguageCode).toBe('en');
+    expect(result.secondaryLanguageRegion).toBe('US');
+  });
+});

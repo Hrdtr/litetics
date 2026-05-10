@@ -2,8 +2,10 @@ node_modules
 coverage
 dist
 cache
-.husky
+.nuxt
+.output
+.husky/_
 .DS_Store
-.eslintcache
 *.log*
 *.env*
+local

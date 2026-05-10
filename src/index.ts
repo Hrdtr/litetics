@@ -1,2 +1,2 @@
-export type * from './types'
-export * from './handler'
+export type * from './types';
+export * from './handler';

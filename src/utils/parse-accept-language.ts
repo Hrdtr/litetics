@@ -1,60 +1,71 @@
-/**
- * Interface representing a language tag.
- */
 export interface ParsedAcceptLanguage {
-  /** The language code. */
-  code: string
-  /** The region code. */
-  region: string | null
-  /** The script code. */
-  script: string | null
-  /** The quality of the language tag. */
-  quality: number
+  languageCode: string | null;
+  languageScript: string | null;
+  languageRegion: string | null;
+  secondaryLanguageCode: string | null;
+  secondaryLanguageScript: string | null;
+  secondaryLanguageRegion: string | null;
 }
 
-/**
- * Parses the accept language header string and returns an array of language tags sorted by quality.
- *
- * @param {string} acceptLanguage - The accept language header string to parse.
- * @return {ParsedAcceptLanguage[]} An array of language tags sorted by quality.
- */
-export function parseAcceptLanguage(acceptLanguage: string): ParsedAcceptLanguage[] {
-  if (!acceptLanguage) return []
+interface LanguageTag {
+  code: string;
+  region: string | null;
+  script: string | null;
+  quality: number;
+}
 
-  return acceptLanguage.split(',').map((lang) => {
-    // Split the language tag by semicolon and get the code, region, and script
-    const parts = lang.trim().split(';')
-    const [codeRegionScript] = parts
+export function parseAcceptLanguage(acceptLanguage: string): ParsedAcceptLanguage {
+  if (!acceptLanguage) {
+    return {
+      languageCode: null,
+      languageScript: null,
+      languageRegion: null,
+      secondaryLanguageCode: null,
+      secondaryLanguageScript: null,
+      secondaryLanguageRegion: null,
+    };
+  }
 
-    const codeRegionScriptParts = codeRegionScript.split('-')
-    const code = codeRegionScriptParts[0]
-    let script = null
-    let region = null
-    const quality = parts[1] ? Number.parseFloat(parts[1].split('=')[1]) : 1
+  const tags: LanguageTag[] = [];
 
-    // Check if the language tag has region and script
+  for (const lang of acceptLanguage.split(',')) {
+    const parts = lang.trim().split(';');
+    const [codeRegionScript] = parts;
+
+    const codeRegionScriptParts = codeRegionScript.split('-');
+    const code = codeRegionScriptParts[0];
+    let script: string | null = null;
+    let region: string | null = null;
+    const quality = parts[1] ? Number.parseFloat(parts[1].split('=')[1]) : 1;
+
     if (codeRegionScriptParts.length === 3) {
-      [script, region] = codeRegionScriptParts.slice(1)
-    }
-    else if (codeRegionScriptParts.length === 2) {
+      [script, region] = codeRegionScriptParts.slice(1);
+    } else if (codeRegionScriptParts.length === 2) {
       if (codeRegionScriptParts[1].length === 4) {
-        script = codeRegionScriptParts[1]
-      }
-      else {
-        region = codeRegionScriptParts[1]
+        script = codeRegionScriptParts[1];
+      } else {
+        region = codeRegionScriptParts[1];
       }
     }
 
-    // Ensure code is valid
-    if (!/^[A-Za-z]{2,3}$/.test(code) && (code !== '*'
-      || (region && !/^[A-Za-z]{2}$/.test(region))
-      || (script && !/^[A-Za-z]{4}$/.test(script)))) {
-      return null
+    const isValidCode = /^[A-Za-z]{2,3}$/.test(code) || code === '*';
+    const isValidRegion = !region || /^[A-Za-z]{2}$/.test(region) || /^\d{3}$/.test(region);
+    const isValidScript = !script || /^[A-Za-z]{4}$/.test(script);
+    if (!isValidCode || !isValidRegion || !isValidScript) {
+      continue;
     }
 
-    return { code, region, script, quality }
-  })
-    // Filter out invalid tags and sort tags by quality in descending order
-    .filter((tag): tag is ParsedAcceptLanguage => !!tag)
-    .sort((a, b) => b.quality - a.quality)
+    tags.push({ code, region, script, quality });
+  }
+
+  tags.sort((a, b) => b.quality - a.quality);
+
+  return {
+    languageCode: tags[0]?.code || null,
+    languageScript: tags[0]?.script || null,
+    languageRegion: tags[0]?.region || null,
+    secondaryLanguageCode: tags[1]?.code || null,
+    secondaryLanguageScript: tags[1]?.script || null,
+    secondaryLanguageRegion: tags[1]?.region || null,
+  };
 }

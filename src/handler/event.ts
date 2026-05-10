@@ -1,59 +1,93 @@
-import type { EventData, MaybePromise } from '../types'
-import { consola } from 'consola'
-import { isbot } from 'isbot'
-import { getCountryCodeByTimezone } from '../utils/get-country-code-by-timezone'
-import { isValidUrl } from '../utils/is-valid-url'
-import { parseAcceptLanguage } from '../utils/parse-accept-language'
-import { parseReferrer } from '../utils/parse-referrer'
-import { parseUserAgent } from '../utils/parse-user-agent'
-import { parseUTMParams } from '../utils/parse-utm-params'
+import type { EventData, MaybePromise, Primitive } from '../types';
+import type { ParsedAcceptLanguage } from '../utils/parse-accept-language';
+import type { ParsedReferrer } from '../utils/parse-referrer';
+import type { ParsedUserAgent } from '../utils/parse-user-agent';
+import type { ParsedUTMParams } from '../utils/parse-utm-params';
+import { isbot } from 'isbot';
+import { getCountryCodeByTimeZone } from '../utils/get-country-code-by-time-zone';
+import { isValidUrl } from '../utils/is-valid-url';
+import { parseAcceptLanguage } from '../utils/parse-accept-language';
+import { parseReferrer } from '../utils/parse-referrer';
+import { parseUserAgent } from '../utils/parse-user-agent';
+import { parseUTMParams } from '../utils/parse-utm-params';
 
-const log = consola.withTag('litetics:event')
+const defaultUA = {
+  browserName: null as null,
+  browserVersion: null as null,
+  browserEngineName: null as null,
+  browserEngineVersion: null as null,
+  deviceType: null as null,
+  deviceVendor: null as null,
+  deviceModel: null as null,
+  cpuArchitecture: null as null,
+  osName: null as null,
+  osVersion: null as null,
+};
+
+const defaultRef = {
+  referrerHost: null as null,
+  referrerPath: null as null,
+  referrerQueryString: null as null,
+  referrerKnown: null as null,
+  referrerMedium: null as null,
+  referrerName: null as null,
+  referrerSearchParameter: null as null,
+  referrerSearchTerm: null as null,
+};
+
+const defaultLang = {
+  languageCode: null as null,
+  languageScript: null as null,
+  languageRegion: null as null,
+  secondaryLanguageCode: null as null,
+  secondaryLanguageScript: null as null,
+  secondaryLanguageRegion: null as null,
+};
 
 /**
  * An object representing a payload of event to track.
  * This object is sent to the server in a `POST` request.
  */
-export interface EventHandlerLoadRequestBody {
+export interface EventRequestHandlerLoadRequestBody {
   /**
    * The name of the event. Always 'load'
    */
-  e: 'load'
+  e: 'load';
 
   /**
    * The beacon ID.
    */
-  b: string
+  b: string;
 
   /**
    * The URL of the page.
    */
-  u: string
+  u: string;
 
   /**
    * Flag indicating if the user is unique.
    */
-  p: boolean
+  p: boolean;
 
   /**
    * Flag indicating if this is the first time the user has visited this specific page.
    */
-  q: boolean
+  q: boolean;
 
   /**
    * The type of event.
    */
-  a: 'pageview' | (string & { _?: never })
+  a: 'pageview' | (string & { _?: never });
 
   /**
    * The URL of the referrer. Optional.
    */
-  r?: string
+  r?: string;
 
   /**
-   * The timezone of the user. Optional.
+   * The time zone of the user. Optional.
    */
-  t?: string
+  t?: string;
 
   /**
    * Custom event data. Optional.
@@ -63,244 +97,320 @@ export interface EventHandlerLoadRequestBody {
    * }
    */
   d?: {
-    [key: string]: string | number | boolean | null | undefined
-  }
+    [key: string]: string | number | boolean | null | undefined;
+  };
 }
 
 /**
  * An object representing follow-up data used to track the duration of an event.
  * This object is sent to the server in a `POST` request.
  */
-export interface EventHandlerUnloadRequestBody {
+export interface EventRequestHandlerUnloadRequestBody {
   /**
    * The event name. Always 'unload'
    */
-  e: 'unload'
+  e: 'unload';
 
   /**
    * The beacon ID.
    */
-  b: string
+  b: string;
 
   /**
    * The duration in MS.
    */
-  m: number
+  m: number;
 }
 
 /**
  * The load event result.
  */
-export type EventHandlerLoadResult = EventData
+export type EventRequestHandlerLoadResult = EventData;
 
 /**
  * The unload event result.
  */
-export type EventHandlerUnloadResult = Pick<EventData, 'bid'> & {
-  durationMs: NonNullable<EventData['durationMs']>
+export type EventRequestHandlerUnloadResult = Pick<EventData, 'bid'> & {
+  durationMs: NonNullable<EventData['durationMs']>;
+};
+
+/**
+ * Overridable parser functions. Each parser falls back to the built-in
+ * implementation when not provided.
+ */
+export interface EventRequestHandlerParsers {
+  userAgent?: (ua: string) => ParsedUserAgent;
+  referrer?: (referrerUrl: string, currentUrl: string) => ParsedReferrer;
+  acceptLanguage?: (header: string) => ParsedAcceptLanguage;
+  utm?: (url: URL) => ParsedUTMParams;
 }
 
 /**
- * Options to configure the `EventHandler`.
+ * Options to configure the `EventRequestHandler`.
  */
-export type EventHandlerOptions = {
+export type EventRequestHandlerOptions<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+> = {
   /**
-   * Persists the `EventHandlerLoadResult` data.
-   * @param data The `EventHandlerLoadResult` data.
+   * Persists the `EventRequestHandlerLoadResult` data.
+   * @param data The `EventRequestHandlerLoadResult` data.
    * @returns Void or promise of void.
    */
-  persist: (data: EventHandlerLoadResult) => MaybePromise<void>
+  persist: (
+    data: EventRequestHandlerLoadResult & { properties: TProperties | null },
+  ) => MaybePromise<void>;
 
   /**
-   * Updates the persisted data with the `EventHandlerUnloadResult` data.
-   * @param data The `EventHandlerUnloadResult` data.
+   * Updates the persisted data with the `EventRequestHandlerUnloadResult` data.
+   * @param data The `EventRequestHandlerUnloadResult` data.
    * @returns Void or promise of void.
    */
-  update: (data: EventHandlerUnloadResult) => MaybePromise<void>
-}
+  update: (data: EventRequestHandlerUnloadResult) => MaybePromise<void>;
+
+  /**
+   * When true, logs debug information to console. Defaults to `false`.
+   */
+  debug?: boolean;
+
+  /**
+   * Overridable parser functions. When not provided the built-in parsers
+   * are used. Supply custom parsers to enrich, replace, or skip parsing
+   * for specific fields.
+   */
+  parsers?: EventRequestHandlerParsers;
+
+  /**
+   * Determines whether a user-agent should be treated as a bot.
+   * Receives the raw user-agent string and returns `true` to skip
+   * processing. Defaults to `isbot` from the `isbot` package.
+   */
+  shouldIgnoreUserAgent?: (ua: string) => boolean;
+};
 
 /**
- * Options to configure the `EventHandler` `track` method.
+ * Options to configure the `EventRequestHandler` `track` method.
  */
-export type EventHandlerTrackOptions = {
+export type EventRequestHandlerTrackOptions = {
   /**
    * A function that returns the request body.
    * @returns The request body.
    */
-  getRequestBody: () => MaybePromise<EventHandlerLoadRequestBody> | MaybePromise<EventHandlerUnloadRequestBody>
+  getRequestBody: () =>
+    | MaybePromise<EventRequestHandlerLoadRequestBody>
+    | MaybePromise<EventRequestHandlerUnloadRequestBody>;
 
   /**
    * A function that returns the request header.
    * @param name The name of the header.
    * @returns The value of the header or `undefined` if not present.
    */
-  getRequestHeader: (name: string) => MaybePromise<string | null | undefined>
-}
+  getRequestHeader: (name: string) => MaybePromise<string | null | undefined>;
+};
 
 /**
  * The payload passed to the `track` method.
  */
-export type EventHandlerTrackPayload = {
+export type EventRequestHandlerTrackPayload = {
   /**
    * The request body.
    */
-  requestBody: EventHandlerLoadRequestBody | EventHandlerUnloadRequestBody
+  requestBody: EventRequestHandlerLoadRequestBody | EventRequestHandlerUnloadRequestBody;
 
   /**
    * The request headers.
    */
-  requestHeaders: Record<string, string | null | undefined>
-}
+  requestHeaders: Record<string, string | null | undefined>;
+};
 
-export class EventHandler {
-  private options: EventHandlerOptions
+export class EventRequestHandler<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+> {
+  private options: EventRequestHandlerOptions<TProperties>;
 
-  /**
-   * @param options The options to configure the `EventHandler`.
-   * @see EventHandlerOptions
-   */
-  constructor(options: EventHandlerOptions) {
-    this.options = options
+  constructor(options: EventRequestHandlerOptions<TProperties>) {
+    this.options = options;
   }
 
-  /**
-   * Tracks a hit event.
-   * @param request The request object.
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Request}
-   * @param options The options to configure the `track` method.
-   * @see EventHandlerTrackOptions
-   * @param payload The payload to track.
-   * @see EventHandlerTrackPayload
-   */
-  async track(request: Request): Promise<void>
-  async track(options: EventHandlerTrackOptions): Promise<void>
-  async track(payload: EventHandlerTrackPayload): Promise<void>
-  async track(arg: Request | EventHandlerTrackOptions | EventHandlerTrackPayload): Promise<void> {
-    const getRequestBody = arg instanceof Request
-      ? () => arg.json().catch(() => arg.text())
-      : ('requestBody' in arg ? () => arg.requestBody : arg.getRequestBody)
+  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
+    if (!this.options.debug) return;
+    console[level](`[litetics:event] ${message}`);
+  }
 
-    const getRequestHeader = arg instanceof Request
-      ? (name: string) => arg.headers.get(name)
-      : ('requestHeaders' in arg ? (name: string) => arg.requestHeaders[name] : arg.getRequestHeader)
+  private parseUrl(pageUrl: string): {
+    host: string;
+    path: string;
+    queryString: string | null;
+    hash: string | null;
+  } {
+    const url = new URL(pageUrl);
+    return {
+      host: url.hostname,
+      path: url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, ''),
+      queryString: url.searchParams.toString() || null,
+      hash: url.hash || null,
+    };
+  }
 
-    const acceptLanguage = await getRequestHeader('accept-language') || null
-    const userAgent = await getRequestHeader('user-agent') || null
+  async track(request: Request): Promise<void>;
+  async track(options: EventRequestHandlerTrackOptions): Promise<void>;
+  async track(payload: EventRequestHandlerTrackPayload): Promise<void>;
+  async track(
+    arg: Request | EventRequestHandlerTrackOptions | EventRequestHandlerTrackPayload,
+  ): Promise<void> {
+    const getRequestBody =
+      arg instanceof Request
+        ? () =>
+            arg.text().then((t: string) => {
+              try {
+                return JSON.parse(t);
+              } catch {
+                return t;
+              }
+            })
+        : 'requestBody' in arg
+          ? () => arg.requestBody
+          : arg.getRequestBody;
 
-    // Check if the user agent is a bot
-    if (userAgent && isbot(userAgent)) {
-      log.debug('User agent is a bot')
-      return
+    const getRequestHeader =
+      arg instanceof Request
+        ? (name: string) => arg.headers.get(name)
+        : 'requestHeaders' in arg
+          ? (name: string) => {
+              const h = arg.requestHeaders;
+              const key = Object.keys(h).find((k) => k.toLowerCase() === name.toLowerCase());
+              return key ? h[key] : undefined;
+            }
+          : arg.getRequestHeader;
+
+    const acceptLanguage = (await getRequestHeader('accept-language')) || null;
+    const userAgent = (await getRequestHeader('user-agent')) || null;
+
+    if (userAgent && (this.options.shouldIgnoreUserAgent ?? isbot)(userAgent)) {
+      this.log('debug', `User agent ignored: ${userAgent}`);
+      return;
     }
 
-    // Parse the request body
-    let body = await getRequestBody()
+    let body: EventRequestHandlerLoadRequestBody | EventRequestHandlerUnloadRequestBody =
+      await getRequestBody();
     if (typeof body === 'string') {
       try {
-        body = JSON.parse(body)
-      }
-      catch {
-        // Log an error message if the body cannot be parsed as JSON
-        log.error('Failed to parse body as JSON')
-        return
+        body = JSON.parse(body);
+      } catch {
+        this.log('error', 'Failed to parse body as JSON');
+        return;
       }
     }
 
-    // Get the event type from the request body
-    const eventType = body.e
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      this.log('error', 'Invalid JSON body structure');
+      return;
+    }
+    const eventType = body.e;
 
     switch (eventType) {
       case 'load': {
-        // Handle the load event
-        if (body.u && !isValidUrl(body.u)) {
-          // Early return if the URL is invalid
-          return
-        }
-        if (body.r && !isValidUrl(body.r)) {
-          // Omit the referrer if the referrer URL is invalid
-          body.r = undefined
-        }
-
-        // Destructure the properties from the request body
         const {
           b: bid,
           u: pageUrl,
           p: isUniqueUser,
           q: isUniquePage,
           a: type,
-          r: referrer = null,
-          t: timezone = null,
-          d: additional = null,
-        } = body
+          r: rawReferrer,
+          t: rawTimeZone,
+          d: rawProperties,
+        } = body;
 
-        const receivedAt = new Date()
+        if (typeof pageUrl !== 'string' || !pageUrl) return;
+        if (!isValidUrl(pageUrl)) return;
+        if (typeof bid !== 'string' || !bid) return;
+        if (typeof isUniqueUser !== 'boolean') return;
+        if (typeof isUniquePage !== 'boolean') return;
+        if (typeof type !== 'string' || !type) return;
 
-        // Parse the page URL
-        const url = new URL(pageUrl)
-        const host = url.hostname
-        const path = url.pathname === '/' ? url.pathname : url.pathname.replace(/\/$/, '')
-        const queryString = url.searchParams.toString() || null
+        const referrer: string | null =
+          rawReferrer !== undefined && rawReferrer !== null
+            ? typeof rawReferrer === 'string' && isValidUrl(rawReferrer)
+              ? rawReferrer
+              : null
+            : null;
 
-        // Parse the user agent
-        const ua = userAgent && userAgent.length > 0 ? parseUserAgent(userAgent) : null
-        const browserName = ua?.browser.name || null
-        const browserVersion = ua?.browser.version || null
-        const browserEngineName = ua?.browserEngine.name || null
-        const browserEngineVersion = ua?.browserEngine.version || null
-        const deviceType = ua?.device.type || null
-        const deviceVendor = ua?.device.vendor || null
-        const deviceModel = ua?.device.model || null
-        const cpuArchitecture = ua?.cpu.architecture || null
-        const osName = ua?.os.name || null
-        const osVersion = ua?.os.version || null
+        const timeZone: string | null =
+          rawTimeZone !== undefined && rawTimeZone !== null
+            ? typeof rawTimeZone === 'string'
+              ? rawTimeZone
+              : null
+            : null;
 
-        // Parse the referrer URL
-        const {
-          host: referrerHost = null,
-          path: referrerPath = null,
-          queryString: referrerQueryString = null,
-          known: referrerKnown = null,
-          medium: referrerMedium = null,
-          name: referrerName = null,
-          searchParameter: referrerSearchParameter = null,
-          searchTerm: referrerSearchTerm = null,
-        } = referrer && isValidUrl(referrer) ? parseReferrer(referrer, pageUrl) : {}
+        const properties: Record<string, Primitive> | null =
+          rawProperties !== undefined && rawProperties !== null
+            ? typeof rawProperties === 'object' && !Array.isArray(rawProperties)
+              ? (rawProperties as Record<string, Primitive>)
+              : null
+            : null;
 
-        // Get the country code based on the timezone
-        const country = timezone && timezone.length > 0
-          ? getCountryCodeByTimezone(timezone)
-          : null
+        const receivedAt = new Date();
+        const country = timeZone ? getCountryCodeByTimeZone(timeZone) : null;
 
-        // Parse the accept language header
-        const languages = acceptLanguage && acceptLanguage.length > 0
-          ? parseAcceptLanguage(acceptLanguage)
-          : []
-        const languageCode = languages[0]?.code || null
-        const languageScript = languages[0]?.script || null
-        const languageRegion = languages[0]?.region || null
-        const secondaryLanguageCode = languages[1]?.code || null
-        const secondaryLanguageScript = languages[1]?.script || null
-        const secondaryLanguageRegion = languages[1]?.region || null
-
-        // Parse the UTM parameters from the URL
+        const { host, path, queryString, hash } = this.parseUrl(pageUrl);
         const {
           campaign: utmCampaign,
           medium: utmMedium,
           source: utmSource,
-        } = parseUTMParams(url)
+          term: utmTerm,
+          content: utmContent,
+          id: utmId,
+          sourcePlatform: utmSourcePlatform,
+        } = (this.options.parsers?.utm ?? parseUTMParams)(new URL(pageUrl));
 
-        await this.options.persist({
+        const {
+          browserName,
+          browserVersion,
+          browserEngineName,
+          browserEngineVersion,
+          deviceType,
+          deviceVendor,
+          deviceModel,
+          cpuArchitecture,
+          osName,
+          osVersion,
+        } = userAgent ? (this.options.parsers?.userAgent ?? parseUserAgent)(userAgent) : defaultUA;
+
+        const {
+          referrerHost,
+          referrerPath,
+          referrerQueryString,
+          referrerKnown,
+          referrerMedium,
+          referrerName,
+          referrerSearchParameter,
+          referrerSearchTerm,
+        } = referrer
+          ? (this.options.parsers?.referrer ?? parseReferrer)(referrer, pageUrl)
+          : defaultRef;
+
+        const {
+          languageCode,
+          languageScript,
+          languageRegion,
+          secondaryLanguageCode,
+          secondaryLanguageScript,
+          secondaryLanguageRegion,
+        } = acceptLanguage
+          ? (this.options.parsers?.acceptLanguage ?? parseAcceptLanguage)(acceptLanguage)
+          : defaultLang;
+
+        const data: EventData = {
           bid,
           receivedAt,
           host,
           path,
           queryString,
+          hash,
           isUniqueUser,
           isUniquePage,
           type,
-          // optional fields
           durationMs: null,
-          timezone,
+          timeZone,
           country,
           userAgent,
           browserName,
@@ -332,35 +442,38 @@ export class EventHandler {
           utmCampaign,
           utmMedium,
           utmSource,
-          additional,
-        })
+          utmTerm,
+          utmContent,
+          utmId,
+          utmSourcePlatform,
+          properties,
+        };
 
-        break
+        await this.options.persist(
+          data as EventRequestHandlerLoadResult & { properties: TProperties | null },
+        );
+        break;
       }
 
       case 'unload': {
-        // Handle the unload event
-        const {
-          b: bid,
-          m: durationMs,
-        } = body
-
-        await this.options.update({
-          bid,
-          durationMs,
-        })
-
-        break
+        const { b: bid, m: durationMs } = body;
+        if (
+          typeof bid !== 'string' ||
+          bid.length === 0 ||
+          typeof durationMs !== 'number' ||
+          !Number.isFinite(durationMs) ||
+          durationMs < 0
+        ) {
+          this.log('error', 'Invalid unload payload');
+          return;
+        }
+        await this.options.update({ bid, durationMs: durationMs });
+        break;
       }
 
       default: {
-        // Log a debug message if the event type is unknown
-        log.debug('Unknown event received: ' + eventType)
+        this.log('debug', `Unknown event received: ${eventType}`);
       }
     }
   }
-}
-
-export function createEventHandler(options: EventHandlerOptions): EventHandler {
-  return new EventHandler(options)
 }

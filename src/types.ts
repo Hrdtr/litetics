@@ -2,175 +2,196 @@ export interface EventData {
   /**
    * The beacon ID.
    */
-  bid: string
+  bid: string;
   /**
    * The time at which the event was received.
    */
-  receivedAt: Date
+  receivedAt: Date;
   /**
    * The hostname of the page.
    */
-  host: string
+  host: string;
   /**
    * The path of the page.
    */
-  path: string
+  path: string;
   /**
    * The query string of the page.
    */
-  queryString: string | null
+  queryString: string | null;
+  /**
+   * The hash fragment of the page URL (including the leading `#`).
+   * `null` when the page URL has no fragment identifier.
+   */
+  hash: string | null;
   /**
    * Flag indicating if the user is unique.
    */
-  isUniqueUser: boolean
+  isUniqueUser: boolean;
   /**
    * Flag indicating if this is the first time the user has visited this specific page.
    */
-  isUniquePage: boolean
+  isUniquePage: boolean;
   /**
    * The type of event.
    */
-  type: 'pageview' | (string & { _?: never })
+  type: 'pageview' | (string & { _?: never });
 
   // optional fields
   /**
    * The duration of the event in milliseconds.
    */
-  durationMs: number | null
+  durationMs: number | null;
   /**
-   * The timezone of the user.
+   * The time zone of the user.
    */
-  timezone: string | null
+  timeZone: string | null;
   /**
    * The country of the user.
    */
-  country: string | null
+  country: string | null;
   /**
    * The user-agent string.
    */
-  userAgent: string | null
+  userAgent: string | null;
   /**
    * The name of the browser.
    */
-  browserName: string | null
+  browserName: string | null;
   /**
    * The version of the browser.
    */
-  browserVersion: string | null
+  browserVersion: string | null;
   /**
    * The name of the browser engine.
    */
-  browserEngineName: string | null
+  browserEngineName: string | null;
   /**
    * The version of the browser engine.
    */
-  browserEngineVersion: string | null
+  browserEngineVersion: string | null;
   /**
    * The type of device.
    */
-  deviceType: string | null
+  deviceType: string | null;
   /**
    * The vendor of the device.
    */
-  deviceVendor: string | null
+  deviceVendor: string | null;
   /**
    * The model of the device.
    */
-  deviceModel: string | null
+  deviceModel: string | null;
   /**
    * The architecture of the CPU.
    */
-  cpuArchitecture: string | null
+  cpuArchitecture: string | null;
   /**
    * The name of the operating system.
    */
-  osName: string | null
+  osName: string | null;
   /**
    * The version of the operating system.
    */
-  osVersion: string | null
+  osVersion: string | null;
   /**
    * The raw referer header.
    */
-  referrer: string | null
+  referrer: string | null;
   /**
    * The hostname of the referer.
    */
-  referrerHost: string | null
+  referrerHost: string | null;
   /**
    * The path of the referer.
    */
-  referrerPath: string | null
+  referrerPath: string | null;
   /**
    * The query string of the referer.
    */
-  referrerQueryString: string | null
+  referrerQueryString: string | null;
   /**
    * Whether the referer is known or not.
    */
-  referrerKnown: boolean | null
+  referrerKnown: boolean | null;
   /**
    * The medium of the referer.
    */
-  referrerMedium: string | null
+  referrerMedium: string | null;
   /**
    * The name of the referer.
    */
-  referrerName: string | null
+  referrerName: string | null;
   /**
    * The search parameter of the referer.
    */
-  referrerSearchParameter: string | null
+  referrerSearchParameter: string | null;
   /**
    * The search term of the referer.
    */
-  referrerSearchTerm: string | null
+  referrerSearchTerm: string | null;
   /**
    * The raw accept-language header.
    */
-  acceptLanguage: string | null
+  acceptLanguage: string | null;
   /**
    * The code of the language.
    */
-  languageCode: string | null
+  languageCode: string | null;
   /**
    * The script of the language.
    */
-  languageScript: string | null
+  languageScript: string | null;
   /**
    * The region of the language.
    */
-  languageRegion: string | null
+  languageRegion: string | null;
   /**
    * The code of the secondary language.
    */
-  secondaryLanguageCode: string | null
+  secondaryLanguageCode: string | null;
   /**
    * The script of the secondary language.
    */
-  secondaryLanguageScript: string | null
+  secondaryLanguageScript: string | null;
   /**
    * The region of the secondary language.
    */
-  secondaryLanguageRegion: string | null
+  secondaryLanguageRegion: string | null;
   /**
    * The campaign of the UTM parameter.
    */
-  utmCampaign: string | null
+  utmCampaign: string | null;
   /**
    * The medium of the UTM parameter.
    */
-  utmMedium: string | null
+  utmMedium: string | null;
   /**
    * The source of the UTM parameter.
    */
-  utmSource: string | null
+  utmSource: string | null;
+  /**
+   * The term of the UTM parameter.
+   */
+  utmTerm: string | null;
+  /**
+   * The content of the UTM parameter.
+   */
+  utmContent: string | null;
+  /**
+   * The ID of the UTM parameter.
+   */
+  utmId: string | null;
+  /**
+   * The source platform of the UTM parameter.
+   */
+  utmSourcePlatform: string | null;
   /**
    * Custom event data.
    */
-  additional: {
-    [key: string]: string | number | boolean | null | undefined
-  } | null
+  properties: Record<string, Primitive> | null;
 }
 
-export type MaybePromise<T> = T | Promise<T>
+export type MaybePromise<T> = T | Promise<T>;
+
+export type Primitive = string | number | boolean | null | undefined;
