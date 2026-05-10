@@ -10,7 +10,7 @@ Every load event is enriched server-side with data parsed from HTTP headers, the
 
 Data flows through a sequence of parsers. Each step extracts structured fields from raw request data.
 
-```
+```text
 Client request
   │
   ├─ POST body :  { e, b, u, p, q, a, r, t, d }

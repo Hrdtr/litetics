@@ -99,7 +99,7 @@ The handler discriminates on the `e` field.
 
 The handler proceeds through these steps for each incoming event:
 
-```
+```text
 handleEventRequest() called
   │
   ├─ Extract headers (User-Agent, Accept-Language) and body
@@ -194,7 +194,7 @@ interface PingRequestHandlerResult {
 
 The browser uses `If-Modified-Since` to signal the last date it was told:
 
-```
+```text
 First visit:
   Client → GET /ping (no If-Modified-Since)
   Server → 200, "0", Last-Modified: <midnight UTC>, Cache-Control: no-cache

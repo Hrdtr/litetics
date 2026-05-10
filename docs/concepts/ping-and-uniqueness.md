@@ -10,7 +10,7 @@ The ping endpoint distinguishes new visitors from returning visitors within a ca
 
 The tracker adds a `Cache-Control: no-cache` header on its first ping request. On subsequent requests within the same day, the browser sends back `If-Modified-Since` with the value received from the server's `Last-Modified` header.
 
-```
+```text
 First visit ever:
   Client → GET /ping (no If-Modified-Since)
   Server → 200, body: "0", Cache-Control: no-cache, Last-Modified: <today midnight UTC>

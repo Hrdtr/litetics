@@ -30,7 +30,7 @@ Two packages:
 
 A tracker in the browser communicates with a handler on the server over two HTTP routes.
 
-```
+```text
   Browser                          Server
  ┌───────────┐                    ┌─────────────────────────┐
  │           │─── GET  /ping ───▶ │ Litetics         │

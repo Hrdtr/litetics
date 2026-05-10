@@ -37,7 +37,7 @@ When `shouldIgnoreUserAgent` is not provided, `isbot` is used as the default.
 
 The `User-Agent` header is checked at the start of `handleEventRequest()`, before any parsing or enrichment. If the check passes (returning `true`), the handler exits immediately. If `debug` mode is enabled, a log message is emitted:
 
-```
+```text
 [litetics:event] User agent ignored: [user-agent]
 ```
 

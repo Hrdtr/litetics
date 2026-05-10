@@ -22,7 +22,7 @@ import { createTracker } from 'litetics/tracker';
 
 The tracker is platform-independent. All browser API access is routed through a `RuntimeAdapter` interface. When no adapter is provided, `createBrowserAdapter()` is used as the default.
 
-```
+```text
 createTracker(options)
     │
     ├─ adapter (creates BrowserAdapter by default)

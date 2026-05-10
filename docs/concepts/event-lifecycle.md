@@ -10,7 +10,7 @@ Litetics models pageviews and custom events as a **load/unload** pair. A load ev
 
 A page visit produces three network calls in order:
 
-```
+```text
 register()                    navigate away / SPA transition
     │                                               │
     ▼                                               ▼
@@ -25,7 +25,7 @@ register()                    navigate away / SPA transition
 
 Events tracked via `track()` follow the same ping-then-beacon pattern:
 
-```
+```text
 track()                                   trackEndOf()
     │                                           │
     ▼                                           ▼

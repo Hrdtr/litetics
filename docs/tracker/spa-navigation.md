@@ -16,7 +16,7 @@ The browser adapter wraps `history.pushState`. When your router calls `pushState
 
 The adapter also listens to `popstate` — fired when the user clicks the browser's back or forward buttons.
 
-```
+```text
 User clicks link → router calls pushState → onNavigate fires
                                                   │
                     ┌─────────────────────────────┘

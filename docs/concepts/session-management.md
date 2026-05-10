@@ -24,7 +24,7 @@ When set, the tracker starts a timer. If no user interaction is detected before 
 
 Each interaction resets the timer. When it expires, a new session begins.
 
-```
+```text
 Time ─────────────────────────────────────────────────────────────▶
 
 register()  ┌─ interaction ─┐  ┌─ interaction ─┐      timeout fires
