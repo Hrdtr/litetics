@@ -68,7 +68,7 @@ const app = new Hono();
 
 app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 app.post('/event', async (c) => {
-  await eventHandler.track(c.req.raw);
+  await eventHandler.handle(c.req.raw);
   return c.body(null, 204);
 });
 

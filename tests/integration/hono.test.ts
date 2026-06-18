@@ -20,7 +20,7 @@ describe('handler via getter options', () => {
   });
 
   app.post('/event', async (c) => {
-    await eventHandler.track({
+    await eventHandler.handle({
       requestBody: await c.req.json(),
       requestHeaders: {
         'User-Agent': c.req.header('User-Agent'),
@@ -134,7 +134,7 @@ describe('handler via raw Request', () => {
   const app = new Hono();
 
   app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
-  app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+  app.post('/event', (c) => eventHandler.handle(c.req.raw).then(() => c.body(null, 204)));
 
   let baseUrl: string;
   let closeServer: () => void;

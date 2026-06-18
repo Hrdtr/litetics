@@ -32,7 +32,7 @@ const pingHandler = createPingRequestHandler();
 const app = new Hono();
 
 app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
-app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+app.post('/event', (c) => eventHandler.handle(c.req.raw).then(() => c.body(null, 204)));
 
 serve({ fetch: app.fetch, port: 3000 });
 ```
@@ -50,7 +50,7 @@ app.get('/ping', async (c) => {
 });
 
 app.post('/event', async (c) => {
-  await eventHandler.track({
+  await eventHandler.handle({
     requestBody: await c.req.json(),
     requestHeaders: {
       'User-Agent': c.req.header('User-Agent'),
@@ -63,14 +63,14 @@ app.post('/event', async (c) => {
 
 ## Middleware Pattern
 
-Wrap `eventHandler.track` into reusable middleware:
+Wrap `eventHandler.handle` into reusable middleware:
 
 ```ts
 import type { EventRequestHandler } from 'litetics';
 
 function analyticsMiddleware(handler: EventRequestHandler) {
   return async (c: Context, next: Next) => {
-    await handler.track(c.req.raw);
+    await handler.handle(c.req.raw);
     await next();
   };
 }

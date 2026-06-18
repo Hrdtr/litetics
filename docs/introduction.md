@@ -36,7 +36,7 @@ A tracker in the browser communicates with handlers on the server over two HTTP 
  │           │─── GET  /ping ───▶ │ PingRequestHandler      │
  │  Tracker  │                    │   .handle()             │
  │           │─── POST /event ──▶ │ EventRequestHandler     │
- └───────────┘                    │   .track()              │
+ └───────────┘                    │   .handle()             │
                                   │         ▼               │
                                   │   persist(data)         │
                                   │   update(duration)      │

@@ -50,7 +50,7 @@ const eventHandler = createEventRequestHandler({
 });
 const pingHandler = createPingRequestHandler();
 
-app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+app.post('/event', (c) => eventHandler.handle(c.req.raw).then(() => c.body(null, 204)));
 app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 ```
 
@@ -59,9 +59,9 @@ app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 The handlers work with any framework. Pass a `Request` object, getter functions, or a pre-resolved payload:
 
 ```ts
-eventHandler.track(request); // Hono, Workers, Bun, Deno
-eventHandler.track({ getRequestBody, getRequestHeader }); // Nuxt Nitro, Fastify
-eventHandler.track({ requestBody, requestHeaders }); // Express, any framework
+eventHandler.handle(request); // Hono, Workers, Bun, Deno
+eventHandler.handle({ getRequestBody, getRequestHeader }); // Nuxt Nitro, Fastify
+eventHandler.handle({ requestBody, requestHeaders }); // Express, any framework
 ```
 
 ## Browser

@@ -49,19 +49,19 @@ interface EventRequestHandlerOptions<TProperties> {
 
 The `TProperties` generic types the `properties` field in persisted events. Defaults to `Record<string, Primitive>`.
 
-## `eventHandler.track()` — `POST`
+## `eventHandler.handle()` — `POST`
 
-Processes an incoming event beacon via `track()`. Accepts three input shapes:
+Processes an incoming event beacon via `handle()`. Accepts three input shapes:
 
 ```ts
 // 1. Web API Request object
-eventHandler.track(request: Request): Promise<void>
+eventHandler.handle(request: Request): Promise<void>
 
 // 2. Getter-based options
-eventHandler.track(options: EventRequestHandlerTrackOptions): Promise<void>
+eventHandler.handle(options: EventRequestHandlerTrackOptions): Promise<void>
 
 // 3. Pre-resolved payload
-eventHandler.track(payload: EventRequestHandlerTrackPayload): Promise<void>
+eventHandler.handle(payload: EventRequestHandlerTrackPayload): Promise<void>
 ```
 
 ### Request Body Schema
@@ -99,7 +99,7 @@ The handler discriminates on the `e` field.
 The handler proceeds through these steps for each incoming event:
 
 ```text
-eventHandler.track() called
+eventHandler.handle() called
   │
   ├─ Extract headers (User-Agent, Accept-Language) and body
   ├─ Bot check         → skip if bot
@@ -259,5 +259,5 @@ const eventHandler = createEventRequestHandler({
     if (e) e.durationMs = durationMs;
   },
 });
-eventHandler.track(request);
+eventHandler.handle(request);
 ```

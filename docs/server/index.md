@@ -19,11 +19,11 @@ const eventHandler = createEventRequestHandler({
 });
 const pingHandler = createPingRequestHandler();
 
-app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+app.post('/event', (c) => eventHandler.handle(c.req.raw).then(() => c.body(null, 204)));
 app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 ```
 
-Two separate handlers. `eventHandler.track()` processes POST beacons. `pingHandler.handle()` processes GET pings.
+Two separate handlers. `eventHandler.handle()` processes POST beacons. `pingHandler.handle()` processes GET pings.
 
 ## Input flexibility
 
@@ -31,16 +31,16 @@ Both methods accept a standard `Request` object, getter functions, or a pre-reso
 
 ```ts
 // Request object (Hono, Workers, Bun, Deno)
-eventHandler.track(c.req.raw);
+eventHandler.handle(c.req.raw);
 
 // Getter functions (Nuxt Nitro, Fastify)
-eventHandler.track({
+eventHandler.handle({
   getRequestBody: () => readBody(event),
   getRequestHeader: (name) => getHeader(event, name),
 });
 
 // Pre-resolved payload (Express, any framework)
-eventHandler.track({
+eventHandler.handle({
   requestBody: req.body,
   requestHeaders: { 'user-agent': req.headers['user-agent'] },
 });

@@ -1,7 +1,7 @@
 import { eventHandler } from '../utils/litetics';
 
 export default defineEventHandler(async (event) => {
-  await eventHandler.track({
+  await eventHandler.handle({
     getRequestBody: () => readBody(event),
     getRequestHeader: (name) => getHeader(event, name) ?? null,
   });

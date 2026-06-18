@@ -33,7 +33,7 @@ export default {
     }
 
     if (url.pathname === '/event' && request.method === 'POST') {
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
       return new Response(null, { status: 204 });
     }
 
@@ -66,7 +66,7 @@ Bun.serve({
     }
 
     if (url.pathname === '/event') {
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
       return new Response(null, { status: 204 });
     }
 
@@ -101,7 +101,7 @@ Deno.serve({ port: 3000 }, async (request) => {
   }
 
   if (url.pathname === '/event') {
-    await eventHandler.track(request);
+    await eventHandler.handle(request);
     return new Response(null, { status: 204 });
   }
 
@@ -133,7 +133,7 @@ app.get('/ping', async (request, reply) => {
 });
 
 app.post('/event', async (request, reply) => {
-  await eventHandler.track({
+  await eventHandler.handle({
     requestBody: request.body,
     requestHeaders: {
       'user-agent': request.headers['user-agent'],
@@ -172,7 +172,7 @@ app.get('/ping', async (req, res) => {
 });
 
 app.post('/event', async (req, res) => {
-  await eventHandler.track({
+  await eventHandler.handle({
     requestBody: req.body,
     requestHeaders: {
       'user-agent': req.headers['user-agent'],
@@ -199,7 +199,7 @@ const eventHandler = createEventRequestHandler({
 });
 
 export default defineEventRequestHandler(async (event) => {
-  await eventHandler.track({
+  await eventHandler.handle({
     getRequestBody: () => readBody(event),
     getRequestHeader: (name) => getHeader(event, name) ?? null,
   });

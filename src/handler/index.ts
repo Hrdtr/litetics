@@ -30,14 +30,14 @@ export type LiteticsOptions<
 
 /** @deprecated Use `createEventRequestHandler` and `createPingRequestHandler` directly instead. */
 export class Litetics<TProperties extends Record<string, Primitive> = Record<string, Primitive>> {
-  handleEventRequest: EventRequestHandler<TProperties>['track'];
+  handleEventRequest: EventRequestHandler<TProperties>['handle'];
   handlePingRequest: PingRequestHandler['handle'];
 
   constructor(options: LiteticsOptions<TProperties>) {
     const eventRequestHandler = new EventRequestHandler(options);
     const pingRequestHandler = new PingRequestHandler({ debug: options.debug });
 
-    this.handleEventRequest = eventRequestHandler.track.bind(eventRequestHandler);
+    this.handleEventRequest = eventRequestHandler.handle.bind(eventRequestHandler);
     this.handlePingRequest = pingRequestHandler.handle.bind(pingRequestHandler);
   }
 }

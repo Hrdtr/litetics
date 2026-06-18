@@ -55,7 +55,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -120,7 +120,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -186,7 +186,7 @@ describe('Litetics (events)', () => {
         }
       });
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
       expect(mockPersist).toBeCalledTimes(0);
     });
 
@@ -208,7 +208,7 @@ describe('Litetics (events)', () => {
         body: JSON.stringify(body),
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
       expect(mockPersist).toBeCalledTimes(0);
     });
 
@@ -231,7 +231,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -275,7 +275,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await eventHandler.handle({
         requestBody: body,
         requestHeaders: {},
       });
@@ -326,7 +326,7 @@ describe('Litetics (events)', () => {
         }),
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -346,7 +346,7 @@ describe('Litetics (events)', () => {
         .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -363,7 +363,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -381,7 +381,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -399,7 +399,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -417,7 +417,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -440,7 +440,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(expect.objectContaining({ properties: null }));
@@ -464,7 +464,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -498,7 +498,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await asyncEventHandler.track({ getRequestBody, getRequestHeader });
+      await asyncEventHandler.handle({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(asyncPersist).toBeCalledTimes(1);
@@ -523,7 +523,7 @@ describe('Litetics (events)', () => {
         .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -549,7 +549,7 @@ describe('Litetics (events)', () => {
         }),
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -563,8 +563,9 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
+      expect(mockPersist).toBeCalledTimes(0);
       expect(mockUpdate).toBeCalledTimes(0);
     });
 
@@ -580,7 +581,7 @@ describe('Litetics (events)', () => {
         body: JSON.stringify(body),
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -597,7 +598,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -612,7 +613,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -627,7 +628,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await eventHandler.track({ getRequestBody, getRequestHeader });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -644,7 +645,7 @@ describe('Litetics (events)', () => {
         a: 'pageview',
       };
 
-      await eventHandler.track({
+      await eventHandler.handle({
         requestBody: body,
         requestHeaders: { 'USER-AGENT': 'Googlebot/2.1' },
       });
@@ -666,7 +667,7 @@ describe('Litetics (events)', () => {
         headers: { 'USER-AGENT': 'Googlebot/2.1' },
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       const botCall = mockPersist.mock.calls.find(
         (args) => (args[0] as Record<string, unknown>).bid === 'req-bot',
@@ -677,7 +678,7 @@ describe('Litetics (events)', () => {
     it('should detect bot with upper-case User-Agent header via getter options', async () => {
       const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
-        b: 'opt-bot',
+        b: 'getter-bot',
         u: 'https://example.com',
         p: true,
         q: true,
@@ -688,14 +689,12 @@ describe('Litetics (events)', () => {
         if (name.toLowerCase() === 'user-agent') return 'Googlebot/2.1';
         return undefined;
       });
+      const getRequestBody = vi.fn().mockResolvedValue(body);
 
-      await eventHandler.track({
-        getRequestBody: vi.fn().mockResolvedValue(body),
-        getRequestHeader,
-      });
+      await eventHandler.handle({ getRequestBody, getRequestHeader });
 
       const botCall = mockPersist.mock.calls.find(
-        (args) => (args[0] as Record<string, unknown>).bid === 'opt-bot',
+        (args) => (args[0] as Record<string, unknown>).bid === 'getter-bot',
       );
       expect(botCall).toBeUndefined();
     });
@@ -703,7 +702,7 @@ describe('Litetics (events)', () => {
     it('should read accept-language with mixed-case key via payload', async () => {
       const body: EventRequestHandlerLoadRequestBody = {
         e: 'load',
-        b: 'case-lang',
+        b: 'opt-lang',
         u: 'https://example.com',
         p: true,
         q: true,
@@ -714,20 +713,19 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await eventHandler.handle({
         requestBody: body,
-        requestHeaders: { 'Accept-Language': 'de-DE,de;q=0.9' },
+        requestHeaders: { 'Accept-Language': 'ko-KR,ko;q=0.8' },
       });
-
       vi.useRealTimers();
 
-      expect(mockPersist).toHaveBeenCalledWith(
-        expect.objectContaining({
-          bid: 'case-lang',
-          languageCode: 'de',
-          languageRegion: 'DE',
-        }),
+      const call = mockPersist.mock.calls.find(
+        (args) => (args[0] as Record<string, unknown>).bid === 'opt-lang',
       );
+      expect(call).toBeDefined();
+      const data = call![0] as Record<string, unknown>;
+      expect(data.languageCode).toBe('ko');
+      expect(data.languageRegion).toBe('KR');
     });
 
     it('should read accept-language with upper-case key via Request object', async () => {
@@ -739,25 +737,25 @@ describe('Litetics (events)', () => {
         method: 'POST',
         body: JSON.stringify({
           e: 'load',
-          b: 'req-lang',
+          b: 'upper-lang',
           u: 'https://example.com',
           p: true,
           q: true,
           a: 'pageview',
         }),
-        headers: { 'ACCEPT-LANGUAGE': 'ja-JP,ja;q=0.9' },
+        headers: { 'ACCEPT-LANGUAGE': 'en-US,en;q=0.9' },
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
       vi.useRealTimers();
 
       const call = mockPersist.mock.calls.find(
-        (args) => (args[0] as Record<string, unknown>).bid === 'req-lang',
+        (args) => (args[0] as Record<string, unknown>).bid === 'upper-lang',
       );
       expect(call).toBeDefined();
       const data = call![0] as Record<string, unknown>;
-      expect(data.languageCode).toBe('ja');
-      expect(data.languageRegion).toBe('JP');
+      expect(data.languageCode).toBe('en');
+      expect(data.languageRegion).toBe('US');
     });
 
     it('should read accept-language with mixed-case key via getter options', async () => {
@@ -774,7 +772,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await eventHandler.track({
+      await eventHandler.handle({
         getRequestBody: vi.fn().mockResolvedValue(body),
         getRequestHeader: vi.fn((name: string) => {
           if (name.toLowerCase() === 'accept-language') return 'ko-KR,ko;q=0.8';
@@ -816,7 +814,7 @@ describe('Litetics (events)', () => {
         headers: { 'user-agent': 'Googlebot/2.1' },
       });
 
-      await debugEventHandler.track(request);
+      await debugEventHandler.handle(request);
 
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
@@ -832,7 +830,7 @@ describe('Litetics (events)', () => {
         body: 'plain text body, not json',
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       expect(mockPersist.mock.calls.length).toBe(persistCount);
     });
@@ -844,9 +842,61 @@ describe('Litetics (events)', () => {
         body: JSON.stringify([1, 2, 3]),
       });
 
-      await eventHandler.track(request);
+      await eventHandler.handle(request);
 
       expect(mockPersist.mock.calls.length).toBe(persistCount);
+    });
+  });
+
+  describe('backward compatibility', () => {
+    it('should maintain backward compatibility with track() via options', async () => {
+      const body: EventRequestHandlerUnloadRequestBody = {
+        e: 'unload',
+        b: 'compat-bid',
+        m: 999,
+      };
+
+      const getRequestBody = vi.fn().mockResolvedValue(body);
+      const getRequestHeader = vi.fn(() => undefined);
+
+      await eventHandler.track({ getRequestBody, getRequestHeader });
+
+      expect(mockUpdate).toHaveBeenCalledWith({ bid: 'compat-bid', durationMs: 999 });
+    });
+
+    it('should maintain backward compatibility with track() via Request object', async () => {
+      const body: EventRequestHandlerUnloadRequestBody = {
+        e: 'unload',
+        b: 'compat-req',
+        m: 888,
+      };
+
+      const request = new Request('https://example.com', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+
+      await eventHandler.track(request);
+
+      expect(mockUpdate).toHaveBeenCalledWith({ bid: 'compat-req', durationMs: 888 });
+    });
+
+    it('should maintain backward compatibility with track() via payload', async () => {
+      const body: EventRequestHandlerLoadRequestBody = {
+        e: 'load',
+        b: 'compat-payload',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      };
+
+      await eventHandler.track({
+        requestBody: body,
+        requestHeaders: {},
+      });
+
+      expect(mockPersist).toHaveBeenCalledWith(expect.objectContaining({ bid: 'compat-payload' }));
     });
   });
 });

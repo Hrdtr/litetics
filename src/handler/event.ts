@@ -251,10 +251,10 @@ export class EventRequestHandler<
     };
   }
 
-  async track(request: Request): Promise<void>;
-  async track(options: EventRequestHandlerTrackOptions): Promise<void>;
-  async track(payload: EventRequestHandlerTrackPayload): Promise<void>;
-  async track(
+  async handle(request: Request): Promise<void>;
+  async handle(options: EventRequestHandlerTrackOptions): Promise<void>;
+  async handle(payload: EventRequestHandlerTrackPayload): Promise<void>;
+  async handle(
     arg: Request | EventRequestHandlerTrackOptions | EventRequestHandlerTrackPayload,
   ): Promise<void> {
     const getRequestBody =
@@ -475,6 +475,17 @@ export class EventRequestHandler<
         this.log('debug', `Unknown event received: ${eventType}`);
       }
     }
+  }
+
+  /**
+   * @deprecated Use `handle()` instead.
+   */
+  async track(
+    arg: Request | EventRequestHandlerTrackOptions | EventRequestHandlerTrackPayload,
+  ): Promise<void> {
+    if (arg instanceof Request) return this.handle(arg);
+    if ('requestBody' in arg) return this.handle(arg as EventRequestHandlerTrackPayload);
+    return this.handle(arg as EventRequestHandlerTrackOptions);
   }
 }
 

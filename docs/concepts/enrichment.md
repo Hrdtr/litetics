@@ -17,7 +17,7 @@ Client request
   └─ Headers   :  User-Agent, Accept-Language
         │
         ▼
-  eventHandler.track()
+  eventHandler.handle()
         │
         ├─ Bot check (isbot) → skip if bot
         ├─ URL validation (u must be valid)

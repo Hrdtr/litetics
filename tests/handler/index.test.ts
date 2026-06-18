@@ -57,22 +57,19 @@ describe('handler module exports', () => {
     expect(handler.PingRequestHandler).toBeDefined();
   });
 
-  it('createEventRequestHandler should return an EventRequestHandler with a track method', () => {
+  it('createEventRequestHandler should return an EventRequestHandler with a handle method', () => {
     const persist = vi.fn();
     const update = vi.fn();
     const eventHandler = handler.createEventRequestHandler({ persist, update });
     expect(eventHandler).toBeInstanceOf(handler.EventRequestHandler);
+    expect(typeof eventHandler.handle).toBe('function');
     expect(typeof eventHandler.track).toBe('function');
   });
 
-  it('createPingRequestHandler should return a PingRequestHandler with a process method', () => {
+  it('createPingRequestHandler should return a PingRequestHandler with a handle method', () => {
     const pingHandler = handler.createPingRequestHandler();
     expect(pingHandler).toBeInstanceOf(handler.PingRequestHandler);
-    expect(typeof pingHandler.process).toBe('function');
-  });
-
-  it('createPingRequestHandler should expose handle method', () => {
-    const pingHandler = handler.createPingRequestHandler();
     expect(typeof pingHandler.handle).toBe('function');
+    expect(typeof pingHandler.process).toBe('function');
   });
 });
