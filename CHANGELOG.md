@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.1.0
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0...v1.1.0)
+
+### 🚀 Enhancements
+
+- **tracker:** Add custom headers support to tracker requests ([21feec5](https://github.com/Hrdtr/litetics/commit/21feec5))
+- **handler:** Add factory functions for request handlers ([4cc71ec](https://github.com/Hrdtr/litetics/commit/4cc71ec))
+
+### 🏡 Chore
+
+- Apply automated updates ([27721d1](https://github.com/Hrdtr/litetics/commit/27721d1))
+- **release:** V1.0.0 ([5ffa4e6](https://github.com/Hrdtr/litetics/commit/5ffa4e6))
+- Deps update ([171ae01](https://github.com/Hrdtr/litetics/commit/171ae01))
+- **playground:** Deps update ([62da515](https://github.com/Hrdtr/litetics/commit/62da515))
+
+### ❤️ Contributors
+
+- Herdi Tr. <iam@icm.hrdtr.dev>
+
 ## v1.0.0
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0-rc.15...v1.0.0)
