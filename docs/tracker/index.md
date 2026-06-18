@@ -65,6 +65,7 @@ createTracker({
   adapter: myAdapter,
   sessionTimeoutDuration: 5 * 60 * 1000,
   fetchMode: 'no-cors',
+  headers: { Authorization: 'Bearer ...' },
 });
 ```
 

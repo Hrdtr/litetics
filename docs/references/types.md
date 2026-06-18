@@ -224,6 +224,7 @@ interface SendOptions {
   body?: string;
   mode?: 'no-cors' | 'cors' | 'same-origin';
   keepalive?: boolean;
+  headers?: Record<string, string>;
 }
 
 interface EnvironmentContext {
@@ -256,6 +257,7 @@ interface CreateTrackerOptions {
   adapter?: RuntimeAdapter;
   sessionTimeoutDuration?: number;
   fetchMode?: 'no-cors' | 'cors' | 'same-origin';
+  headers?: Record<string, string>;
 }
 ```
 

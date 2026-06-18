@@ -74,6 +74,36 @@ describe('createBrowserAdapter', () => {
     }
   });
 
+  it('send should include custom headers on GET requests', async () => {
+    const xhrSetHeader = vi.spyOn(XMLHttpRequest.prototype, 'setRequestHeader');
+
+    const adapter = createBrowserAdapter();
+    await adapter.send('http://x.com', {
+      method: 'GET',
+      headers: { 'X-Custom': 'value1', 'X-Other': 'value2' },
+    });
+
+    expect(xhrSetHeader).toHaveBeenCalledWith('X-Custom', 'value1');
+    expect(xhrSetHeader).toHaveBeenCalledWith('X-Other', 'value2');
+  });
+
+  it('send should include custom headers on POST fetch fallback', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: undefined });
+
+    const adapter = createBrowserAdapter();
+    await adapter.send('http://x.com', {
+      method: 'POST',
+      body: '{}',
+      headers: { Authorization: 'Bearer token123' },
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://x.com',
+      expect.objectContaining({ headers: { Authorization: 'Bearer token123' } }),
+    );
+  });
+
   it('send should use empty string body fallback for keepalive', () => {
     const sendBeaconSpy = vi.fn();
     Object.defineProperty(navigator, 'sendBeacon', {
@@ -84,6 +114,40 @@ describe('createBrowserAdapter', () => {
     const adapter = createBrowserAdapter();
     adapter.send('http://x.com', { method: 'POST', keepalive: true, body: undefined });
     expect(sendBeaconSpy).toHaveBeenCalledWith('http://x.com', '');
+  });
+
+  it('send should include custom headers on GET requests', async () => {
+    const xhrOpen = vi.spyOn(XMLHttpRequest.prototype, 'open');
+    const xhrSetHeader = vi.spyOn(XMLHttpRequest.prototype, 'setRequestHeader');
+    const xhrSend = vi.spyOn(XMLHttpRequest.prototype, 'send');
+
+    const adapter = createBrowserAdapter();
+    adapter.send('http://x.com', {
+      method: 'GET',
+      headers: { 'X-Custom': 'value1', 'X-Other': 'value2' },
+    });
+
+    expect(xhrOpen).toHaveBeenCalledWith('GET', 'http://x.com');
+    expect(xhrSetHeader).toHaveBeenCalledWith('X-Custom', 'value1');
+    expect(xhrSetHeader).toHaveBeenCalledWith('X-Other', 'value2');
+    expect(xhrSend).toHaveBeenCalled();
+  });
+
+  it('send should include custom headers on POST fetch fallback', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    Object.defineProperty(navigator, 'sendBeacon', { writable: true, value: undefined });
+
+    const adapter = createBrowserAdapter();
+    adapter.send('http://x.com', {
+      method: 'POST',
+      body: '{}',
+      headers: { Authorization: 'Bearer token123' },
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://x.com',
+      expect.objectContaining({ headers: { Authorization: 'Bearer token123' } }),
+    );
   });
 });
 

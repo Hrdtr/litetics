@@ -54,6 +54,13 @@ export interface CreateTrackerOptions {
    * @default 'no-cors'
    */
   fetchMode?: 'no-cors' | 'cors' | 'same-origin';
+
+  /**
+   * Custom headers to include in every request made by the tracker
+   * (track, ping, and unload beacons). These are merged on top of
+   * any per-call headers passed to `track()` or `trackEndOf()`.
+   */
+  headers?: Record<string, string>;
 }
 
 /**
@@ -69,6 +76,7 @@ export const createTracker = ({
   adapter: providedAdapter,
   sessionTimeoutDuration,
   fetchMode = 'no-cors',
+  headers: defaultHeaders,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL');
@@ -88,7 +96,7 @@ export const createTracker = ({
   };
 
   const ping = (url: string): Promise<boolean> =>
-    adapter.send(url, { method: 'GET' }).then((text) => text === '0');
+    adapter.send(url, { method: 'GET', headers: defaultHeaders }).then((text) => text === '0');
 
   let isUnique: boolean = true;
 
@@ -143,6 +151,7 @@ export const createTracker = ({
           t: ctx.timeZone,
         } satisfies EventRequestHandlerLoadRequestBody),
         mode: fetchMode,
+        headers: defaultHeaders,
       });
     };
 
@@ -154,7 +163,13 @@ export const createTracker = ({
           m: Date.now() - startTime,
         } satisfies EventRequestHandlerUnloadRequestBody);
 
-        adapter.send(trackEndpoint, { method: 'POST', body, keepalive: true, mode: fetchMode });
+        adapter.send(trackEndpoint, {
+          method: 'POST',
+          body,
+          keepalive: true,
+          mode: fetchMode,
+          headers: defaultHeaders,
+        });
       }
 
       isUnloadCalled = true;
@@ -265,6 +280,7 @@ export const createTracker = ({
         d: rest,
       } satisfies EventRequestHandlerLoadRequestBody),
       mode: fetchMode,
+      headers: defaultHeaders,
     });
   };
 
@@ -291,6 +307,7 @@ export const createTracker = ({
         m: Date.now() - startTime,
       } satisfies EventRequestHandlerUnloadRequestBody),
       mode: fetchMode,
+      headers: defaultHeaders,
     });
   };
 

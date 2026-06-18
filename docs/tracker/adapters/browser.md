@@ -40,6 +40,12 @@ The adapter's `send` method chooses the transport based on the request:
 
 XHR errors for GET requests resolve to `""` (empty string).
 
+When `SendOptions.headers` is provided, custom headers are forwarded to the chosen transport:
+
+- **GET** (XHR): each header is set via `xhr.setRequestHeader()`
+- **POST** (fetch): passed in the `RequestInit.headers` field
+- **POST** with `keepalive`: NOT supported — `navigator.sendBeacon()` does not accept custom headers
+
 ## How `context()` Works
 
 Returns a snapshot of the browser environment:

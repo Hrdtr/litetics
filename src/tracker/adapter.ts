@@ -60,6 +60,11 @@ export interface SendOptions {
   body?: string;
   mode?: 'no-cors' | 'cors' | 'same-origin';
   keepalive?: boolean;
+  /**
+   * Custom headers to include in the request.
+   * Not supported when `keepalive` is true (sendBeacon does not support custom headers).
+   */
+  headers?: Record<string, string>;
 }
 
 /**
@@ -136,6 +141,11 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
           xhr.addEventListener('load', () => resolve(xhr.responseText));
           xhr.addEventListener('error', () => resolve(''));
           xhr.open('GET', url);
+          if (opts.headers) {
+            for (const [key, value] of Object.entries(opts.headers)) {
+              xhr.setRequestHeader(key, value);
+            }
+          }
           xhr.send();
         });
       }
@@ -145,13 +155,17 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
         return Promise.resolve();
       }
 
+      const fetchInit: RequestInit = {
+        method: 'POST',
+        body: opts.body,
+        keepalive: opts.keepalive,
+        mode: opts.mode,
+      };
+      if (opts.headers) {
+        fetchInit.headers = opts.headers;
+      }
       return globalThis
-        .fetch(url, {
-          method: 'POST',
-          body: opts.body,
-          keepalive: opts.keepalive,
-          mode: opts.mode,
-        } as RequestInit)
+        .fetch(url, fetchInit)
         .then(() => {})
         .catch(() => {});
     },
