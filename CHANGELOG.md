@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.1.2
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.1.1...v1.1.2)
+
+### 💅 Refactors
+
+- Rename process to handle for ping request handler ([472148c](https://github.com/Hrdtr/litetics/commit/472148c))
+- Extract individual handler factories, deprecate Litetics class ([814dd4e](https://github.com/Hrdtr/litetics/commit/814dd4e))
+- Rename EventRequestHandler.track() to handle() ([4daf827](https://github.com/Hrdtr/litetics/commit/4daf827))
+
+### ❤️ Contributors
+
+- Herdi Tr. <iam@icm.hrdtr.dev>
+
 ## v1.1.1
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.1.0...v1.1.1)
