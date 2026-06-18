@@ -477,3 +477,9 @@ export class EventRequestHandler<
     }
   }
 }
+
+export function createEventRequestHandler<
+  TProperties extends Record<string, Primitive> = Record<string, Primitive>,
+>(options: EventRequestHandlerOptions<TProperties>): EventRequestHandler<TProperties> {
+  return new EventRequestHandler(options);
+}

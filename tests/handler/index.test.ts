@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as handler from '../../src';
 
 describe('handler module exports', () => {
@@ -15,5 +15,37 @@ describe('handler module exports', () => {
 
   it('should export Litetics class', () => {
     expect(handler.Litetics).toBeDefined();
+  });
+
+  it('should export createEventRequestHandler', () => {
+    expect(handler.createEventRequestHandler).toBeDefined();
+    expect(typeof handler.createEventRequestHandler).toBe('function');
+  });
+
+  it('should export createPingRequestHandler', () => {
+    expect(handler.createPingRequestHandler).toBeDefined();
+    expect(typeof handler.createPingRequestHandler).toBe('function');
+  });
+
+  it('should export EventRequestHandler class', () => {
+    expect(handler.EventRequestHandler).toBeDefined();
+  });
+
+  it('should export PingRequestHandler class', () => {
+    expect(handler.PingRequestHandler).toBeDefined();
+  });
+
+  it('createEventRequestHandler should return an EventRequestHandler with a track method', () => {
+    const persist = vi.fn();
+    const update = vi.fn();
+    const eventHandler = handler.createEventRequestHandler({ persist, update });
+    expect(eventHandler).toBeInstanceOf(handler.EventRequestHandler);
+    expect(typeof eventHandler.track).toBe('function');
+  });
+
+  it('createPingRequestHandler should return a PingRequestHandler with a process method', () => {
+    const pingHandler = handler.createPingRequestHandler();
+    expect(pingHandler).toBeInstanceOf(handler.PingRequestHandler);
+    expect(typeof pingHandler.process).toBe('function');
   });
 });

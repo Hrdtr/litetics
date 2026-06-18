@@ -21,13 +21,13 @@ describe('createTracker', () => {
   it('should throw an error if apiEndpoint.track is invalid', () => {
     expect(() =>
       createTracker({ apiEndpoint: { track: 'invalid-url', ping: 'http://example.com' } }),
-    ).toThrowError('`apiEndpoint.track` must be a valid URL');
+    ).toThrow('`apiEndpoint.track` must be a valid URL');
   });
 
   it('should throw an error if apiEndpoint.ping is invalid', () => {
     expect(() =>
       createTracker({ apiEndpoint: { track: 'http://example.com', ping: 'invalid-url' } }),
-    ).toThrowError('`apiEndpoint.ping` must be a valid URL');
+    ).toThrow('`apiEndpoint.ping` must be a valid URL');
   });
 
   it('should create a tracker with default options', () => {

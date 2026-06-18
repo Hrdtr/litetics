@@ -25,7 +25,7 @@ export type PingRequestHandlerResult = {
 /**
  * Options to configure the `PingRequestHandler` `ping` method.
  */
-export type PingRequestHandlerOptions = {
+export type PingRequestHandlerProcessOptions = {
   /**
    * A function that returns the request header.
    * @param name The name of the header.
@@ -44,7 +44,7 @@ export type PingRequestHandlerPayload = {
   requestHeaders: Record<string, string | null | undefined>;
 };
 
-export type PingRequestHandlerConstructorOptions = {
+export type PingRequestHandlerOptions = {
   /**
    * When true, logs debug information to console. Defaults to `false`.
    */
@@ -52,9 +52,9 @@ export type PingRequestHandlerConstructorOptions = {
 };
 
 export class PingRequestHandler {
-  private options: PingRequestHandlerConstructorOptions;
+  private options: PingRequestHandlerOptions;
 
-  constructor(options?: PingRequestHandlerConstructorOptions) {
+  constructor(options?: PingRequestHandlerOptions) {
     this.options = options ?? {};
   }
 
@@ -64,10 +64,10 @@ export class PingRequestHandler {
   }
 
   async process(request: Request): Promise<PingRequestHandlerResult>;
-  async process(options: PingRequestHandlerOptions): Promise<PingRequestHandlerResult>;
+  async process(options: PingRequestHandlerProcessOptions): Promise<PingRequestHandlerResult>;
   async process(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>;
   async process(
-    arg: Request | PingRequestHandlerOptions | PingRequestHandlerPayload,
+    arg: Request | PingRequestHandlerProcessOptions | PingRequestHandlerPayload,
   ): Promise<PingRequestHandlerResult> {
     const getRequestHeader =
       arg instanceof Request
@@ -142,6 +142,10 @@ export class PingRequestHandler {
       error: undefined,
     };
   }
+}
+
+export function createPingRequestHandler(options?: PingRequestHandlerOptions): PingRequestHandler {
+  return new PingRequestHandler(options);
 }
 
 export function createPingResponse(data: PingRequestHandlerResult): Response {

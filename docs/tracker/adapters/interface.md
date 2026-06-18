@@ -31,9 +31,7 @@ The transport layer. Called for both pings (GET) and beacons (POST).
 interface SendOptions {
   method: 'GET' | 'POST';
   body?: string;
-  mode?: 'no-cors' | 'cors' | 'same-origin';
   keepalive?: boolean;
-  headers?: Record<string, string>;
 }
 ```
 
@@ -44,15 +42,13 @@ Return value:
 
 The `options` parameter carries all the context the adapter needs:
 
-| Field       | Used when                      | Purpose                                       |
-| ----------- | ------------------------------ | --------------------------------------------- |
-| `method`    | Always                         | HTTP method                                   |
-| `body`      | POST                           | JSON-serialized beacon payload                |
-| `mode`      | POST (when `fetchMode` is set) | CORS mode for fetch                           |
-| `keepalive` | POST (unload beacons)          | Hint to use `sendBeacon` or `keepalive: true` |
-| `headers`   | GET / POST (fetch)             | Custom HTTP headers                           |
+| Field       | Used when             | Purpose                                       |
+| ----------- | --------------------- | --------------------------------------------- |
+| `method`    | Always                | HTTP method                                   |
+| `body`      | POST                  | JSON-serialized beacon payload                |
+| `keepalive` | POST (unload beacons) | Hint to use `sendBeacon` or `keepalive: true` |
 
-A correct `send` implementation must forward `keepalive` and `mode` to the underlying transport. The tracker relies on `keepalive` for unload beacons to ensure delivery during page teardown.
+A correct `send` implementation must forward `keepalive` to the underlying transport. The tracker relies on `keepalive` for unload beacons to ensure delivery during page teardown.
 
 ## `context()`
 

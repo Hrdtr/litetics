@@ -222,9 +222,7 @@ interface RuntimeAdapter {
 interface SendOptions {
   method: 'GET' | 'POST';
   body?: string;
-  mode?: 'no-cors' | 'cors' | 'same-origin';
   keepalive?: boolean;
-  headers?: Record<string, string>;
 }
 
 interface EnvironmentContext {
@@ -241,6 +239,8 @@ interface EnvironmentContext {
 
 interface BrowserAdapterOptions {
   mode?: 'history' | 'hash';
+  headers?: Record<string, string>;
+  fetchMode?: 'no-cors' | 'cors' | 'same-origin';
 }
 ```
 
@@ -256,8 +256,6 @@ interface CreateTrackerOptions {
   };
   adapter?: RuntimeAdapter;
   sessionTimeoutDuration?: number;
-  fetchMode?: 'no-cors' | 'cors' | 'same-origin';
-  headers?: Record<string, string>;
 }
 ```
 

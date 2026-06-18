@@ -44,23 +44,6 @@ export interface CreateTrackerOptions {
    * @default 5 * 60 * 1000
    */
   sessionTimeoutDuration?: number;
-
-  /**
-   * The fetch mode to use for track requests.
-   * - `'no-cors'` (default): Response is opaque, errors invisible.
-   * - `'cors'`: Allow cross-origin requests with readable response.
-   * - `'same-origin'`: Only send for same-origin requests.
-   * - `undefined`: No mode set, browser default (same-origin with readable response).
-   * @default 'no-cors'
-   */
-  fetchMode?: 'no-cors' | 'cors' | 'same-origin';
-
-  /**
-   * Custom headers to include in every request made by the tracker
-   * (track, ping, and unload beacons). These are merged on top of
-   * any per-call headers passed to `track()` or `trackEndOf()`.
-   */
-  headers?: Record<string, string>;
 }
 
 /**
@@ -75,8 +58,6 @@ export const createTracker = ({
   apiEndpoint: { ping: pingEndpoint, track: trackEndpoint },
   adapter: providedAdapter,
   sessionTimeoutDuration,
-  fetchMode = 'no-cors',
-  headers: defaultHeaders,
 }: CreateTrackerOptions) => {
   if (!isValidUrl(trackEndpoint)) {
     throw new Error('`apiEndpoint.track` must be a valid URL');
@@ -96,7 +77,7 @@ export const createTracker = ({
   };
 
   const ping = (url: string): Promise<boolean> =>
-    adapter.send(url, { method: 'GET', headers: defaultHeaders }).then((text) => text === '0');
+    adapter.send(url, { method: 'GET' }).then((text) => text === '0');
 
   let isUnique: boolean = true;
 
@@ -150,8 +131,6 @@ export const createTracker = ({
           r: ctx.referrer,
           t: ctx.timeZone,
         } satisfies EventRequestHandlerLoadRequestBody),
-        mode: fetchMode,
-        headers: defaultHeaders,
       });
     };
 
@@ -163,13 +142,7 @@ export const createTracker = ({
           m: Date.now() - startTime,
         } satisfies EventRequestHandlerUnloadRequestBody);
 
-        adapter.send(trackEndpoint, {
-          method: 'POST',
-          body,
-          keepalive: true,
-          mode: fetchMode,
-          headers: defaultHeaders,
-        });
+        adapter.send(trackEndpoint, { method: 'POST', body, keepalive: true });
       }
 
       isUnloadCalled = true;
@@ -279,8 +252,6 @@ export const createTracker = ({
         t: ctx.timeZone,
         d: rest,
       } satisfies EventRequestHandlerLoadRequestBody),
-      mode: fetchMode,
-      headers: defaultHeaders,
     });
   };
 
@@ -306,8 +277,6 @@ export const createTracker = ({
         b: id,
         m: Date.now() - startTime,
       } satisfies EventRequestHandlerUnloadRequestBody),
-      mode: fetchMode,
-      headers: defaultHeaders,
     });
   };
 

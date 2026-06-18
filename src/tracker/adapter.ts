@@ -58,13 +58,7 @@ export interface RuntimeAdapter {
 export interface SendOptions {
   method: 'GET' | 'POST';
   body?: string;
-  mode?: 'no-cors' | 'cors' | 'same-origin';
   keepalive?: boolean;
-  /**
-   * Custom headers to include in the request.
-   * Not supported when `keepalive` is true (sendBeacon does not support custom headers).
-   */
-  headers?: Record<string, string>;
 }
 
 /**
@@ -93,6 +87,22 @@ export interface BrowserAdapterOptions {
    * @default 'history'
    */
   mode?: 'history' | 'hash';
+
+  /**
+   * Custom headers to include in every request made by the adapter.
+   * These are applied to GET (XHR) and POST (fetch) requests.
+   * Not supported when `keepalive` is true (sendBeacon does not support custom headers).
+   */
+  headers?: Record<string, string>;
+
+  /**
+   * The fetch mode to use for POST requests sent via `fetch()`.
+   * - `'no-cors'` (default): Response is opaque, errors invisible.
+   * - `'cors'`: Allow cross-origin requests with readable response.
+   * - `'same-origin'`: Only send for same-origin requests.
+   * @default 'no-cors'
+   */
+  fetchMode?: 'no-cors' | 'cors' | 'same-origin';
 }
 
 /**
@@ -111,6 +121,9 @@ let historyWrapped = false;
 let globalOnNavigateListeners: Set<(url: string) => void> = new Set();
 
 export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAdapter => {
+  const requestHeaders = options?.headers;
+  const requestMode = options?.fetchMode ?? 'no-cors';
+
   if (!historyWrapped) {
     const originalPushState = history.pushState.bind(history);
 
@@ -141,8 +154,8 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
           xhr.addEventListener('load', () => resolve(xhr.responseText));
           xhr.addEventListener('error', () => resolve(''));
           xhr.open('GET', url);
-          if (opts.headers) {
-            for (const [key, value] of Object.entries(opts.headers)) {
+          if (requestHeaders) {
+            for (const [key, value] of Object.entries(requestHeaders)) {
               xhr.setRequestHeader(key, value);
             }
           }
@@ -159,10 +172,10 @@ export const createBrowserAdapter = (options?: BrowserAdapterOptions): RuntimeAd
         method: 'POST',
         body: opts.body,
         keepalive: opts.keepalive,
-        mode: opts.mode,
+        mode: requestMode,
       };
-      if (opts.headers) {
-        fetchInit.headers = opts.headers;
+      if (requestHeaders) {
+        fetchInit.headers = requestHeaders;
       }
       return globalThis
         .fetch(url, fetchInit)

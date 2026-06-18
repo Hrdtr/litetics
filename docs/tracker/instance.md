@@ -78,37 +78,3 @@ The timestamp provides millisecond ordering; the 8-character random suffix provi
 ## Unload Beacons
 
 Unload beacons use `navigator.sendBeacon()` when available. If unavailable, `fetch()` with `keepalive: true` is used. This ensures beacons are delivered even during page teardown.
-
-## Custom Headers
-
-Attach custom HTTP headers to every request the tracker makes (pings, load beacons, unload beacons, and custom events):
-
-```ts
-const tracker = createTracker({
-  apiEndpoint: { track: '...', ping: '...' },
-  headers: {
-    Authorization: 'Bearer my-token',
-    'X-Application': 'my-app',
-  },
-});
-```
-
-Headers are sent on:
-
-- **GET** pings via `XMLHttpRequest.setRequestHeader()`
-- **POST** load beacons via `fetch()` init headers
-- **POST** unload beacons via `fetch()` init headers (when `sendBeacon` is unavailable)
-
-> **Note:** Unload beacons sent through `navigator.sendBeacon()` cannot carry custom headers — the API does not support them. When `keepalive: true` and `navigator.sendBeacon` is available, the beacon is sent without custom headers.
-
-## Fetch Mode
-
-Control CORS behavior of track POST requests:
-
-| Mode                  | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| `'no-cors'` (default) | Opaque response. Simplest setup for cross-origin tracking        |
-| `'cors'`              | Standard CORS. Server must include `Access-Control-Allow-Origin` |
-| `'same-origin'`       | Only send when tracker and endpoint share the same origin        |
-
-Ping requests ignore `fetchMode` — they always use `XMLHttpRequest`.

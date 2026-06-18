@@ -20,11 +20,17 @@ const adapter = createBrowserAdapter({ mode: 'hash' });
 
 ### Options
 
-A single optional field controls the routing mode:
+| Field       | Type                                   | Default     | Description                                    |
+| ----------- | -------------------------------------- | ----------- | ---------------------------------------------- |
+| `mode`      | `'history' \| 'hash'`                  | `'history'` | Routing mode for SPA navigation detection      |
+| `headers`   | `Record<string, string>`               | —           | Custom headers included in every HTTP request  |
+| `fetchMode` | `'no-cors' \| 'cors' \| 'same-origin'` | `'no-cors'` | CORS mode for POST requests sent via `fetch()` |
 
 ```ts
 interface BrowserAdapterOptions {
   mode?: 'history' | 'hash'; // Default: 'history'
+  headers?: Record<string, string>;
+  fetchMode?: 'no-cors' | 'cors' | 'same-origin'; // Default: 'no-cors'
 }
 ```
 
@@ -32,19 +38,59 @@ interface BrowserAdapterOptions {
 
 The adapter's `send` method chooses the transport based on the request:
 
-| Condition                  | Transport                       | Returns                        |
-| -------------------------- | ------------------------------- | ------------------------------ |
-| `GET`                      | `XMLHttpRequest`                | Response text (`"0"` or `"1"`) |
-| `POST` with `keepalive`    | `navigator.sendBeacon()`        | `void`                         |
-| `POST` without `keepalive` | `fetch()` with specified `mode` | `void`                         |
+| Condition                  | Transport                | Returns                        |
+| -------------------------- | ------------------------ | ------------------------------ |
+| `GET`                      | `XMLHttpRequest`         | Response text (`"0"` or `"1"`) |
+| `POST` with `keepalive`    | `navigator.sendBeacon()` | `void`                         |
+| `POST` without `keepalive` | `fetch()`                | `void`                         |
 
 XHR errors for GET requests resolve to `""` (empty string).
 
-When `SendOptions.headers` is provided, custom headers are forwarded to the chosen transport:
+## Custom Headers
 
-- **GET** (XHR): each header is set via `xhr.setRequestHeader()`
-- **POST** (fetch): passed in the `RequestInit.headers` field
-- **POST** with `keepalive`: NOT supported — `navigator.sendBeacon()` does not accept custom headers
+Attach custom HTTP headers to every request the tracker makes by passing them to `createBrowserAdapter`:
+
+```ts
+import { createTracker, createBrowserAdapter } from 'litetics/tracker';
+
+const adapter = createBrowserAdapter({
+  headers: {
+    Authorization: 'Bearer my-token',
+    'X-Application': 'my-app',
+  },
+});
+
+const tracker = createTracker({
+  apiEndpoint: { track: '...', ping: '...' },
+  adapter,
+});
+```
+
+Headers are sent on:
+
+- **GET** pings via `XMLHttpRequest.setRequestHeader()`
+- **POST** load beacons via `fetch()` init headers
+- **POST** unload beacons via `fetch()` init headers (when `sendBeacon` is unavailable)
+
+> **Note:** Unload beacons sent through `navigator.sendBeacon()` cannot carry custom headers — the API does not support them. When `keepalive: true` and `navigator.sendBeacon` is available, the beacon is sent without custom headers.
+
+## Fetch Mode
+
+Control the CORS behavior of POST requests sent by the adapter:
+
+| Mode                  | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| `'no-cors'` (default) | Opaque response. Simplest setup for cross-origin tracking        |
+| `'cors'`              | Standard CORS. Server must include `Access-Control-Allow-Origin` |
+| `'same-origin'`       | Only send when tracker and endpoint share the same origin        |
+
+Ping requests ignore `fetchMode` — they always use `XMLHttpRequest`.
+
+```ts
+const adapter = createBrowserAdapter({
+  fetchMode: 'cors',
+});
+```
 
 ## How `context()` Works
 
