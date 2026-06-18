@@ -135,6 +135,7 @@ export class PingRequestHandler {
     return {
       status: 200,
       headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
         'Last-Modified': ifModifiedSince,
         'Cache-Control': `max-age=${Math.ceil((nextResetTime - Date.now()) / 1000)}`,
       },
