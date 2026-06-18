@@ -16,7 +16,7 @@ export type {
 export type {
   PingRequestHandlerOptions,
   PingRequestHandlerPayload,
-  PingRequestHandlerProcessOptions,
+  PingRequestHandlerHandleOptions,
   PingRequestHandlerResult,
 } from './ping';
 
@@ -29,14 +29,14 @@ export type LiteticsOptions<
 
 export class Litetics<TProperties extends Record<string, Primitive> = Record<string, Primitive>> {
   handleEventRequest: EventRequestHandler<TProperties>['track'];
-  handlePingRequest: PingRequestHandler['process'];
+  handlePingRequest: PingRequestHandler['handle'];
 
   constructor(options: LiteticsOptions<TProperties>) {
     const eventRequestHandler = new EventRequestHandler(options);
     const pingRequestHandler = new PingRequestHandler({ debug: options.debug });
 
     this.handleEventRequest = eventRequestHandler.track.bind(eventRequestHandler);
-    this.handlePingRequest = pingRequestHandler.process.bind(pingRequestHandler);
+    this.handlePingRequest = pingRequestHandler.handle.bind(pingRequestHandler);
   }
 }
 

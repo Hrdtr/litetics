@@ -163,7 +163,7 @@ Determines whether a visitor is new or returning within the same calendar day. U
 handlePingRequest(request: Request): Promise<PingRequestHandlerResult>
 
 // 2. Getter-based options
-handlePingRequest(options: PingRequestHandlerOptions): Promise<PingRequestHandlerResult>
+handlePingRequest(options: PingRequestHandlerHandleOptions): Promise<PingRequestHandlerResult>
 
 // 3. Pre-resolved payload
 handlePingRequest(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>

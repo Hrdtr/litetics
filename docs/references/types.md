@@ -26,6 +26,7 @@ import type {
   PingRequestHandlerResult,
   PingRequestHandlerOptions,
   PingRequestHandlerPayload,
+  PingRequestHandlerHandleOptions,
 } from 'litetics';
 ```
 
@@ -179,8 +180,20 @@ interface PingRequestHandlerResult {
   body: '0' | '1' | null;
   error?: string;
 }
+```
 
+The ping handler options passed to `createLitetics`:
+
+```ts
 interface PingRequestHandlerOptions {
+  debug?: boolean;
+}
+```
+
+Options for the ping handler's `handle` method:
+
+```ts
+interface PingRequestHandlerHandleOptions {
   getRequestHeader: (name: string) => MaybePromise<string | null | undefined>;
 }
 
@@ -254,7 +267,7 @@ interface CreateTrackerOptions {
     track: string;
     ping: string;
   };
-  adapter?: RuntimeAdapter;
+  adapter?: RuntimeAdapter | (() => RuntimeAdapter);
   sessionTimeoutDuration?: number;
 }
 ```

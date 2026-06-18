@@ -138,7 +138,6 @@ const rnAdapter: RuntimeAdapter = {
       method: options.method,
       body: options.body,
       keepalive: options.keepalive,
-      mode: options.mode,
       headers: options.body ? { 'content-type': 'application/json' } : undefined,
     }).then((r) => (options.method === 'GET' ? r.text() : undefined));
   },
@@ -188,7 +187,6 @@ const nodeAdapter: RuntimeAdapter = {
       method: options.method,
       body: options.body,
       keepalive: options.keepalive,
-      mode: options.mode,
       headers: options.body ? { 'content-type': 'application/json' } : undefined,
     });
     return options.method === 'GET' ? resp.text() : undefined;
@@ -235,7 +233,6 @@ const denoAdapter: RuntimeAdapter = {
       method: options.method,
       body: options.body,
       keepalive: options.keepalive,
-      mode: options.mode,
       headers: options.body ? { 'content-type': 'application/json' } : undefined,
     });
     return options.method === 'GET' ? resp.text() : undefined;
@@ -276,7 +273,6 @@ const bunAdapter: RuntimeAdapter = {
       method: options.method,
       body: options.body,
       keepalive: options.keepalive,
-      mode: options.mode,
       headers: options.body ? { 'content-type': 'application/json' } : undefined,
     });
     return options.method === 'GET' ? resp.text() : undefined;

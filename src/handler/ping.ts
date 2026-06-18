@@ -25,7 +25,7 @@ export type PingRequestHandlerResult = {
 /**
  * Options to configure the `PingRequestHandler` `ping` method.
  */
-export type PingRequestHandlerProcessOptions = {
+export type PingRequestHandlerHandleOptions = {
   /**
    * A function that returns the request header.
    * @param name The name of the header.
@@ -63,11 +63,11 @@ export class PingRequestHandler {
     console[level](`[litetics:ping] ${message}`);
   }
 
-  async process(request: Request): Promise<PingRequestHandlerResult>;
-  async process(options: PingRequestHandlerProcessOptions): Promise<PingRequestHandlerResult>;
-  async process(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>;
-  async process(
-    arg: Request | PingRequestHandlerProcessOptions | PingRequestHandlerPayload,
+  async handle(request: Request): Promise<PingRequestHandlerResult>;
+  async handle(options: PingRequestHandlerHandleOptions): Promise<PingRequestHandlerResult>;
+  async handle(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>;
+  async handle(
+    arg: Request | PingRequestHandlerHandleOptions | PingRequestHandlerPayload,
   ): Promise<PingRequestHandlerResult> {
     const getRequestHeader =
       arg instanceof Request
@@ -142,6 +142,17 @@ export class PingRequestHandler {
       body: '1',
       error: undefined,
     };
+  }
+
+  /**
+   * @deprecated Use `handle()` instead.
+   */
+  async process(
+    arg: Request | PingRequestHandlerHandleOptions | PingRequestHandlerPayload,
+  ): Promise<PingRequestHandlerResult> {
+    if (arg instanceof Request) return this.handle(arg);
+    if ('requestHeaders' in arg) return this.handle(arg as PingRequestHandlerPayload);
+    return this.handle(arg as PingRequestHandlerHandleOptions);
   }
 }
 

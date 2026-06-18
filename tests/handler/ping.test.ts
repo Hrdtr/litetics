@@ -206,9 +206,35 @@ describe('handler:ping', () => {
   });
 
   it('should construct without options', async () => {
-    const handler = new PingRequestHandler();
-    const result: PingRequestHandlerResult = await handler.process({
+    const pingHandler = new PingRequestHandler();
+    const result: PingRequestHandlerResult = await pingHandler.handle({
       getRequestHeader: () => undefined,
+    });
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('0');
+  });
+
+  it('should maintain backward compatibility with process()', async () => {
+    const pingHandler = new PingRequestHandler();
+    const result: PingRequestHandlerResult = await pingHandler.process({
+      getRequestHeader: () => undefined,
+    });
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('0');
+  });
+
+  it('should maintain backward compatibility with process() via Request object', async () => {
+    const pingHandler = new PingRequestHandler();
+    const request = new Request('http://example.com/ping');
+    const result: PingRequestHandlerResult = await pingHandler.process(request);
+    expect(result.status).toEqual(200);
+    expect(result.body).toEqual('0');
+  });
+
+  it('should maintain backward compatibility with process() via payload', async () => {
+    const pingHandler = new PingRequestHandler();
+    const result: PingRequestHandlerResult = await pingHandler.process({
+      requestHeaders: {},
     });
     expect(result.status).toEqual(200);
     expect(result.body).toEqual('0');

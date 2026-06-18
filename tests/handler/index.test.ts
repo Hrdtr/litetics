@@ -48,4 +48,9 @@ describe('handler module exports', () => {
     expect(pingHandler).toBeInstanceOf(handler.PingRequestHandler);
     expect(typeof pingHandler.process).toBe('function');
   });
+
+  it('createPingRequestHandler should expose handle method', () => {
+    const pingHandler = handler.createPingRequestHandler();
+    expect(typeof pingHandler.handle).toBe('function');
+  });
 });
