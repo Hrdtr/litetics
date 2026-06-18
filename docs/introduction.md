@@ -28,17 +28,18 @@ Two packages:
 
 ## Architecture
 
-A tracker in the browser communicates with a handler on the server over two HTTP routes.
+A tracker in the browser communicates with handlers on the server over two HTTP routes.
 
 ```text
   Browser                          Server
  ┌───────────┐                    ┌─────────────────────────┐
- │           │─── GET  /ping ───▶ │ Litetics                │
- │  Tracker  │                    │   .handlePingRequest()  │
- │           │─── POST /event ──▶ │   .handleEventRequest() │
- └───────────┘                    │         ▼               │
-                                  │     persist(data)       │
-                                  │     update(duration)    │
+ │           │─── GET  /ping ───▶ │ PingRequestHandler      │
+ │  Tracker  │                    │   .handle()             │
+ │           │─── POST /event ──▶ │ EventRequestHandler     │
+ └───────────┘                    │   .track()              │
+                                  │         ▼               │
+                                  │   persist(data)         │
+                                  │   update(duration)      │
                                   └─────────────────────────┘
                                                │
                                                ▼

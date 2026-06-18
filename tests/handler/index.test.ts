@@ -8,6 +8,28 @@ describe('handler module exports', () => {
     expect(typeof handler.createLitetics).toBe('function');
   });
 
+  it('createLitetics should return a Litetics instance with working handlers', async () => {
+    const persist = vi.fn();
+    const update = vi.fn();
+    const litetics = handler.createLitetics({ persist, update });
+    expect(litetics).toBeInstanceOf(handler.Litetics);
+    expect(typeof litetics.handleEventRequest).toBe('function');
+    expect(typeof litetics.handlePingRequest).toBe('function');
+
+    await litetics.handleEventRequest({
+      requestBody: {
+        e: 'load',
+        b: 'test-bid',
+        u: 'https://example.com',
+        p: true,
+        q: true,
+        a: 'pageview',
+      },
+      requestHeaders: {},
+    });
+    expect(persist).toHaveBeenCalled();
+  });
+
   it('should export createPingResponse', () => {
     expect(handler.createPingResponse).toBeDefined();
     expect(typeof handler.createPingResponse).toBe('function');

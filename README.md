@@ -49,11 +49,11 @@ deno install npm:litetics
 ```ts
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
 const events = [];
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -62,12 +62,13 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     if (event) event.durationMs = durationMs;
   },
 });
+const pingHandler = createPingRequestHandler();
 
 const app = new Hono();
 
-app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
+app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 app.post('/event', async (c) => {
-  await handleEventRequest(c.req.raw);
+  await eventHandler.track(c.req.raw);
   return c.body(null, 204);
 });
 
@@ -105,18 +106,20 @@ await tracker.trackEndOf('video_play');
 
 ### `litetics` — Server Exports
 
-| Export                                           | Description                                                                                        |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `createLitetics(options)`                        | Creates a handler for pings, load, and unload events. Calls `persist` on load, `update` on unload. |
-| `createPingResponse(result)`                     | Converts a `PingRequestHandlerResult` into a `Response`.                                           |
-| `EventData` (type)                               | The full enriched event data object (50+ fields).                                                  |
-| `EventRequestHandlerOptions<TProperties>` (type) | Options for `createLitetics`.                                                                      |
-| `EventRequestHandlerParsers` (type)              | Overridable parser functions.                                                                      |
-| `EventRequestHandlerLoadRequestBody` (type)      | Shape of the load event POST body.                                                                 |
-| `EventRequestHandlerUnloadRequestBody` (type)    | Shape of the unload event POST body.                                                               |
-| `PingRequestHandlerResult` (type)                | Result of a ping request.                                                                          |
-| `EventRequestHandlerTrackOptions` (type)         | Getter-based track input.                                                                          |
-| `EventRequestHandlerTrackPayload` (type)         | Pre-resolved track input.                                                                          |
+| Export                                           | Description                                                            |
+| ------------------------------------------------ | ---------------------------------------------------------------------- |
+| `createEventRequestHandler(options)`             | Creates an event handler. Calls `persist` on load, `update` on unload. |
+| `createPingRequestHandler(options?)`             | Creates a ping handler for visitor uniqueness.                         |
+| `createPingResponse(result)`                     | Converts a `PingRequestHandlerResult` into a `Response`.               |
+| `EventData` (type)                               | The full enriched event data object (50+ fields).                      |
+| `EventRequestHandlerOptions<TProperties>` (type) | Options for `createEventRequestHandler`.                               |
+| `EventRequestHandlerParsers` (type)              | Overridable parser functions.                                          |
+| `EventRequestHandlerLoadRequestBody` (type)      | Shape of the load event POST body.                                     |
+| `EventRequestHandlerUnloadRequestBody` (type)    | Shape of the unload event POST body.                                   |
+| `PingRequestHandlerResult` (type)                | Result of a ping request.                                              |
+| `PingRequestHandlerOptions` (type)               | Options for `createPingRequestHandler`.                                |
+| `EventRequestHandlerTrackOptions` (type)         | Getter-based track input.                                              |
+| `EventRequestHandlerTrackPayload` (type)         | Pre-resolved track input.                                              |
 
 ### `litetics/tracker` — Client Exports
 

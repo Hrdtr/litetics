@@ -1,9 +1,9 @@
 import type { EventData } from '../../../src/types';
-import { createLitetics } from '../../../src';
+import { createEventRequestHandler, createPingRequestHandler } from '../../../src';
 
 export const events: EventData[] = [];
 
-export const { handleEventRequest, handlePingRequest } = createLitetics({
+export const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -15,3 +15,5 @@ export const { handleEventRequest, handlePingRequest } = createLitetics({
   },
   debug: true,
 });
+
+export const pingHandler = createPingRequestHandler({ debug: true });

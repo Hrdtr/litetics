@@ -11,9 +11,9 @@ The handlers accept standard `Request` objects or getter/payload interfaces, mak
 Pass the incoming `Request` directly:
 
 ```ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     /* KV, D1, or Durable Object */
   },
@@ -21,18 +21,19 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     /* update duration */
   },
 });
+const pingHandler = createPingRequestHandler();
 
 export default {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/ping' && request.method === 'GET') {
-      const result = await handlePingRequest(request);
+      const result = await pingHandler.handle(request);
       return createPingResponse(result);
     }
 
     if (url.pathname === '/event' && request.method === 'POST') {
-      await handleEventRequest(request);
+      await eventHandler.track(request);
       return new Response(null, { status: 204 });
     }
 
@@ -46,12 +47,13 @@ export default {
 Bun's `fetch` handler receives a standard `Request`:
 
 ```ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: logEvent,
   update: logDuration,
 });
+const pingHandler = createPingRequestHandler();
 
 Bun.serve({
   port: 3000,
@@ -59,12 +61,12 @@ Bun.serve({
     const url = new URL(request.url);
 
     if (url.pathname === '/ping') {
-      const result = await handlePingRequest(request);
+      const result = await pingHandler.handle(request);
       return createPingResponse(result);
     }
 
     if (url.pathname === '/event') {
-      await handleEventRequest(request);
+      await eventHandler.track(request);
       return new Response(null, { status: 204 });
     }
 
@@ -78,23 +80,28 @@ Bun.serve({
 Deno's `serve` provides a standard `Request`:
 
 ```ts
-import { createLitetics, createPingResponse } from 'npm:litetics';
+import {
+  createEventRequestHandler,
+  createPingRequestHandler,
+  createPingResponse,
+} from 'npm:litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: logEvent,
   update: logDuration,
 });
+const pingHandler = createPingRequestHandler();
 
 Deno.serve({ port: 3000 }, async (request) => {
   const url = new URL(request.url);
 
   if (url.pathname === '/ping') {
-    const result = await handlePingRequest(request);
+    const result = await pingHandler.handle(request);
     return createPingResponse(result);
   }
 
   if (url.pathname === '/event') {
-    await handleEventRequest(request);
+    await eventHandler.track(request);
     return new Response(null, { status: 204 });
   }
 
@@ -108,16 +115,17 @@ Fastify's request object does not implement the Web API `Request` interface, so 
 
 ```ts
 import Fastify from 'fastify';
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: logEvent,
   update: logDuration,
 });
+const pingHandler = createPingRequestHandler();
 const app = Fastify();
 
 app.get('/ping', async (request, reply) => {
-  const result = await handlePingRequest({
+  const result = await pingHandler.handle({
     requestHeaders: { 'if-modified-since': request.headers['if-modified-since'] },
   });
   const response = createPingResponse(result);
@@ -125,7 +133,7 @@ app.get('/ping', async (request, reply) => {
 });
 
 app.post('/event', async (request, reply) => {
-  await handleEventRequest({
+  await eventHandler.track({
     requestBody: request.body,
     requestHeaders: {
       'user-agent': request.headers['user-agent'],
@@ -144,18 +152,19 @@ Express doesn't use the Web API Request object — use the payload overload:
 
 ```ts
 import express from 'express';
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: logEvent,
   update: logDuration,
 });
+const pingHandler = createPingRequestHandler();
 const app = express();
 
 app.use(express.json());
 
 app.get('/ping', async (req, res) => {
-  const result = await handlePingRequest({
+  const result = await pingHandler.handle({
     requestHeaders: { 'if-modified-since': req.headers['if-modified-since'] },
   });
   const response = createPingResponse(result);
@@ -163,7 +172,7 @@ app.get('/ping', async (req, res) => {
 });
 
 app.post('/event', async (req, res) => {
-  await handleEventRequest({
+  await eventHandler.track({
     requestBody: req.body,
     requestHeaders: {
       'user-agent': req.headers['user-agent'],
@@ -182,15 +191,15 @@ Use Nitro's `readBody` and `getHeader` helpers with the getter overload:
 
 ```ts
 // server/api/event.post.ts
-import { createLitetics } from 'litetics';
+import { createEventRequestHandler } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: logEvent,
   update: logDuration,
 });
 
 export default defineEventRequestHandler(async (event) => {
-  await handleEventRequest({
+  await eventHandler.track({
     getRequestBody: () => readBody(event),
     getRequestHeader: (name) => getHeader(event, name) ?? null,
   });
@@ -201,15 +210,12 @@ export default defineEventRequestHandler(async (event) => {
 
 ```ts
 // server/api/ping.get.ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
-  persist: logEvent,
-  update: logDuration,
-});
+const pingHandler = createPingRequestHandler();
 
 export default defineEventRequestHandler(async (event) => {
-  const result = await handlePingRequest({
+  const result = await pingHandler.handle({
     getRequestHeader: (name) => getHeader(event, name) ?? null,
   });
   return createPingResponse(result);
@@ -223,7 +229,7 @@ Since Litetics has no built-in storage, custom `persist` and `update` implementa
 ```ts
 // In-memory (development)
 const events: EventData[] = [];
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -234,7 +240,7 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
 });
 
 // PostgreSQL (Drizzle)
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: async (data) => {
     await db.insert(events).values({
       /* ...map fields... */
@@ -246,7 +252,7 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
 });
 
 // Multiple destinations
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: async (data) => {
     await Promise.all([db.insert(data), analytics.send(data)]);
   },

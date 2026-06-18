@@ -134,7 +134,7 @@ type EventRequestHandlerUnloadResult = {
 
 ### Handler Options
 
-Options passed to `createLitetics`:
+Options passed to `createEventRequestHandler`:
 
 ```ts
 interface EventRequestHandlerParsers {
@@ -182,7 +182,7 @@ interface PingRequestHandlerResult {
 }
 ```
 
-The ping handler options passed to `createLitetics`:
+The ping handler options passed to the `createPingRequestHandler` factory:
 
 ```ts
 interface PingRequestHandlerOptions {

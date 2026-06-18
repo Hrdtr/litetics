@@ -13,12 +13,12 @@ A complete Hono server with both routes:
 ```ts
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 import type { EventData } from 'litetics';
 
 const events: EventData[] = [];
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -27,11 +27,12 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     if (event) event.durationMs = durationMs;
   },
 });
+const pingHandler = createPingRequestHandler();
 
 const app = new Hono();
 
-app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
-app.post('/event', (c) => handleEventRequest(c.req.raw).then(() => c.body(null, 204)));
+app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
+app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
 
 serve({ fetch: app.fetch, port: 3000 });
 ```
@@ -42,14 +43,14 @@ If you prefer using Hono's built-in utilities:
 
 ```ts
 app.get('/ping', async (c) => {
-  const result = await handlePingRequest({
+  const result = await pingHandler.handle({
     requestHeaders: { 'If-Modified-Since': c.req.header('If-Modified-Since') },
   });
   return createPingResponse(result);
 });
 
 app.post('/event', async (c) => {
-  await handleEventRequest({
+  await eventHandler.track({
     requestBody: await c.req.json(),
     requestHeaders: {
       'User-Agent': c.req.header('User-Agent'),
@@ -62,19 +63,19 @@ app.post('/event', async (c) => {
 
 ## Middleware Pattern
 
-Wrap `handleEventRequest` into reusable middleware:
+Wrap `eventHandler.track` into reusable middleware:
 
 ```ts
-import type { Litetics } from 'litetics';
+import type { EventRequestHandler } from 'litetics';
 
-function analyticsMiddleware(handler: Litetics) {
+function analyticsMiddleware(handler: EventRequestHandler) {
   return async (c: Context, next: Next) => {
-    await handler.handleEventRequest(c.req.raw);
+    await handler.track(c.req.raw);
     await next();
   };
 }
 
-app.use('/event', analyticsMiddleware(handler));
+app.use('/event', analyticsMiddleware(eventHandler));
 ```
 
 ## Debug Mode
@@ -82,13 +83,16 @@ app.use('/event', analyticsMiddleware(handler));
 Enable logging to see what the handler is doing:
 
 ```ts
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     /* ... */
   },
   update: (data) => {
     /* ... */
   },
+  debug: true,
+});
+const pingHandler = createPingRequestHandler({
   debug: true,
 });
 ```

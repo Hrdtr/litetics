@@ -4,7 +4,7 @@ description: Reference documentation for the EventData interface — the fully e
 
 # Event Data
 
-The `EventData` interface represents a fully enriched analytics event. It is produced by the `Litetics` and passed to your `persist` callback.
+The `EventData` interface represents a fully enriched analytics event. It is produced by `EventRequestHandler.track()` and passed to your `persist` callback.
 
 ## Type Definition
 

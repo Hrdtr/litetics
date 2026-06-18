@@ -1,8 +1,8 @@
 import { createPingResponse } from '../../../src';
-import { handlePingRequest } from '../utils/litetics';
+import { pingHandler } from '../utils/litetics';
 
 export default defineEventHandler(async (event) => {
-  const result = await handlePingRequest({
+  const result = await pingHandler.handle({
     getRequestHeader: (name) => getHeader(event, name) ?? null,
   });
   return createPingResponse(result);

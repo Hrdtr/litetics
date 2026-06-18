@@ -17,7 +17,7 @@ Client request
   └─ Headers   :  User-Agent, Accept-Language
         │
         ▼
-  Litetics.handleEventRequest()
+  eventHandler.track()
         │
         ├─ Bot check (isbot) → skip if bot
         ├─ URL validation (u must be valid)
@@ -39,7 +39,7 @@ Client request
 Each enrichment step uses a dedicated parser function. All parsers are replaceable via `EventRequestHandlerOptions.parsers`:
 
 ```ts
-createLitetics({
+createEventRequestHandler({
   persist: (data) => {
     /* ... */
   },
@@ -126,7 +126,7 @@ The client time zone is obtained via `Intl.DateTimeFormat().resolvedOptions().ti
 > You can still override the detected country with your own geo-IP logic. The `persist` callback receives the complete `EventData` object, so if you perform IP geolocation from the incoming request, you can replace `data.country` before storing it:
 >
 > ```ts
-> const { handleEventRequest } = createLitetics({
+> const eventHandler = createEventRequestHandler({
 >   persist: (data) => {
 >     data.country = geoip(getClientIP()) ?? data.country;
 >     // store data...

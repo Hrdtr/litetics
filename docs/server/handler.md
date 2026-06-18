@@ -1,19 +1,17 @@
 ---
-description: Full API reference for the Litetics handler — handleEventRequest, handlePingRequest, options, and enrichment.
+description: Full API reference for the Litetics event and ping handlers — track(), handle(), options, and enrichment.
 ---
 
-# Handler
+# Handlers
 
-The `Litetics` processes event beacons and ping requests. A single instance handles both concerns.
+The event and ping handlers are separate. Create them independently with their factory functions.
 
-## Creating a Handler
-
-Create a handler by providing `persist` and `update` callbacks:
+## Creating Handlers
 
 ```ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     // Called for every load event with fully enriched data
   },
@@ -21,6 +19,7 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     // Called for every unload event
   },
 });
+const pingHandler = createPingRequestHandler();
 ```
 
 ## Options
@@ -28,7 +27,7 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
 All available configuration fields:
 
 ```ts
-interface LiteticsOptions<TProperties> {
+interface EventRequestHandlerOptions<TProperties> {
   /** Called for load events with enriched data. */
   persist: (
     data: EventRequestHandlerLoadResult & { properties: TProperties | null },
@@ -50,19 +49,19 @@ interface LiteticsOptions<TProperties> {
 
 The `TProperties` generic types the `properties` field in persisted events. Defaults to `Record<string, Primitive>`.
 
-## `handleEventRequest()` — `POST`
+## `eventHandler.track()` — `POST`
 
-Processes an incoming event beacon. Accepts three input shapes:
+Processes an incoming event beacon via `track()`. Accepts three input shapes:
 
 ```ts
 // 1. Web API Request object
-handleEventRequest(request: Request): Promise<void>
+eventHandler.track(request: Request): Promise<void>
 
 // 2. Getter-based options
-handleEventRequest(options: EventRequestHandlerTrackOptions): Promise<void>
+eventHandler.track(options: EventRequestHandlerTrackOptions): Promise<void>
 
 // 3. Pre-resolved payload
-handleEventRequest(payload: EventRequestHandlerTrackPayload): Promise<void>
+eventHandler.track(payload: EventRequestHandlerTrackPayload): Promise<void>
 ```
 
 ### Request Body Schema
@@ -100,7 +99,7 @@ The handler discriminates on the `e` field.
 The handler proceeds through these steps for each incoming event:
 
 ```text
-handleEventRequest() called
+eventHandler.track() called
   │
   ├─ Extract headers (User-Agent, Accept-Language) and body
   ├─ Bot check         → skip if bot
@@ -130,7 +129,7 @@ Load events are enriched server-side with:
 Override individual parsers:
 
 ```ts
-const { handleEventRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     /* ... */
   },
@@ -154,24 +153,24 @@ Bots are silently dropped via [isbot](https://www.npmjs.com/package/isbot). Over
 shouldIgnoreUserAgent: (ua) => ua.includes('my-bot');
 ```
 
-## `handlePingRequest()` — `GET`
+## `pingHandler.handle()` — `GET`
 
 Determines whether a visitor is new or returning within the same calendar day. Uses `If-Modified-Since` headers.
 
 ```ts
 // 1. Web API Request object
-handlePingRequest(request: Request): Promise<PingRequestHandlerResult>
+pingHandler.handle(request: Request): Promise<PingRequestHandlerResult>
 
 // 2. Getter-based options
-handlePingRequest(options: PingRequestHandlerHandleOptions): Promise<PingRequestHandlerResult>
+pingHandler.handle(options: PingRequestHandlerHandleOptions): Promise<PingRequestHandlerResult>
 
 // 3. Pre-resolved payload
-handlePingRequest(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>
+pingHandler.handle(payload: PingRequestHandlerPayload): Promise<PingRequestHandlerResult>
 ```
 
 ### Ping Result
 
-The `PingRequestHandlerResult` type returned by `handlePingRequest`:
+The `PingRequestHandlerResult` type returned by `pingHandler.handle`:
 
 ```ts
 interface PingRequestHandlerResult {
@@ -217,7 +216,7 @@ Converts a `PingRequestHandlerResult` into a standard `Response`:
 ```ts
 import { createPingResponse } from 'litetics';
 
-const result = await handlePingRequest(request);
+const result = await pingHandler.handle(request);
 return createPingResponse(result);
 ```
 
@@ -251,7 +250,7 @@ No built-in storage. You provide `persist` and `update`:
 ```ts
 const events: EventData[] = [];
 
-const { handleEventRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -260,4 +259,5 @@ const { handleEventRequest } = createLitetics({
     if (e) e.durationMs = durationMs;
   },
 });
+eventHandler.track(request);
 ```

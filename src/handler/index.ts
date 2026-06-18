@@ -23,10 +23,12 @@ export type {
 export { EventRequestHandler, createEventRequestHandler } from './event';
 export { PingRequestHandler, createPingRequestHandler, createPingResponse } from './ping';
 
+/** @deprecated Use `createEventRequestHandler` and `createPingRequestHandler` directly instead. */
 export type LiteticsOptions<
   TProperties extends Record<string, Primitive> = Record<string, Primitive>,
 > = EventRequestHandlerOptions<TProperties>;
 
+/** @deprecated Use `createEventRequestHandler` and `createPingRequestHandler` directly instead. */
 export class Litetics<TProperties extends Record<string, Primitive> = Record<string, Primitive>> {
   handleEventRequest: EventRequestHandler<TProperties>['track'];
   handlePingRequest: PingRequestHandler['handle'];
@@ -40,6 +42,7 @@ export class Litetics<TProperties extends Record<string, Primitive> = Record<str
   }
 }
 
+/** @deprecated Use `createEventRequestHandler` and `createPingRequestHandler` directly instead. */
 export function createLitetics<
   TProperties extends Record<string, Primitive> = Record<string, Primitive>,
 >(options: LiteticsOptions<TProperties>): Litetics<TProperties> {

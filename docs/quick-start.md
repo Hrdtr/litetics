@@ -1,10 +1,10 @@
 ---
-description: Get Litetics running in your project with a server handler and a browser tracker.
+description: Get Litetics running in your project with server handlers and a browser tracker.
 ---
 
 # Quick Start
 
-Get Litetics running in your project with a server handler and a browser tracker.
+Get Litetics running in your project with server handlers and a browser tracker.
 
 ## Install
 
@@ -32,14 +32,14 @@ deno install npm:litetics
 
 ## Server
 
-Two routes, one handler. `POST /event` for beacons, `GET /ping` for visitor uniqueness.
+Two routes, separate handlers. `POST /event` for beacons, `GET /ping` for visitor uniqueness.
 
 ```ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
 const events = [];
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     events.push(data);
   },
@@ -48,19 +48,20 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     if (event) event.durationMs = durationMs;
   },
 });
+const pingHandler = createPingRequestHandler();
 
-app.post('/event', (c) => handleEventRequest(c.req.raw).then(() => c.body(null, 204)));
-app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
+app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 ```
 
 `persist` receives fully enriched data for every load event. `update` receives the duration when an unload beacon arrives. You decide where the data goes — database, log, in-memory array.
 
-The handler works with any framework. Pass a `Request` object, getter functions, or a pre-resolved payload:
+The handlers work with any framework. Pass a `Request` object, getter functions, or a pre-resolved payload:
 
 ```ts
-handleEventRequest(request); // Hono, Workers, Bun, Deno
-handleEventRequest({ getRequestBody, getRequestHeader }); // Nuxt Nitro, Fastify
-handleEventRequest({ requestBody, requestHeaders }); // Express, any framework
+eventHandler.track(request); // Hono, Workers, Bun, Deno
+eventHandler.track({ getRequestBody, getRequestHeader }); // Nuxt Nitro, Fastify
+eventHandler.track({ requestBody, requestHeaders }); // Express, any framework
 ```
 
 ## Browser

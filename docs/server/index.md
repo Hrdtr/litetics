@@ -7,9 +7,9 @@ description: Overview of the Litetics server package — receiving beacons, enri
 The `litetics` package handles all server-side analytics work: receiving beacons, enriching them with metadata, and determining visitor uniqueness.
 
 ```ts
-import { createLitetics, createPingResponse } from 'litetics';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from 'litetics';
 
-const { handleEventRequest, handlePingRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     /* store load event */
   },
@@ -17,12 +17,13 @@ const { handleEventRequest, handlePingRequest } = createLitetics({
     /* attach duration */
   },
 });
+const pingHandler = createPingRequestHandler();
 
-app.post('/event', (c) => handleEventRequest(c.req.raw).then(() => c.body(null, 204)));
-app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
+app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
+app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
 ```
 
-Two routes, one handler instance. `handleEventRequest` processes POST beacons. `handlePingRequest` processes GET pings.
+Two separate handlers. `eventHandler.track()` processes POST beacons. `pingHandler.handle()` processes GET pings.
 
 ## Input flexibility
 
@@ -30,16 +31,16 @@ Both methods accept a standard `Request` object, getter functions, or a pre-reso
 
 ```ts
 // Request object (Hono, Workers, Bun, Deno)
-handleEventRequest(c.req.raw);
+eventHandler.track(c.req.raw);
 
 // Getter functions (Nuxt Nitro, Fastify)
-handleEventRequest({
+eventHandler.track({
   getRequestBody: () => readBody(event),
   getRequestHeader: (name) => getHeader(event, name),
 });
 
 // Pre-resolved payload (Express, any framework)
-handleEventRequest({
+eventHandler.track({
   requestBody: req.body,
   requestHeaders: { 'user-agent': req.headers['user-agent'] },
 });

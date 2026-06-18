@@ -52,7 +52,7 @@ Unload beacons use `navigator.sendBeacon()` when available. This ensures the bea
 The server receives both load and unload beacons through the same endpoint:
 
 ```ts
-const { handleEventRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist(data) {
     // Called for load events with fully enriched data
   },

@@ -2,24 +2,25 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import { createLitetics, createPingResponse } from '../../src';
+import { createEventRequestHandler, createPingRequestHandler, createPingResponse } from '../../src';
 
 describe('handler via getter options', () => {
   const persist = vi.fn();
   const update = vi.fn();
-  const { handleEventRequest, handlePingRequest } = createLitetics({ persist, update });
+  const eventHandler = createEventRequestHandler({ persist, update });
+  const pingHandler = createPingRequestHandler();
 
   const app = new Hono();
 
   app.get('/ping', async (c) => {
-    const result = await handlePingRequest({
+    const result = await pingHandler.handle({
       requestHeaders: { 'If-Modified-Since': c.req.header('If-Modified-Since') },
     });
     return createPingResponse(result);
   });
 
   app.post('/event', async (c) => {
-    await handleEventRequest({
+    await eventHandler.track({
       requestBody: await c.req.json(),
       requestHeaders: {
         'User-Agent': c.req.header('User-Agent'),
@@ -127,12 +128,13 @@ describe('handler via getter options', () => {
 describe('handler via raw Request', () => {
   const persist = vi.fn();
   const update = vi.fn();
-  const { handleEventRequest, handlePingRequest } = createLitetics({ persist, update });
+  const eventHandler = createEventRequestHandler({ persist, update });
+  const pingHandler = createPingRequestHandler();
 
   const app = new Hono();
 
-  app.get('/ping', (c) => handlePingRequest(c.req.raw).then(createPingResponse));
-  app.post('/event', (c) => handleEventRequest(c.req.raw).then(() => c.body(null, 204)));
+  app.get('/ping', (c) => pingHandler.handle(c.req.raw).then(createPingResponse));
+  app.post('/event', (c) => eventHandler.track(c.req.raw).then(() => c.body(null, 204)));
 
   let baseUrl: string;
   let closeServer: () => void;

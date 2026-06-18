@@ -1,19 +1,16 @@
 import type { PingRequestHandlerResult } from '../../src';
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
-import { createLitetics, createPingResponse } from '../../src';
+import { createPingRequestHandler, createPingResponse } from '../../src';
 import { PingRequestHandler } from '../../src/handler/ping';
 
-const { handlePingRequest } = createLitetics({
-  persist: vi.fn(),
-  update: vi.fn(),
-});
+const pingHandler = createPingRequestHandler();
 
 describe('handler:ping', () => {
   it('should return data "0" and status 200 if no if-modified-since header', async () => {
     const getRequestHeader = vi.fn().mockReturnValue(undefined);
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(200);
     expect(result.body).toEqual('0');
@@ -26,7 +23,7 @@ describe('handler:ping', () => {
     const headers = new Headers();
     headers.append('if-modified-since', pastDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest(
+    const result: PingRequestHandlerResult = await pingHandler.handle(
       new Request('https://example.com', { headers }),
     );
 
@@ -40,7 +37,7 @@ describe('handler:ping', () => {
     const todayDate = new Date().toUTCString();
     const getRequestHeader = vi.fn().mockReturnValue(todayDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(200);
     expect(result.body).toEqual('1');
@@ -52,7 +49,7 @@ describe('handler:ping', () => {
     const oldDate = new Date(0).toUTCString();
     const getRequestHeader = vi.fn().mockReturnValue(oldDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(200);
     expect(result.body).toEqual('0');
@@ -63,7 +60,7 @@ describe('handler:ping', () => {
   it('should return error "Bad Request" and status 400 if if-modified-since header is invalid', async () => {
     const getRequestHeader = vi.fn().mockReturnValue('invalid-date');
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(400);
     expect(result.body).toEqual(null);
@@ -74,7 +71,7 @@ describe('handler:ping', () => {
     const futureDate = new Date(Date.now() + 86_400_000).toUTCString();
     const getRequestHeader = vi.fn().mockReturnValue(futureDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(400);
     expect(result.body).toEqual(null);
@@ -83,7 +80,7 @@ describe('handler:ping', () => {
 
   it('should process via PingRequestHandlerPayload with requestHeaders', async () => {
     const todayDate = new Date().toUTCString();
-    const result: PingRequestHandlerResult = await handlePingRequest({
+    const result: PingRequestHandlerResult = await pingHandler.handle({
       requestHeaders: { 'if-modified-since': todayDate },
     });
 
@@ -97,7 +94,7 @@ describe('handler:ping', () => {
     const nonStandardDate = 'not-a-real-date';
     const getRequestHeader = vi.fn().mockReturnValue(nonStandardDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(400);
     expect(result.body).toEqual(null);
@@ -144,7 +141,7 @@ describe('handler:ping', () => {
 
   it('should read If-Modified-Since header case-insensitively via payload', async () => {
     const todayDate = new Date().toUTCString();
-    const result: PingRequestHandlerResult = await handlePingRequest({
+    const result: PingRequestHandlerResult = await pingHandler.handle({
       requestHeaders: { 'If-Modified-Since': todayDate },
     });
 
@@ -159,7 +156,7 @@ describe('handler:ping', () => {
     const headers = new Headers();
     headers.append('IF-MODIFIED-SINCE', todayDate);
 
-    const result: PingRequestHandlerResult = await handlePingRequest(
+    const result: PingRequestHandlerResult = await pingHandler.handle(
       new Request('https://example.com', { headers }),
     );
 
@@ -174,7 +171,7 @@ describe('handler:ping', () => {
       return undefined;
     });
 
-    const result: PingRequestHandlerResult = await handlePingRequest({ getRequestHeader });
+    const result: PingRequestHandlerResult = await pingHandler.handle({ getRequestHeader });
 
     expect(result.status).toEqual(200);
     expect(result.body).toEqual('1');
@@ -182,13 +179,11 @@ describe('handler:ping', () => {
 
   it('should log errors when debug is enabled', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { handlePingRequest: debugHandlePingRequest } = createLitetics({
-      persist: vi.fn(),
-      update: vi.fn(),
+    const debugPingHandler = createPingRequestHandler({
       debug: true,
     });
 
-    await debugHandlePingRequest({
+    await debugPingHandler.handle({
       getRequestHeader: vi.fn().mockReturnValue('invalid-date'),
     });
 
@@ -197,7 +192,7 @@ describe('handler:ping', () => {
   });
 
   it('should return undefined for missing header via payload', async () => {
-    const result: PingRequestHandlerResult = await handlePingRequest({
+    const result: PingRequestHandlerResult = await pingHandler.handle({
       requestHeaders: {},
     });
 

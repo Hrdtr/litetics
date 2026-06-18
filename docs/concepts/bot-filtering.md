@@ -4,20 +4,20 @@ description: How Litetics silently drops events from bots and crawlers using isb
 
 # Bot Filtering
 
-The server handler silently drops events from bots and crawlers. This prevents polluting your analytics data with automated traffic.
+The server handlers silently drop events from bots and crawlers. This prevents polluting your analytics data with automated traffic.
 
 ## Default Detection
 
 Bot detection is powered by [isbot](https://www.npmjs.com/package/isbot). It examines the `User-Agent` header against a comprehensive database of known bot patterns.
 
-When a bot is detected, the handler returns immediately without calling `persist` or `update`.
+When a bot is detected, the event handler's `track()` method returns immediately without calling `persist` or `update`.
 
 ## Custom Detection
 
 Override the default behavior with `shouldIgnoreUserAgent`:
 
 ```ts
-const { handleEventRequest } = createLitetics({
+const eventHandler = createEventRequestHandler({
   persist: (data) => {
     /* ... */
   },
@@ -35,7 +35,7 @@ When `shouldIgnoreUserAgent` is not provided, `isbot` is used as the default.
 
 ## When Bot Check Runs
 
-The `User-Agent` header is checked at the start of `handleEventRequest()`, before any parsing or enrichment. If the check passes (returning `true`), the handler exits immediately. If `debug` mode is enabled, a log message is emitted:
+The `User-Agent` header is checked at the start of `eventHandler.track()`, before any parsing or enrichment. If the check passes (returning `true`), the handler exits immediately. If `debug` mode is enabled, a log message is emitted:
 
 ```text
 [litetics:event] User agent ignored: [user-agent]

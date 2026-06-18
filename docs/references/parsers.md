@@ -4,7 +4,7 @@ description: Reference documentation for Litetics parser utilities — user-agen
 
 # Parser Utilities
 
-The parser functions used by `Litetics` are internal but exposed for reference and custom use. Each can be overridden via `EventRequestHandlerOptions.parsers`.
+The parser functions used by the `EventRequestHandler` are internal but exposed for reference and custom use. Each can be overridden via `EventRequestHandlerOptions.parsers`.
 
 ## `parseUserAgent(ua: string): ParsedUserAgent`
 

@@ -4,11 +4,11 @@ import type {
 } from '../../src';
 // @vitest-environment node
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { createLitetics } from '../../src';
+import { createEventRequestHandler } from '../../src';
 
 const mockPersist = vi.fn();
 const mockUpdate = vi.fn();
-const { handleEventRequest } = createLitetics({ persist: mockPersist, update: mockUpdate });
+const eventHandler = createEventRequestHandler({ persist: mockPersist, update: mockUpdate });
 
 beforeEach(() => {
   mockPersist.mockClear();
@@ -55,7 +55,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -120,7 +120,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -186,7 +186,7 @@ describe('Litetics (events)', () => {
         }
       });
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
       expect(mockPersist).toBeCalledTimes(0);
     });
 
@@ -208,7 +208,7 @@ describe('Litetics (events)', () => {
         body: JSON.stringify(body),
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
       expect(mockPersist).toBeCalledTimes(0);
     });
 
@@ -231,7 +231,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -275,7 +275,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({
+      await eventHandler.track({
         requestBody: body,
         requestHeaders: {},
       });
@@ -326,7 +326,7 @@ describe('Litetics (events)', () => {
         }),
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -346,7 +346,7 @@ describe('Litetics (events)', () => {
         .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -363,7 +363,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -381,7 +381,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -399,7 +399,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -417,7 +417,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockPersist).toBeCalledTimes(0);
     });
@@ -440,7 +440,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(expect.objectContaining({ properties: null }));
@@ -464,7 +464,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(mockPersist).toHaveBeenCalledWith(
@@ -475,7 +475,7 @@ describe('Litetics (events)', () => {
     it('should handle async persist', async () => {
       const asyncPersist = vi.fn().mockResolvedValue(undefined);
       const asyncUpdate = vi.fn().mockResolvedValue(undefined);
-      const { handleEventRequest: asyncHandleEventRequest } = createLitetics({
+      const asyncEventHandler = createEventRequestHandler({
         persist: asyncPersist,
         update: asyncUpdate,
       });
@@ -498,7 +498,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await asyncHandleEventRequest({ getRequestBody, getRequestHeader });
+      await asyncEventHandler.track({ getRequestBody, getRequestHeader });
       vi.useRealTimers();
 
       expect(asyncPersist).toBeCalledTimes(1);
@@ -523,7 +523,7 @@ describe('Litetics (events)', () => {
         .mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -549,7 +549,7 @@ describe('Litetics (events)', () => {
         }),
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -563,7 +563,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -580,7 +580,7 @@ describe('Litetics (events)', () => {
         body: JSON.stringify(body),
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       expect(mockUpdate).toBeCalledWith({
         bid: 'test-beacon-id',
@@ -597,7 +597,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -612,7 +612,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -627,7 +627,7 @@ describe('Litetics (events)', () => {
       const getRequestBody = vi.fn().mockResolvedValue(body);
       const getRequestHeader = vi.fn(() => undefined);
 
-      await handleEventRequest({ getRequestBody, getRequestHeader });
+      await eventHandler.track({ getRequestBody, getRequestHeader });
 
       expect(mockUpdate).toBeCalledTimes(0);
     });
@@ -644,7 +644,7 @@ describe('Litetics (events)', () => {
         a: 'pageview',
       };
 
-      await handleEventRequest({
+      await eventHandler.track({
         requestBody: body,
         requestHeaders: { 'USER-AGENT': 'Googlebot/2.1' },
       });
@@ -666,7 +666,7 @@ describe('Litetics (events)', () => {
         headers: { 'USER-AGENT': 'Googlebot/2.1' },
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       const botCall = mockPersist.mock.calls.find(
         (args) => (args[0] as Record<string, unknown>).bid === 'req-bot',
@@ -689,7 +689,7 @@ describe('Litetics (events)', () => {
         return undefined;
       });
 
-      await handleEventRequest({
+      await eventHandler.track({
         getRequestBody: vi.fn().mockResolvedValue(body),
         getRequestHeader,
       });
@@ -714,7 +714,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({
+      await eventHandler.track({
         requestBody: body,
         requestHeaders: { 'Accept-Language': 'de-DE,de;q=0.9' },
       });
@@ -748,7 +748,7 @@ describe('Litetics (events)', () => {
         headers: { 'ACCEPT-LANGUAGE': 'ja-JP,ja;q=0.9' },
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
       vi.useRealTimers();
 
       const call = mockPersist.mock.calls.find(
@@ -774,7 +774,7 @@ describe('Litetics (events)', () => {
       vi.useFakeTimers();
       vi.setSystemTime(receivedAt);
 
-      await handleEventRequest({
+      await eventHandler.track({
         getRequestBody: vi.fn().mockResolvedValue(body),
         getRequestHeader: vi.fn((name: string) => {
           if (name.toLowerCase() === 'accept-language') return 'ko-KR,ko;q=0.8';
@@ -797,7 +797,7 @@ describe('Litetics (events)', () => {
   describe('debug mode', () => {
     it('should log bot detection when debug is enabled', async () => {
       const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-      const { handleEventRequest: debugHandleEventRequest } = createLitetics({
+      const debugEventHandler = createEventRequestHandler({
         persist: mockPersist,
         update: mockUpdate,
         debug: true,
@@ -816,7 +816,7 @@ describe('Litetics (events)', () => {
         headers: { 'user-agent': 'Googlebot/2.1' },
       });
 
-      await debugHandleEventRequest(request);
+      await debugEventHandler.track(request);
 
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
@@ -832,7 +832,7 @@ describe('Litetics (events)', () => {
         body: 'plain text body, not json',
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       expect(mockPersist.mock.calls.length).toBe(persistCount);
     });
@@ -844,7 +844,7 @@ describe('Litetics (events)', () => {
         body: JSON.stringify([1, 2, 3]),
       });
 
-      await handleEventRequest(request);
+      await eventHandler.track(request);
 
       expect(mockPersist.mock.calls.length).toBe(persistCount);
     });
