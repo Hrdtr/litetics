@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.1
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.1.0...v1.1.1)
+
+### 🩹 Fixes
+
+- Add missing Content-Type header to ping response ([b6391d7](https://github.com/Hrdtr/litetics/commit/b6391d7))
+
+### ❤️ Contributors
+
+- Herdi Tr. <iam@icm.hrdtr.dev>
+
 ## v1.1.0
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.0.0...v1.1.0)
