@@ -340,3 +340,120 @@ describe('sessionTimeoutDuration', () => {
     destroy();
   });
 });
+
+describe('custom headers', () => {
+  const settle = () => new Promise<void>((r) => setTimeout(r, 0));
+
+  it('should include custom headers on all tracker requests via browser adapter options', async () => {
+    const requestHeaders: Record<string, string>[] = [];
+    server.use(
+      http.post('http://example.com', async ({ request }) => {
+        const headers: Record<string, string> = {};
+        request.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        requestHeaders.push(headers);
+        return HttpResponse.text('');
+      }),
+      http.get('http://example.com', async ({ request }) => {
+        const headers: Record<string, string> = {};
+        request.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        requestHeaders.push(headers);
+        return HttpResponse.text('0');
+      }),
+    );
+
+    const adapter = createBrowserAdapter({
+      headers: { 'X-Custom': 'tracker-value' },
+    });
+
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+      adapter,
+    }).register();
+    await settle();
+
+    // Verify at least one POST request (load beacon) includes the custom header
+    const postRequest = requestHeaders.find((h) => h['x-custom'] === 'tracker-value');
+    expect(postRequest).toBeDefined();
+    expect(postRequest!['x-custom']).toBe('tracker-value');
+
+    destroy();
+  });
+
+  it('should include custom headers on POST requests only from adapter options', async () => {
+    const receivedHeaders: Record<string, string>[] = [];
+    let postCount = 0;
+    let getCount = 0;
+    server.use(
+      http.post('http://example.com', async ({ request }) => {
+        postCount++;
+        const headers: Record<string, string> = {};
+        request.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        receivedHeaders.push(headers);
+        return HttpResponse.text('');
+      }),
+      http.get('http://example.com', async ({ request }) => {
+        getCount++;
+        const headers: Record<string, string> = {};
+        request.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        receivedHeaders.push(headers);
+        return HttpResponse.text('0');
+      }),
+    );
+
+    const adapter = createBrowserAdapter({
+      headers: { 'X-Track-Header': 'present' },
+    });
+
+    const destroy = createTracker({
+      apiEndpoint: { track: 'http://example.com', ping: 'http://example.com' },
+      adapter,
+    }).register();
+    await settle();
+
+    // Both GET (ping) and POST (load) requests should carry the custom header
+    expect(getCount).toBeGreaterThanOrEqual(1);
+    expect(postCount).toBeGreaterThanOrEqual(1);
+    for (const h of receivedHeaders) {
+      expect(h['x-track-header']).toBe('present');
+    }
+
+    destroy();
+  });
+
+  it('should preserve existing query parameters when appending to ping endpoint', async () => {
+    const pingUrls: string[] = [];
+    server.use(
+      http.get('http://example.com/ping', async ({ request }) => {
+        pingUrls.push(request.url);
+        return HttpResponse.text('0');
+      }),
+    );
+
+    const trackerWithQuery = createTracker({
+      apiEndpoint: {
+        track: 'http://example.com/event',
+        ping: 'http://example.com/ping?existing=param&foo=bar',
+      },
+    });
+    const stop = trackerWithQuery.register();
+    await settle();
+
+    // Find the load beacon ping that has the 'u' parameter appended
+    const loadPingUrl = pingUrls.find((url) => new URL(url).searchParams.has('u'));
+    expect(loadPingUrl).toBeDefined();
+    const url = new URL(loadPingUrl!);
+    expect(url.searchParams.get('existing')).toBe('param');
+    expect(url.searchParams.get('foo')).toBe('bar');
+    expect(url.searchParams.has('u')).toBe(true);
+
+    stop();
+  });
+});

@@ -116,9 +116,9 @@ export const createTracker = ({
 
     const sendLoadBeacon = async (): Promise<void> => {
       const ctx = adapter.context();
-      const isFirstVisit = await ping(
-        pingEndpoint + '?u=' + encodeURIComponent(ctx.location.host + ctx.location.pathname),
-      );
+      const pingUrl = new URL(pingEndpoint);
+      pingUrl.searchParams.set('u', ctx.location.host + ctx.location.pathname);
+      const isFirstVisit = await ping(pingUrl.toString());
       await adapter.send(trackEndpoint, {
         method: 'POST',
         body: JSON.stringify({
@@ -226,13 +226,10 @@ export const createTracker = ({
     },
   ): Promise<void> => {
     const ctx = adapter.context();
-    const isFirstVisit = await ping(
-      pingEndpoint +
-        '?u=' +
-        encodeURIComponent(ctx.location.host + ctx.location.pathname) +
-        '&k=' +
-        encodeURIComponent(key),
-    );
+    const pingUrl = new URL(pingEndpoint);
+    pingUrl.searchParams.set('u', ctx.location.host + ctx.location.pathname);
+    pingUrl.searchParams.set('k', key);
+    const isFirstVisit = await ping(pingUrl.toString());
     const id = generateID();
     if (options?.withDuration) {
       trackWithDurationMap.set(key, { id, startTime: Date.now() });

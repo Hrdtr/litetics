@@ -112,6 +112,20 @@ describe('createBrowserAdapter', () => {
       expect.objectContaining({ headers: { Authorization: 'Bearer token123' } }),
     );
   });
+
+  it('should include custom headers on POST track requests via adapter options', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+
+    const adapter = createBrowserAdapter({
+      headers: { 'X-Track': 'track-value' },
+    });
+    await adapter.send('http://x.com', { method: 'POST', body: '{"e":"load"}' });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://x.com',
+      expect.objectContaining({ headers: { 'X-Track': 'track-value' } }),
+    );
+  });
 });
 
 describe('hooks', () => {
