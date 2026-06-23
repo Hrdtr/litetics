@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.3
+
+[compare changes](https://github.com/Hrdtr/litetics/compare/v1.1.2...v1.1.3)
+
+### 💅 Refactors
+
+- Use URL API for query parameter construction ([8311f6b](https://github.com/Hrdtr/litetics/commit/8311f6b))
+
+### ❤️ Contributors
+
+- Herdi Tr. <iam@icm.hrdtr.dev>
+
 ## v1.1.2
 
 [compare changes](https://github.com/Hrdtr/litetics/compare/v1.1.1...v1.1.2)
