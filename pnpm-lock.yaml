@@ -23,7 +23,7 @@ importers:
         version: 21.0.1
       '@hono/node-server':
         specifier: ^2.0.5
-        version: 2.0.5(hono@4.12.25)
+        version: 2.1.1(hono@4.12.25)
       '@types/jsdom':
         specifier: ^28.0.3
         version: 28.0.3
@@ -1150,8 +1150,8 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@hono/node-server@2.0.5':
-    resolution: {integrity: sha512-yQFvDmyDo3y6rEOJZDUYPJ49DIKTPpIk4kGvm40xx4Ejne0Pu9a1+exxPN+C1UppWK/WGZX9F++/Xs231tE86g==}
+  '@hono/node-server@2.1.1':
+    resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==}
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
@@ -3709,6 +3709,7 @@ packages:
   git-raw-commits@5.0.1:
     resolution: {integrity: sha512-Y+csSm2GD/PCSh6Isd/WiMjNAydu0VBiG9J7EdQsNA5P9uXvLayqjmTsNlK5Gs9IhblFZqOU0yid5Il5JPoLiQ==}
     engines: {node: '>=18'}
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   glob-parent@5.1.2:
@@ -6910,7 +6911,7 @@ snapshots:
 
   '@exodus/bytes@1.15.0': {}
 
-  '@hono/node-server@2.0.5(hono@4.12.25)':
+  '@hono/node-server@2.1.1(hono@4.12.25)':
     dependencies:
       hono: 4.12.25
 
