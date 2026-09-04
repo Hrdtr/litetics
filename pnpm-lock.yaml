@@ -23,7 +23,7 @@ importers:
         version: 21.0.1
       '@hono/node-server':
         specifier: ^2.0.5
-        version: 2.0.5(hono@4.12.25)
+        version: 2.0.5(hono@4.13.7)
       '@types/jsdom':
         specifier: ^28.0.3
         version: 28.0.3
@@ -44,7 +44,7 @@ importers:
         version: 21.0.2(@types/node@25.9.3)(conventional-commits-parser@6.4.0)(typescript@5.9.3)
       hono:
         specifier: ^4.12.25
-        version: 4.12.25
+        version: 4.13.7
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -3709,6 +3709,7 @@ packages:
   git-raw-commits@5.0.1:
     resolution: {integrity: sha512-Y+csSm2GD/PCSh6Isd/WiMjNAydu0VBiG9J7EdQsNA5P9uXvLayqjmTsNlK5Gs9IhblFZqOU0yid5Il5JPoLiQ==}
     engines: {node: '>=18'}
+    deprecated: Deprecated and no longer maintained. Use @conventional-changelog/git-client instead.
     hasBin: true
 
   glob-parent@5.1.2:
@@ -3771,8 +3772,8 @@ packages:
   headers-polyfill@5.0.1:
     resolution: {integrity: sha512-1TJ6Fih/b8h5TIcv+1+Hw0PDQWJTKDKzFZzcKOiW1wJza3XoAQlkCuXLbymPYB8+ZQyw8mHvdw560e8zVFIWyA==}
 
-  hono@4.12.25:
-    resolution: {integrity: sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ==}
+  hono@4.13.7:
+    resolution: {integrity: sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -6910,9 +6911,9 @@ snapshots:
 
   '@exodus/bytes@1.15.0': {}
 
-  '@hono/node-server@2.0.5(hono@4.12.25)':
+  '@hono/node-server@2.0.5(hono@4.13.7)':
     dependencies:
-      hono: 4.12.25
+      hono: 4.13.7
 
   '@iconify-json/simple-icons@1.2.81':
     dependencies:
@@ -9472,7 +9473,7 @@ snapshots:
       '@types/set-cookie-parser': 2.4.10
       set-cookie-parser: 3.1.0
 
-  hono@4.12.25: {}
+  hono@4.13.7: {}
 
   hookable@5.5.3: {}
 
